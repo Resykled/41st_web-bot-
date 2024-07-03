@@ -1,0 +1,867 @@
+@bot.command(name='support')
+@is_allowed_channel()
+async def support(ctx):
+    bot_dev_role = discord.utils.get(ctx.guild.roles, name="Technical Commander")
+    is_bot_dev = bot_dev_role in ctx.author.roles
+
+    user_commands = (
+        f"**List of available commands:**\n\n"
+        f"**!hello**: Sends a simple greeting message.\n"
+        f"**!credits**: Displays your current credits.\n"
+        f"**!seeall**: Lists all roles you have and their associated credits.\n"
+        f"**!whoami**: Sends your information, including join date and credits, via direct message.\n"
+        f"**!report <problem>**: Sends a report message to the designated 'bug' channel.\n"
+        f"**!version**: Displays the current version of the bot.\n"
+        f"**!support**: Lists all available commands and their descriptions.\n"
+        f"**!ggn_store**: Displays Geetsly's Gaming Network Store Conversions.\n"
+        f"**!store <category>**: Displays store items for a specific credit category.\n"
+        f"** **\n"
+    )
+
+    admin_commands = (
+        f"**Developer Commands:**\n"
+        f"** **\n"
+        f"**!addrole <role_name> <credit_amount>**: Adds a role with a specific credit amount.\n"
+        f"**!removerole <role_name>**: Removes a role and its associated credits.\n"
+        f"**!exportdb**: Exports the database to an Excel file.\n"
+        f"**!botTest**: Runs a series of tests on all commands to check for errors.\n"
+        f"**!addCredits <@user> <amount>**: Adds credits to a user.\n"
+        f"**!removeCredits <@user> <amount>**: Removes credits from a user.\n"
+        f"**!removeUserCredits <@user>**: Resets all credits for a user to zero.\n"
+        f"**!save_db**: `Saves all data to the SQL database.\n"
+        f"**!resetStats <@user>**: Resets all data for a specific user.\n"
+        f"**!id <@user>**: Sends all information about the mentioned user via direct message.\n"
+    )
+
+    help_message = user_commands
+    if is_bot_dev:
+        help_message += admin_commands
+
+    embed = discord.Embed(
+        description=help_message,
+        color=discord.Color.red()
+    )
+
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+@is_Technical_Commander()
+async def exportdb(ctx):
+    await ctx.send("Starting the export process...")
+    print("Export process started")
+
+    # Connect to the database
+    connection = sqlite3.connect('credits.db')
+    cursor = connection.cursor()
+    print("Connected to the database")
+
+    # Fetch user credits
+    cursor.execute('SELECT user_id, current_credits, max_credits, removed_credits FROM user_credits')
+    user_credits = cursor.fetchall()
+    print(f"Fetched user credits: {user_credits}")
+
+    # Create a dataframe
+    df = pd.DataFrame(user_credits, columns=['user_id', 'current_credits', 'max_credits', 'removed_credits'])
+
+    # Get nicknames for users
+    guild = ctx.guild
+    nicknames = []
+    for user_id in df['user_id']:
+        member = guild.get_member(int(user_id))
+        if member:
+            nicknames.append(member.display_name)  # Use the server nickname
+            print(f"Fetched nickname for user {user_id}: {member.display_name}")
+        else:
+            nicknames.append("Unknown User")
+            print(f"User ID {user_id} not found in guild, set nickname to 'Unknown User'")
+
+    df.insert(1, 'nickname', nicknames)  # Insert nickname as the second column
+    print("Nicknames inserted into dataframe")
+
+    # Fetch role credits
+    cursor.execute('SELECT role_name, credit_amount FROM role_credits')
+    role_credits = cursor.fetchall()
+    print(f"Fetched role credits: {role_credits}")
+
+    # Fetch non-stacking role credits
+    cursor.execute('SELECT role_name, credit_amount FROM non_stacking_role_credits')
+    non_stacking_role_credits = cursor.fetchall()
+    print(f"Fetched non-stacking role credits: {non_stacking_role_credits}")
+
+    connection.close()
+    print("Database connection closed")
+
+    # Google Sheets setup
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds_info = {
+        "type": "service_account",
+        "project_id": "st-data-base-424621",
+        "private_key_id": "c7344c235e31779ae6a83760febb58a0ceb4ed",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDCld9ww4chO98K\nL86IPiUodOE+6pG0BmeP8cpdtmIlBF0itw7SCjQ/MUK+zKzHg9BW0INDpniwcI7F\nbumxViG6IRU1An3gLf4jS/II+Q8B2LELxuRECsoJDBKrfDkg7zR6pUQZLrYaGEu5\n9Zo8Xa1Rh67gIDbVIWjWaJeWhzMXqbolcZAM/aWEUeEPj8zRHrF9V23oknr9yVFc\nK0qel+BLEEgU2mUgNE9lZK8npjzcxFKH5HCi7xsrPa1rAA6a82OqyJBiEqo/kmGP\nzvmrS7uqpQ6RTTg7Pp5nxH3Yo1SER1O5cfO7EpzwmLKmj2FbI8b1DkEG6oAJ4cFW\n26U00fVNAgMBAAECggEAFd1JUh5mXLGhij988YoqGrWnaa5p2NSvZllA5+7KcGZh\nILl5DNjgrgkW+uF8uJ5zFo4vcbaO8SR0pnKkB60p9QQqod45zqrcV5L9C00RBqAW\npMAgfhTIRuP4ZRR8RtsaBn3zfPDmvV/lgmu6fPX5t6OLXtu/zYsHgLAX+G4Qq6PQ\nc6F+IJ91yLDIw0I5r77YRQgvLDGoZRbYvTOOFQ+7YrBOQTkdywrhs2ZTvcViSTJt\n49y31PhnNnFjI+VwfV9MExseb9x67G2rszMYzLgqwDdULXfyV3v3HbC0xIKW0QFp\nQaKfUgHyPyqYxXTCTKHX3l0krhTjLMEIu7Le/BytcQKBgQDqJmM3uZrz7L5oHUM2\nyvEime78A1GFePPT7D7qsUxCJYpf+GykNv6k3D8pArC1rHhVgsLvO0li04i3hMwK\nhiw2M7Kuzrs2oplbvaLsyR1Ll1xeszS3KwwXZvHk0JUBf7D17k4MVko1Mc5zY62q\ntpWPGwpQ6fo7vrJIZEPg0Lq/nwKBgQDUvlPzTGCpzL6rATaVHwzhNowJLI9dk1Jv\nzuM41MI3TQZ/5+NKA3ew/fOiF0rn4ZEhX20F3Y7FCWXsHurcEx3lxLTEaNQWRplZ\nOUDomLoROgIIjo1RG+/UZjMnzGx84zTPbzqs9/92Tq63Zx8vJ63nv7Lm9l2oxfav\ntbNYhQ7zkwKBgQCwQ3uXPHKoQ0TG7Zhmi/lgWc7tCbZ5qqaqlwJ5/EPy233CZymp\nqPiitGYbgjnyWUYw4QHLw66n5aPauu460exAVUSikV+fbmHSDPy0EWWrPOM9Ktx5\nMr+kckuQO3CgMzbMu7snUGIGj1rhxFy80TvfAbUPWkOUbCabllb+y0J58wKBgQDH\nxZYFoJIgwM/GutPrggXRMiybrMlPgLjnnyoFwtxBm8Xfs/veE5WAkWgHrMG9Lzbe\nVMKGwH+BjQq1iG7Yi+cGTQnGaf3GkTMM8tN913TaGlOwf1Q6dvZlyDZ/R9oUCDMe\nGv/JTvQHv2kXdfF1kVgfiAbSFUTr6EF2zDQGiqP4mwKBgQCGsvm9OtrVJ7vhYOjH\nAB4k50/I8Wh+05ApDFE89BktVwyWk1dxm7wofY+GIHdAjSo5r7MW5DtYpOG/BjA0\nufTeuJxjv2XGODV6ceLTHHs7vB5TDWxmepJZ0JeBx1BuU7owf6hio7xBHaIlFyIc\nyGTdgE4pU3Be0PjRSvV0nb9+UA==\n-----END PRIVATE KEY-----\n",
+        "client_email": "id-1st-database@st-data-base-424621.iam.gserviceaccount.com",
+        "client_id": "1057769920937093504810",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-1st-database%40st-data-base-424621.iam.gserviceaccount.com"
+    }
+
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_info, scope)
+    client = gspread.authorize(creds)
+    print("Authenticated with Google Sheets API")
+
+    try:
+        # Open the Google Sheet
+        sheet = client.open("41st-database")
+        print("Opened Google Sheet '41st-database'")
+
+        # Update the 'UserCredits' sheet
+        worksheet = sheet.worksheet("UserCredits")
+        worksheet.clear()
+        worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+        print("Updated 'UserCredits' sheet")
+
+        # Update the 'RoleCredits' sheet
+        role_credits_df = pd.DataFrame(role_credits, columns=['role_name', 'credit_amount'])
+        role_credits_worksheet = sheet.worksheet("RoleCredits")
+        role_credits_worksheet.clear()
+        role_credits_worksheet.update([role_credits_df.columns.values.tolist()] + role_credits_df.values.tolist())
+        print("Updated 'RoleCredits' sheet")
+
+        # Update the 'NonStackingRoleCredits' sheet
+        non_stacking_role_credits_df = pd.DataFrame(non_stacking_role_credits, columns=['role_name', 'credit_amount'])
+        non_stacking_role_credits_worksheet = sheet.worksheet("NonStackingRoleCredits")
+        non_stacking_role_credits_worksheet.clear()
+        non_stacking_role_credits_worksheet.update(
+            [non_stacking_role_credits_df.columns.values.tolist()] + non_stacking_role_credits_df.values.tolist())
+        print("Updated 'NonStackingRoleCredits' sheet")
+
+        await ctx.send("Export completed successfully.")
+        print("Export process completed successfully")
+
+    except gspread.exceptions.SpreadsheetNotFound:
+        await ctx.send("Error: The Google Sheet '41-database' was not found.")
+        print("Error: The Google Sheet '41-database' was not found.")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
+
+
+@bot.command()
+@is_allowed_channel()
+async def ggn_store(ctx):
+    store_info = (
+        "**Geetsly's Gaming Network Store Conversions:**\n"
+        "(Please note that these are not prices for credit values. These are credit value conversions, "
+        "meaning that a store item which is 15,000 credits is purchasable with $10.00 USD.)\n\n"
+        "credits: ```7,500``` - ```$5.00 USD```\n"
+        "credits: ```10,000``` - ```$7.50 USD```\n"
+        "credits: ```12,500``` - ```$10.00 USD```\n"
+        "credits: ```15,000``` - ```$10.00 USD```\n"
+        "credits: ```20,000``` - ```$15.00 USD```\n"
+        "credits: ```25,000``` - ```$20.00 USD```\n"
+        "credits: ```30,000``` - ```$25.00 USD```\n"
+        "credits: ```40,000``` - ```$30.00 USD```\n"
+        "credits: ```45,000``` - ```$30.00 USD```\n\n"
+        "**EXCEPTIONS/SPECIFICS:**\n"
+        "'Phase-1 In Game' - ```$10.00 USD```\n"
+        "'Custom Visor' - ```$15.00 USD```\n"
+        "'2003 Helmet' - ```$20.00 USD```"
+    )
+    additional_info = (
+        "Please remember to DM 'Forceps' CC-3432 for any GGN-Store purchases."
+    )
+    embed = discord.Embed(
+        description=f'{store_info}\n\n{additional_info}',
+        color=discord.Color.red()
+    )
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+@is_allowed_channel()
+async def store(ctx, category: int = None):
+    store_categories = {
+        1: (
+            "credits: ```7,500``` - ```$5.00 USD```\n"
+            "7,500 - 'Helmet Attachments'\n"
+            "Choose from one of our pre-existing helmet attachment options. These options currently include: Flashlights, Antennas, Communicators, and the Heavy Sunvisor.\n"
+            "7,500 - 'Rangefinder Down'\n"
+            "A Rangefinder lowered over the eyes. (For SGT+ only.)\n"
+            "7,500 - 'Helmet Tubes/Pipes'\n"
+            "A tube for the base class pilot helmets. (Naval helmets only.)"
+        ),
+        2: (
+            "credits: ```10,000``` - ```$7.50 USD```\n"
+            "10,000 - 'Build-Your-Own Attachment'\n"
+            "A custom attachment brainstormed by you, built by the Art Team Leads. NOTE: Your attachment can not resemble other attachments, such as a rangefinder.\n"
+            "10,000 - 'Specialist Binoculars'\n"
+            "Allows for binoculars to be added to your helmet. NOTE: Not all helmets are compatible.\n"
+            "10,000 - 'Specialist Binoculars Up'\n"
+            "Allows for raised binoculars. NOTE: You must already have access to the binoculars."
+        ),
+        3: (
+            "credits: ```15,000``` - ```$10.00 USD```\n"
+            "15,000 - 'Flight Computer/Targeting Visor'\n"
+            "An external holographic visor. (The Flight Computer is only available to ACE pilots of SGT+. The Targeting visor is only available to Spec Ops helmets (Strike Cadre Helmet).)\n"
+            "20,000 - 'Clone Gunner Helmet'\n"
+            "A new helmet template. Google 'Clone Heavy Gunner' for reference.\n"
+            "20,000 - 'Hooded Helmet'\n"
+            "Stylish and Sneaky. (Only for Shadow Cadre and SOF.)"
+        ),
+        4: (
+            "credits: ```30,000``` - ```$25.00 USD```\n"
+            "30,000 - 'Phase 1 ARF Helmet'\n"
+            "The ARF Helmet from 'Star Wars The Clone Wars'.\n"
+            "30,000 - 'Snowtrooper/Flametrooper Helmet'\n"
+            "BRING IN THE FLAMETHROWERS!\n"
+            "30,000 - 'Custom Visor'\n"
+            "Clearance to a one color visor. NOTE: Troopers may get a refund upon reaching the rank of 2LT or higher, or RC.\n"
+            "35,000 - 'BARC Helmet and Skin'\n"
+            "'For the mysterious types.' Receive access to the 41st BARC Helmet as well as permission to use the 91st Recon Corps in game.\n"
+            "35,000 - 'Phase 1 Helmet and Skin'\n"
+            "A Phase 1 helmet, along with clearance to wear the corresponding skin in game."
+        ),
+        5: (
+            "credits: ```40,000``` - ```$30.00 USD```\n"
+            "40,000 - '2003 Helmet Variants'\n"
+            "The classic style. Available for all helmet templates.\n"
+            "45,000 - 'Desert Trooper Helmet (And Skin for PC Only.)'\n"
+            "'I hate sand.' Receive the 41st Desert Trooper Helmet as well as access to the 501st Legion in game, if you are on PC. NOTE: Google Clone Desert Trooper for a reference."
+        )
+    }
+
+    async def send_dm(content):
+        max_length = 2000
+        for i in range(0, len(content), max_length):
+            await ctx.author.send(content[i:i + max_length])
+
+    if category is None:
+        summary = (
+            "Please use the extended command `.store #` to view all the items in each price category. Here is a key:\n"
+            "```\n"
+            " 07,500 - .store 1\n"
+            " 10,000 - .store 2\n"
+            " 15,000 - .store 3\n"
+            " 20,000 - .store 4\n"
+            " 30,000 - .store 5\n"
+            " 40,000 - .store 5\n"
+            "```\n"
+        )
+
+        embed = discord.Embed(
+            title="Store Categories",
+            description=summary,
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+    elif category == 0:
+        all_store_info = "\n\n".join(store_categories.values())
+        await send_dm(all_store_info)
+        embed = discord.Embed(
+            title="Store Categories",
+            description="I have sent you a DM with all the store categories.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+    elif category in store_categories:
+        embed = discord.Embed(
+            title=f"Store Category {category}",
+            description=store_categories[category],
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            title="Invalid Category",
+            description="Invalid category. Please use a number between 0 and 5.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+
+
+
+@bot.command()
+@is_Technical_Commander()
+@is_allowed_channel()
+async def botTest(ctx):
+    test_results = []
+    test_user_id = 583621855986843659  # The user ID to test with
+
+    async def run_command(command, *args):
+        try:
+            await command(ctx, *args)
+            test_results.append(f"✅ {command.name} passed.")
+        except Exception as e:
+            test_results.append(f"❌ {command.name} failed: {e}")
+
+    member = ctx.guild.get_member(test_user_id)
+
+    # Run all commands
+    await run_command(hello)
+    await run_command(credits)
+    await run_command(seeall)
+    await run_command(whoami)
+    await run_command(report, "Test report")
+    await run_command(version)
+    await run_command(addrole, "TEST", 10)
+    await run_command(removerole, "TEST")
+    await run_command(exportdb)
+    await run_command(ggn_store)
+    await run_command(store, 1)
+    await run_command(store, 2)
+    await run_command(store, 3)
+    await run_command(store, 4)
+    await run_command(store, 5)
+    await run_command(store, 0)
+    await run_command(support)
+    await run_command(addCredits, ctx.author, 10)  # Test addCredits on the command issuer
+    await run_command(removeCredits, ctx.author, 5)  # Test removeCredits on the command issuer
+    await run_command(printOutCode)
+    await run_command(save_db)  # Test save_db
+
+
+    embed = discord.Embed(
+        title="Bot Test Results",
+        description=f'```\n{"\n".join(test_results)}\n```',
+        color=discord.Color.red()
+    )
+    await ctx.send(embed=embed)
+
+
+
+@bot.command()
+@is_Technical_Commander()
+@is_allowed_channel()
+async def printOutCode(ctx):
+    try:
+        # Delete old code segment files if they exist
+        results = drive_service.files().list(q="name contains 'code_segment_'", fields="files(id, name)").execute()
+        for file in results.get('files', []):
+            drive_service.files().delete(fileId=file['id']).execute()
+
+        with open(__file__, 'r', encoding='utf-8') as file:
+            code_lines = file.readlines()
+
+        # Extract only the changes and additions
+        start_line = None
+        end_line = None
+        for i, line in enumerate(code_lines):
+            if '@bot.command(name=\'support\')' in line:
+                start_line = i
+            if 'bot.run(' in line:
+                end_line = i
+
+        if start_line is not None and end_line is not None:
+            code_segment = code_lines[start_line:end_line]
+            file_index = 1
+            file_ids = []
+
+            # Write code segments to text files and upload to Google Drive
+            for i in range(0, len(code_segment), 2000):
+                segment = code_segment[i:i + 2000]
+                file_path = f'code_segment_{file_index}.txt'
+                with open(file_path, 'w', encoding='utf-8') as output_file:
+                    output_file.writelines(segment)
+
+                # Upload the file to Google Drive
+                file_metadata = {'name': file_path}
+                media = MediaFileUpload(file_path, mimetype='text/plain')
+                file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+                file_ids.append(file.get('id'))
+                file_index += 1
+
+            # Share the files with anyone with the link and send links to the user
+            for file_id in file_ids:
+                drive_service.permissions().create(
+                    fileId=file_id,
+                    body={'type': 'anyone', 'role': 'reader'}
+                ).execute()
+
+            file_links = [f"https://drive.google.com/file/d/{file_id}/view?usp=sharing" for file_id in file_ids]
+            await ctx.author.send("Here are the links to the uploaded code segments:\n" + "\n".join(file_links))
+        else:
+            await ctx.send("```\nUnable to find the specified code segment.\n```")
+    except Exception as e:
+        await ctx.send(f"```\nAn unexpected error occurred while uploading the code: {e}\n```")
+
+
+@bot.command()
+@is_allowed_channel()
+@is_Technical_Commander()
+@is_Economy_Lead()
+async def removeCredits(ctx, member: discord.Member, amount: int):
+    try:
+        user_id = member.id
+        credits_data = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+        current_credits = credits_data[0] if credits_data else 0
+        new_credits = current_credits - amount
+
+        update_user_credits(user_id, new_credits)
+
+        # Log activity in database-activity channel
+        activity_channel = discord.utils.get(ctx.guild.text_channels, name="database-activity")
+        if activity_channel:
+            await activity_channel.send(
+                f"Removed {amount} credits from {member.mention}. New balance: {new_credits} credits.")
+
+        await ctx.send(f"Removed {amount} credits from {member.mention}. New balance: {new_credits} credits.")
+    except Exception as e:
+        await ctx.send(f"An error occurred while removing credits: {e}")
+
+
+@bot.command()
+@is_allowed_channel()
+async def id(ctx, member: discord.Member):
+    try:
+        user_id = member.id
+        credits_data = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+        current_credits = credits_data[0] if credits_data else 0
+        max_credits = credits_data[1] if len(credits_data) > 1 else 0
+        removed_credits = credits_data[2] if len(credits_data) > 2 else 0
+        joined_at = member.joined_at.strftime("%b %d, %Y")
+
+        embed = discord.Embed(
+            title="User Information",
+            color=discord.Color.red()
+        )
+        embed.add_field(name="ID", value=f"{user_id}", inline=False)
+        embed.add_field(name="Name" ,value=f"{member.display_name}", inline=False)
+        embed.add_field(name="Current Credits", value=f"{current_credits}", inline=False)
+        embed.add_field(name="Max Credits", value=f"{max_credits}", inline=False)
+        embed.add_field(name="Removed Credits", value=f"{removed_credits}", inline=False)
+        embed.add_field(name="Joined At", value=f"{joined_at}", inline=False)
+        embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+
+        await ctx.send(embed=embed)
+        print(f"User info for {user_id} sent in embed.")  # Debug: Embed sent
+    except Exception as e:
+        await ctx.send(f"An error occurred while fetching user info: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Start troll commands
+
+@bot.command()
+@is_allowed_channel()
+async def goodmorning(ctx):
+    user_id = "647240663796023297"  # Replace with the actual user ID of "therealsqueak"
+    user = await bot.fetch_user(user_id)
+    if user:
+        await ctx.send(f"Good morning, {user.mention}!")
+        print(f"Sent good morning message and pinged {user.display_name} ({user_id}).")
+    else:
+        await ctx.send("Could not find the user therealsqueak.")
+        print("Could not find the user therealsqueak.")
+
+
+@bot.command()
+@is_allowed_channel()
+async def men_mental_health(ctx):
+    user_id = "821881416325005354"  # Replace with the actual user ID of "therealsqueak"
+    user = await bot.fetch_user(user_id)
+    if user:
+        await ctx.send(f"We love you, even if your brothers tell you they are fine, please ask them how they really feel because often you can't see how bad someone is doing , {user.mention}!")
+        print(f"Sent good morning message and pinged {user.display_name} ({user_id}).")
+    else:
+        await ctx.send("Could not find the user zworldandsnap.")
+        print("Could not find the user zworldandsnap.")
+
+@bot.command()
+@is_allowed_channel()
+async def drugs(ctx):
+    await ctx.send("Deathsticks ?")
+
+
+@bot.command()
+@is_allowed_channel()
+async def Sykles(ctx):
+    await ctx.send("tf are you tring to do here")
+
+
+
+
+
+# Note: You can get the user's ID by enabling Developer Mode in Discord,
+# right-clicking on the user, and selecting "Copy ID".
+@bot.command()
+@is_allowed_channel()
+async def happy3years(ctx):
+    message = "```Happy 3rd 41st anniversary Izzy, but you don't get a medal```"
+    await ctx.send(message)
+    print("Sent anniversary message.")
+
+
+@bot.command()
+@is_allowed_channel()
+async def bitches(ctx):
+    message = "you have no bitches"
+    await ctx.send(message)
+    print("no bitches.")
+
+
+
+@bot.command()
+@is_allowed_channel()
+async def monte(ctx):
+    user_id = "1047317588755095592"  # Replace with the actual user ID of "monte"
+    user = await bot.fetch_user(user_id)
+    if user:
+        await ctx.send(f" touch grass, {user.mention}!")
+        print(f"Sent touch crazy message and pinged {user.display_name} ({user_id}).")
+    else:
+        await ctx.send("Could not find the user monte.")
+        print("Could not find the user monte.")
+
+# End troll commands
+# Start DB commads
+
+@bot.command()
+@is_allowed_channel()
+async def register(ctx):
+    user_id = ctx.author.id
+
+    # Check if the user has already registered
+    if has_registered(user_id):
+        await ctx.send(f"{ctx.author.mention}, you have already used the !register command.")
+        return
+
+    # Get all role credits from the database
+    role_credits = dict(get_all_role_credits())
+    non_stacking_role_credits = dict(get_all_non_stacking_role_credits())
+
+    # Calculate credits based on roles
+    credits = 0
+    added_non_stacking_roles = set()
+    for role in ctx.author.roles:
+        role_name = role.name
+        if role_name in role_credits:
+            credits += role_credits[role_name]
+        if role_name in non_stacking_role_credits and role_name not in added_non_stacking_roles:
+            credits += non_stacking_role_credits[role_name]
+            added_non_stacking_roles.add(role_name)
+
+    # Update credits in the database
+    update_user_credits(user_id, credits)
+
+    # Mark the user as registered
+    mark_as_registered(user_id)
+
+    await ctx.send(f"{ctx.author.mention}, you have been registered with {credits} credits.")
+
+
+@bot.command()
+@is_Technical_Commander()  # Ensure only admins can use this command
+async def registerRemove(ctx, member: discord.Member):
+    user_id = member.id
+
+    # Remove the registered status!Re
+    remove_registered_status(user_id)
+
+    await ctx.send(f"{member.mention}'s register status has been reset. They can use the !register command again.")
+
+
+
+
+
+@bot.command()
+@is_Technical_Commander()  # Ensure only authorized users can run this command
+async def registerEveryone(ctx):
+    clone_trooper_role = discord.utils.get(ctx.guild.roles, name="Clone Trooper")
+    registered_count = 0
+
+    for guild in bot.guilds:
+        for member in guild.members:
+            user_id = member.id
+
+            # Skip bot accounts
+            if member.bot:
+                continue
+
+            # Check if the member has the "Clone Trooper" role
+            if clone_trooper_role not in member.roles:
+                continue
+
+            # Calculate credits based on roles
+            credits = 0
+            added_non_stacking_roles = set()
+            for role in member.roles:
+                role_name = role.name
+                if role_name in role_credits:
+                    credits += role_credits[role_name]
+                if role_name in non_stacking_role_credits and role_name not in added_non_stacking_roles:
+                    credits += non_stacking_role_credits[role_name]
+                    added_non_stacking_roles.add(role_name)
+
+            # Update credits in the database
+            update_user_credits(user_id, credits)
+
+            # Mark the user as registered
+            if not has_registered(user_id):
+                mark_as_registered(user_id)
+                registered_count += 1
+
+            # Notify about the update (optional)
+            await ctx.send(f"{member.mention} has been registered with {credits} credits.")
+
+    await ctx.send(
+        f"All members with the 'Clone Trooper' role have been registered. Total registered: {registered_count}")
+
+
+@bot.command()
+@is_Technical_Commander()  # Ensure only authorized users can run this command
+async def removeNonCTs(ctx):
+    clone_trooper_role_name = "Clone Trooper"
+    removed_count = 0
+
+    for guild in bot.guilds:
+        for member in guild.members:
+            user_id = member.id
+
+            # Check if the member has the "Clone Trooper" role
+            if any(role.name == clone_trooper_role_name for role in member.roles):
+                continue
+
+            # If the member does not have the "Clone Trooper" role, remove them from the database
+            remove_user_from_db(user_id)
+            removed_count += 1
+            print(f"Removed user {user_id} from the database.")
+
+    await ctx.send(f"Removed {removed_count} users who do not have the 'Clone Trooper' role.")
+
+
+
+
+
+
+@bot.command()
+@is_Technical_Commander()  # Ensure only authorized users can run this command
+async def cleardb(ctx):
+    try:
+        # Connect to the database
+        connection = sqlite3.connect('credits.db')
+        cursor = connection.cursor()
+
+        # List of tables to be cleared
+        tables = ['user_credits', 'role_credits', 'non_stacking_role_credits', 'update_status', 'register_status']
+
+        # Clear all tables
+        for table in tables:
+            cursor.execute(f'DELETE FROM {table}')
+
+        # Commit the changes and close the connection
+        connection.commit()
+        connection.close()
+
+        await ctx.send("All data has been cleared from the database.")
+        print("All data has been cleared from the database.")
+
+    except Exception as e:
+        await ctx.send(f"An error occurred while clearing the database: {str(e)}")
+        print(f"An error occurred while clearing the database: {str(e)}")
+
+
+def remove_user_from_db(user_id):
+    # Connect to the database
+    connection = sqlite3.connect('credits.db')
+    cursor = connection.cursor()
+
+    # Remove the user from the database
+    cursor.execute('DELETE FROM user_credits WHERE user_id = ?', (user_id,))
+    connection.commit()
+    connection.close()
+    print(f"User {user_id} removed from the database.")
+
+
+@bot.command()
+@is_Technical_Commander()
+@is_allowed_channel()
+async def save_db(ctx):
+    try:
+        # Absolute path to the database
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(current_dir, 'credits.db')
+
+        print(f"Attempting to save database to {db_path}")
+
+        if os.path.exists(db_path):
+            print(f'Database found at {db_path}')
+        else:
+            raise FileNotFoundError(f'Database not found at {db_path}')
+
+        connection = sqlite3.connect(db_path)
+        df_users = pd.read_sql_query("SELECT * FROM user_credits", connection)
+        df_roles = pd.read_sql_query("SELECT * FROM role_credits", connection)
+        df_non_stacking_roles = pd.read_sql_query("SELECT * FROM non_stacking_role_credits", connection)
+        df_removed_credits = pd.read_sql_query("SELECT * FROM removed_credits", connection)
+
+        # Log the data frames to ensure they are loaded correctly
+        print("User Credits DataFrame:\n", df_users)
+        print("Role Credits DataFrame:\n", df_roles)
+        print("Non-Stacking Role Credits DataFrame:\n", df_non_stacking_roles)
+        print("Removed Credits DataFrame:\n", df_removed_credits)
+
+        connection.close()
+
+        embed = discord.Embed(
+            title="Save Successful",
+            description="Database has been saved locally.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+
+    except FileNotFoundError as e:
+        print(f"File not found error: {e}")
+        embed = discord.Embed(
+            title="File Not Found Error",
+            description=f"The database file was not found: {e}",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+        embed = discord.Embed(
+            title="SQLite Error",
+            description=f"An SQLite error occurred while saving the database: {e}",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        embed = discord.Embed(
+            title="Unexpected Error",
+            description=f"An unexpected error occurred while saving the database: {e}",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+
+
+@bot.command()
+@is_Technical_Commander()
+@is_allowed_channel()
+async def resetStats(ctx, user: discord.Member):
+    try:
+        reset_user_stats(user.id)
+        credits_dict[user.id] = 0
+        await ctx.send(f"All statistics for {user.mention} have been reset.")
+    except Exception as e:
+        await ctx.send(f"An error occurred while resetting statistics for {user.mention}: {e}")
+
+# End Db commads
+
+@bot.command()
+@is_Technical_Commander()
+async def kill(ctx):
+    await ctx.invoke(save_db)
+    await ctx.send("Bot is shutting down...")
+    await bot.close()
+
+
+# Start Credit commands
+
+@bot.command()
+@is_Technical_Commander()
+async def setUserCredits(ctx, member: discord.Member, credits: int):
+    user_id = member.id
+
+    # Connect to the database
+    connection = sqlite3.connect('credits.db')
+    cursor = connection.cursor()
+
+    # Check if user already exists in the database
+    cursor.execute('SELECT user_id FROM user_credits WHERE user_id = ?', (user_id,))
+    data = cursor.fetchone()
+
+    if data:
+        # User exists, update their credits
+        cursor.execute('UPDATE user_credits SET current_credits = ?, max_credits = ? WHERE user_id = ?',
+                       (credits, credits, user_id))
+        print(f'Updated credits for user {user_id}: {credits}')
+    else:
+        # User does not exist, add them with the provided credits
+        cursor.execute(
+            'INSERT INTO user_credits (user_id, current_credits, max_credits, removed_credits) VALUES (?, ?, ?, ?)',
+            (user_id, credits, credits, 0))
+        print(f'Added new user {user_id} with credits: {credits}')
+
+    # Commit the transaction and close the connection
+    connection.commit()
+    connection.close()
+
+    await ctx.send(f"Credits for {member.display_name} have been set to {credits}.")
+    print(f"Credits for {member.display_name} ({user_id}) have been set to {credits}.")
+@bot.command()
+@is_allowed_channel()
+async def credits(ctx):
+    user_id = ctx.author.id
+    member = ctx.author
+
+    # Retrieve credits directly from the database
+    credits = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+    if credits:
+        description = f'You have {credits[0]} credits.'
+    else:
+        description = 'You do not have any credits.'
+
+    print(f'Credits for user {user_id}: {credits[0] if credits else 0}')
+
+    embed = discord.Embed(
+        title="Your Credits",
+        description=description,
+        color=discord.Color.red()
+    )
+    embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
+
+    await ctx.send(embed=embed)
+    print(f"Message sent to {ctx.channel.name}")
+
+@bot.command()
+@is_Technical_Commander()
+async def check_user_credits(ctx, member: discord.Member):
+    try:
+        user_id = member.id
+        credits_data = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+        current_credits = credits_data[0] if credits_data else 0
+        max_credits = credits_data[1] if len(credits_data) > 1 else 0
+        removed_credits = credits_data[2] if len(credits_data) > 2 else 0
+
+        embed = discord.Embed(
+            title="User Credit Information",
+            color=discord.Color.red()
+        )
+        embed.add_field(name="ID", value=f"{user_id}", inline=False)
+        embed.add_field(name="Nickname", value=f"{member.display_name}", inline=False)
+        embed.add_field(name="Current Credits", value=f"{current_credits}", inline=False)
+        embed.add_field(name="Max Credits", value=f"{max_credits}", inline=False)
+        embed.add_field(name="Removed Credits", value=f"{removed_credits}", inline=False)
+        embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+
+        await ctx.send(embed=embed)
+        print(f"Credit info for {user_id} sent in embed.")  # Debug: Embed sent
+    except Exception as e:
+        await ctx.send(f"An error occurred while fetching credit info: {e}")
+
+@bot.command()  # debugg command for !whoami
+@is_Technical_Commander()
+@is_allowed_channel()
+async def setcredits(ctx, member: discord.Member, amount: int):
+    update_user_credits(member.id, amount)
+    await ctx.send(f"Credits for {member.mention} have been set to {amount}.")
+
+# End Credit commads
+
