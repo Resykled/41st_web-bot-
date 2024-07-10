@@ -1855,7 +1855,6 @@ async def rewards_command(ctx):
 @bot.command()
 @is_allowed_channel()
 @is_Technical_Commander()
-
 async def git_push(ctx, branch='master'):
     try:
         # Add all changes
@@ -1864,11 +1863,13 @@ async def git_push(ctx, branch='master'):
         # Commit changes
         subprocess.run(['git', 'commit', '-m', 'Automated commit from bot'], check=True)
 
-        # Push changes to the specified branch
-        subprocess.run(['git', 'push', '--set-upstream', 'origin', branch], check=True)
+        # Force push changes to the specified branch
+        subprocess.run(['git', 'push', '--force', '--set-upstream', 'origin', branch], check=True)
 
         await ctx.send(
-            f"{ctx.author.mention}, changes have been pushed to the Git repository successfully on branch {branch}.")
+            f"{ctx.author.mention}, changes have been force pushed to the Git repository successfully on branch {branch}.")
     except subprocess.CalledProcessError as e:
-        await ctx.send(f"{ctx.author.mention}, there was an error pushing changes to the Git repository: {e}")
+        await ctx.send(f"{ctx.author.mention}, there was an error force pushing changes to the Git repository: {e}")
+
+
 bot.run(bot_token)
