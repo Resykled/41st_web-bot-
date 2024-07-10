@@ -1855,6 +1855,7 @@ async def rewards_command(ctx):
 @bot.command()
 @is_allowed_channel()
 @is_Technical_Commander()
+
 async def git_push(ctx, branch='master'):
     try:
         # Add all changes
@@ -1866,10 +1867,10 @@ async def git_push(ctx, branch='master'):
         # Force push changes to the specified branch
         subprocess.run(['git', 'push', '--force', '--set-upstream', 'origin', branch], check=True)
 
+        # Send success message with repository link
+        repo_url = "https://github.com/Resykled/Discord.Bot.41st"
         await ctx.send(
-            f"{ctx.author.mention}, changes have been force pushed to the Git repository successfully on branch {branch}.")
+            f"{ctx.author.mention}, changes have been force pushed to the Git repository successfully on branch {branch}. Repository link: {repo_url}")
     except subprocess.CalledProcessError as e:
         await ctx.send(f"{ctx.author.mention}, there was an error force pushing changes to the Git repository: {e}")
-
-
 bot.run(bot_token)
