@@ -1855,7 +1855,8 @@ async def rewards_command(ctx):
 @bot.command()
 @is_allowed_channel()
 @is_Technical_Commander()
-async def git_push(ctx):
+
+async def git_push(ctx, branch='master'):
     try:
         # Add all changes
         subprocess.run(['git', 'add', '.'], check=True)
@@ -1863,21 +1864,11 @@ async def git_push(ctx):
         # Commit changes
         subprocess.run(['git', 'commit', '-m', 'Automated commit from bot'], check=True)
 
-        # Push changes to the repository
-        subprocess.run(['git', 'push'], check=True)
+        # Push changes to the specified branch
+        subprocess.run(['git', 'push', '--set-upstream', 'origin', branch], check=True)
 
-        await ctx.send(f"{ctx.author.mention}, changes have been pushed to the Git repository successfully.")
+        await ctx.send(
+            f"{ctx.author.mention}, changes have been pushed to the Git repository successfully on branch {branch}.")
     except subprocess.CalledProcessError as e:
-        if "has no upstream branch" in str(e):
-            try:
-                # Set the upstream branch and push
-                subprocess.run(['git', 'push', '--set-upstream', 'origin', 'master'], check=True)
-                await ctx.send(
-                    f"{ctx.author.mention}, changes have been pushed to the Git repository successfully after setting the upstream branch.")
-            except subprocess.CalledProcessError as e:
-                await ctx.send(
-                    f"{ctx.author.mention}, there was an error pushing changes to the Git repository even after setting the upstream branch: {e}")
-        else:
-            await ctx.send(f"{ctx.author.mention}, there was an error pushing changes to the Git repository: {e}")
-
+        await ctx.send(f"{ctx.author.mention}, there was an error pushing changes to the Git repository: {e}")
 bot.run(bot_token)
