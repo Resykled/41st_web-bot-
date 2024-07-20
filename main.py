@@ -65,6 +65,9 @@ def get_rewards_for_roles(role_names):
             user_rewards.update(rewards[role])
     return list(user_rewards)
 
+def get_bot_token():
+    with open('bot_token.txt', 'r') as file:
+        return file.read().strip()
 
 
 # Set up intents
@@ -1831,6 +1834,7 @@ async def git_push(ctx, branch='master'):
     except subprocess.CalledProcessError as e:
         await ctx.send(f"{ctx.author.mention}, there was an error force pushing changes to the Git repository: {e}")
 
+bot.run(get_bot_token())
 
-bot.run('MTI0NDY3Mjk0NjcyMzYxODkzNg.Gca940.oCbgWxgpHWXOZVuRDf5frCLxHQRSckr4LxJs8g')
+
 
