@@ -379,3 +379,221 @@ Processed commands.
 2024-07-20 23:35:36,408 - DEBUG - Updated credits for user 449574303692881940: current_credits = 0, max_credits = 0, removed_credits = 0
 2024-07-20 23:35:36,903 - DEBUG - Updated credits for user 449574303692881940: current_credits = 0, max_credits = 0, removed_credits = 0
 2024-07-20 23:35:37,481 - DEBUG - Updated credits for user 449574303692881940: current_credits = 0, max_credits = 0, removed_credits = 0
+[update-bot 452325c] Automated commit from bot
+ 4 files changed, 397 insertions(+), 1 deletion(-)
+ create mode 100644 nohup.out
+ create mode 100644 start_bot.sh
+To https://github.com/Resykled/41st_web-bot-.git
+   2e68d88..452325c  update-bot -> update-bot
+Branch 'update-bot' folgt nun 'origin/update-bot'.
+
+We have logged in as 41st_Bot#6422
+on_message event triggered.
+Received message from 41st_Bot: 
+Message is not from '41st Utilities'.
+Processed commands.
+on_message event triggered.
+Received message from sykled: !hello
+on_message event triggered.
+Received message from 41st_Bot: 
+Message is not from '41st Utilities'.
+Processed commands.
+Message sent to bot-commands
+Message is not from '41st Utilities'.
+Processed commands.
+on_message event triggered.
+Received message from sykled: yes it is but we do most of our stuff in our regiment server
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from sykled: if u wanna join there check out <#1075158806117482658>
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: aight bet
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: theres 2
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: which 1?
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from sykled: DM me if u need any help or have question
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: 
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from MEE6: Welcome to Python Regiment <@449574303692881940>! Make sure you check out the <#1139850207870324836> channel to get started. If you have any questions, you can ask for help in <#1139850992591061062>!
+Message is not in the allowed channel.
+Current credits for user 449574303692881940: 0
+Removed roles: set()
+Added roles: {'Cadet'}
+Removed credits: 0
+Added credits: 0
+New credits calculation: 0
+Updating user credits: user_id=449574303692881940, current_credits=0, removed_credits=0
+Updated credits for member 449574303692881940: 0
+Current credits for user 449574303692881940: 0
+Removed roles: set()
+Added roles: {'\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e  \u200e\u200e  \u200e\u200e\u200e\u200e \u200e\u200e\u200e\u200e UNIT INFORMATION \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e\u200e \u200e \u200e\u200e \u200e \u200e \u200e \u200e \u200e\u200e \u200e \u200e \u200e'}
+Removed credits: 0
+Added credits: 0
+New credits calculation: 0
+Updating user credits: user_id=449574303692881940, current_credits=0, removed_credits=0
+Updated credits for member 449574303692881940: 0
+Current credits for user 449574303692881940: 0
+Removed roles: set()
+Added roles: {'\u200e\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e  \u200e\u200e\u200e PLAYER INFORMATION\u200e\u200e \u200e \u200e \u200e \u200e\u200e\u200e\u200e \u200e \u200e\u200e  \u200e  \u200e \u200e\u200e  \u200e \u200e \u200e \u200e\u200e \u200e \u200e \u200e'}
+Removed credits: 0
+Added credits: 0
+New credits calculation: 0
+Updating user credits: user_id=449574303692881940, current_credits=0, removed_credits=0
+Updated credits for member 449574303692881940: 0
+Current credits for user 449574303692881940: 0
+Removed roles: set()
+Added roles: {'\u200e\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e\u200e \u200e \u200e \u200e  \u200e    \u200e\u200e \u200e   \u200e\u200e \u200e\u200e  DEPARTMENTS\u200e\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e  \u200e\u200e\u200e \u200e \u200e \u200e  \u200e\u200e'}
+Removed credits: 0
+Added credits: 0
+New credits calculation: 0
+Updating user credits: user_id=449574303692881940, current_credits=0, removed_credits=0
+Updated credits for member 449574303692881940: 0
+Current credits for user 449574303692881940: 0
+Removed roles: set()
+Added roles: {'\u200e\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e\u200e  \u200e\u200e\u200e\u200e  \u200e \u200e\u200e\u200e  \u200e  \u200e  \u200e\u200e  \u200e\u200e \u200e   \u200e\u200e\u200e\u200e\u200e  GAMEMODES\u200e\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e\u200e\u200e\u200e'}
+Removed credits: 0
+Added credits: 0
+New credits calculation: 0
+Updating user credits: user_id=449574303692881940, current_credits=0, removed_credits=0
+Updated credits for member 449574303692881940: 0
+Current credits for user 449574303692881940: 0
+Removed roles: set()
+Added roles: {'\u200e\u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e\u200e \u200e \u200e \u200e  \u200e    \u200e\u200e \u200e   \u200e\u200e \u200e\u200e  OTHER GAMES \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e \u200e  \u200e\u200e\u200e \u200e \u200e \u200e  \u200e\u200e'}
+Removed credits: 0
+Added credits: 0
+New credits calculation: 0
+Updating user credits: user_id=449574303692881940, current_credits=0, removed_credits=0
+Updated credits for member 449574303692881940: 0
+on_message event triggered.
+Received message from sykled: python for Battlefront 2 and Phoenix for COD
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from Dyno: 
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: bet
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from froger9075: Join Phoenix?
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: last time I played cod was like 3 years back
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: so yea
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from sykled: <@449574303692881940> check this out
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from froger9075: We play Helldivers 2 aswell
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: shit man I wish I had helldivers 2
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from froger9075: Rip
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: ill join the thing in case I get it
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from froger9075: W
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from MEE6: 
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from twentyfps: yuh
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from sykled: as i said befor , if u need any help or have questions feel free to dm me at any time
+Message is not in the allowed channel.
+on_message event triggered.
+Received message from sykled: !git_push
+on_message event triggered.
+Received message from 41st_Bot: <@583621855986843659>, changes have been force pushed to the Git repository successfully on branch update-bot. Repository link: https://github.com/Resykled/41st_web-bot-
+Message is not from '41st Utilities'.
+Processed commands.
+Message is not from '41st Utilities'.
+Processed commands.
+on_message event triggered.
+Received message from sykled: !shutdown
+Attempting to save database to /home/dominik/Downloads/DiscordBOT/credits.db
+Database found at /home/dominik/Downloads/DiscordBOT/credits.db
+User Credits DataFrame:
+                  user_id  current_credits  max_credits  removed_credits
+0     112338765485248512             1000         1000                0
+1     114848188157919235             7804        36500                0
+2     118877578948771841             1000         1000                0
+3     119621506161442817            24500        24500                0
+4     133321786061225984             1000         1000                0
+..                   ...              ...          ...              ...
+843  1234804444621705217                0            0                0
+844  1235734791543062668           -53000        89500           210500
+845  1239240218775654502             1000         1000                0
+846  1245913170196041851                0            0                0
+847  1262011669631074395                0            0                0
+
+[848 rows x 4 columns]
+Role Credits DataFrame:
+                       role_name  credit_amount
+0             ARC Qualification          20000
+1                Medal of Valor          20000
+2            41st Service Medal           3000
+3          1 Year Service Medal           3000
+4          2 Year Service Medal           4000
+..                          ...            ...
+176     He's Going the Distance           1500
+177      Basic Equipment Expert           2000
+178            Praise the Maker           1500
+179          Instructor on Fire           1000
+180  FEEL THE WRATH OF THE 41ST           1000
+
+[181 rows x 2 columns]
+Non-Stacking Role Credits DataFrame:
+               role_name  credit_amount
+0           Clone Pilot           1000
+1         Clone Trooper           1000
+2        Flight Officer           1500
+3        Lance Corporal           1500
+4     Flight Lieutenant           2500
+5              Corporal           2000
+6              Sergeant           2500
+7        Flight Captain           5000
+8          ARC Sergeant           5000
+9           RC Sergeant           5000
+10       Sergeant Major           5000
+11       2nd Lieutenant           7000
+12     Flight Commander           7500
+13       ARC Lieutenant          10000
+14        RC Lieutenant          10000
+15           Lieutenant           8000
+16              Captain          10000
+17         ARC Capitain          15000
+18           RC Captain          15000
+19              Colonel          10000
+20        Quartermaster          15000
+21  Technical Commander          20000
+22                Major          25000
+23            Commander          30000
+24    Marshal Commander          50000
+Removed Credits DataFrame:
+ Empty DataFrame
+Columns: [user_id, removed_credits]
+Index: []
+on_message event triggered.
+Received message from 41st_Bot: 
+Message is not from '41st Utilities'.
+Processed commands.
+Message is not from '41st Utilities'.
+Processed commands.
