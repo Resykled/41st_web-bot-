@@ -1128,11 +1128,21 @@ async def resetStats(ctx, user: discord.Member):
 
 @bot.command()
 @is_Technical_Commander()
-async def kill(ctx):
+async def shutdown(ctx):
     await ctx.invoke(save_db)
     await ctx.send("Bot is shutting down...")
     await bot.close()
 
+
+@bot.command()
+@is_Technical_Commander()
+async def kill(ctx):
+    await ctx.invoke(save_db)
+    await ctx.send("Bot is restarting...")
+
+    # Restart the bot using the shell script
+    os.system("/home/dominik/Downloads/DiscordBOT/start_bot.sh")
+    await bot.close()
 
 
 
