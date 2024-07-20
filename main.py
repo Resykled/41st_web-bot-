@@ -1811,28 +1811,33 @@ async def rewards_command(ctx):
     await ctx.send(embed=embed)
 
 
-
-
 @bot.command()
 @is_allowed_channel()
 @is_Technical_Commander()
-async def git_push(ctx, branch='master'):
+async def git_push(ctx, branch='main'):
     try:
         # Add all changes
         subprocess.run(['git', 'add', '.'], check=True)
 
-        # Commit changes
-        subprocess.run(['git', 'commit', '-m', 'Automated commit from bot'], check=True)
+        # Check if there are changes to commit
+        result = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True)
+        if result.stdout:
+            # Commit changes if there are any
+            subprocess.run(['git', 'commit', '-m', 'Automated commit from bot'], check=True)
 
         # Force push changes to the specified branch
         subprocess.run(['git', 'push', '--force', '--set-upstream', 'origin', branch], check=True)
 
         # Send success message with repository link
-        repo_url = "https://github.com/Resykled/Discord.Bot.41st"
+        repo_url = "https://github.com/Resykled/41st_web-bot-"
         await ctx.send(
             f"{ctx.author.mention}, changes have been force pushed to the Git repository successfully on branch {branch}. Repository link: {repo_url}")
     except subprocess.CalledProcessError as e:
         await ctx.send(f"{ctx.author.mention}, there was an error force pushing changes to the Git repository: {e}")
+
+    except Exception as e:
+        await ctx.send(f"{ctx.author.mention}, an unexpected error occurred: {e}")
+
 
 bot.run(get_bot_token())
 
