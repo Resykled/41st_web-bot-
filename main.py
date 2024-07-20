@@ -11,10 +11,7 @@ import gspread
 import re
 import time
 
-from database import get_user_roles_from_servers
-from oauth2client.service_account import ServiceAccountCredentials
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
+
 from database import unmark_role_credited
 from database import get_user_credits, update_user_credits, add_role_credits, get_all_role_credits, remove_role_credits, \
     get_all_non_stacking_role_credits, get_user_removed_credits, reset_user_stats  # Import the new function
@@ -30,7 +27,7 @@ from database import get_user_credits, update_user_credits, mark_role_credited, 
 # main.py
 from database import get_user_daily_info, update_user_daily_info, get_user_credits, update_user_credits
 from database import get_top_streaks, get_user_position, get_user_daily_info
-
+from database import set_user_streak
 
 
 
@@ -45,15 +42,15 @@ debug_mode_enabled = False
 
 # Define the rewards based on roles
 rewards = {
-    "Art Team": ["Bad Batch Echo helmet"],
+"Art Team": ["Bad Batch Echo helmet"],
     "Art Team Veteran": ["Store Items for 10k and under are free"],
     "Clone Trooper": ["white and green colour on the helmet"],
     "Clone Trooper Veteran": ["camouflage and grey on the helmet"],
     "Sergeant": ["Rangefinder", "tiny amount of extra colour (no pink and gold)"],
     "2nd Lieutenant": ["Custom Visor (no gold, white and pink)", "small amount of extra colour (no gold)"],
     "Lieutenant": ["Custom Visor (no gold, white and pink)", "small amount of extra colour (no gold)"],
-    "Captain": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour", "2nd Lieutenant rules"],
-    "Major": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour", "2nd Lieutenant rules"],
+    "Captain": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour"],
+    "Major": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour"],
     "Technical Commander": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour"],
     "High Command": ["Visor Glow", "white visor"],
     "ARC Trooper": ["decent amount of extra colour", "green still has to be the main colour"],
@@ -107,12 +104,7 @@ def read_file(file_path):
     with open(file_path, 'r') as file:
         return file.read().strip()
 
-# Read Google API key and bot token from files
 
-bot_token_file = 'C:/41st/DiscordBOT/bot-token.txt'
-
-
-bot_token = read_file(bot_token_file)
 
 
 
@@ -496,9 +488,8 @@ async def hello(ctx):
 async def report(ctx, *, problem: str = None):
     if problem is None:
         bug_report_info = (
-            "To report a bug, please use the following command:\n"
-            "`!report_bug <description of the problem>`\n"
-            "For example: `!report_bug The credits command is not working correctly.`"
+            "To report a bug, please use the following format:\n"
+            "For example: `!report The credits command is not working correctly.`"
         )
         embed_info = discord.Embed(
             title="How to Report Bugs",
@@ -552,39 +543,6 @@ async def report(ctx, *, problem: str = None):
         await ctx.send(embed=embed)
 
 
-@bot.command()
-@is_allowed_channel()
-async def report_bug(ctx, *, problem: str):
-    report_channel = discord.utils.get(ctx.guild.text_channels, name=REPORT_CHANNEL_NAME)
-    if report_channel:
-        try:
-            await report_channel.send(f'Bug report from {ctx.author.mention}: {problem}')
-            embed = discord.Embed(
-                title="Bug Report Sent",
-                description=f'Thank you for your bug report. It has been sent to the #{REPORT_CHANNEL_NAME} channel.',
-                color=discord.Color.red()
-            )
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
-
-            await ctx.send(embed=embed)
-        except discord.errors.Forbidden:
-            embed = discord.Embed(
-                title="Error",
-                description=f'Error: Missing permissions to send a message in the #{REPORT_CHANNEL_NAME} channel.',
-                color=discord.Color.red()
-            )
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
-
-            await ctx.send(embed=embed)
-    else:
-        embed = discord.Embed(
-            title="Error",
-            description=f'Error: The report channel #{REPORT_CHANNEL_NAME} does not exist.',
-            color=discord.Color.red()
-        )
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
-
-        await ctx.send(embed=embed)
 
 
 @bot.command()
@@ -1585,7 +1543,7 @@ async def whoami(ctx, subcommand: str = None):
             "Survivalist", "Unbreakable", "Republic Juggernaut", "Death From Above", "Furry Frenzy", "Back to Basics",
             "Operation:SuppressiveShrout", "Seasoned Saboteur", "Support Scuttler", "Masterful Saboteur", "In And Out",
             "Superior Tactics", "Safety's Off", "Tinnie Scrapper", "Commando Culler", "Guerrilla Tactician",
-            "Unwavering",
+            "Unwavering", "No Mercy",
             "Guardian Angel"
         ]
 
@@ -1776,21 +1734,20 @@ async def daily(ctx):
 
     if daily_info:
         last_claim, streak = daily_info
-        time_since_last_claim = current_time - last_claim
-        time_until_next_claim = 86400 - time_since_last_claim
-
-        if time_since_last_claim < 86400:
-            hours, remainder = divmod(time_until_next_claim, 3600)
+        # Check if last claim was more than 24 hours ago
+        if current_time - last_claim < 86400:
+            remaining_time = 86400 - (current_time - last_claim)
+            hours, remainder = divmod(remaining_time, 3600)
             minutes, seconds = divmod(remainder, 60)
             await ctx.send(f"{ctx.author.mention}, you can only claim your daily credits once every 24 hours. "
-                           f"Time left until you can claim again: {hours} hours, {minutes} minutes, and {seconds} seconds.")
+                           f"Time remaining: {hours} hours, {minutes} minutes, {seconds} seconds.")
             return
+    else:
+        streak = 0
 
-        # Check if the claim is exactly one day later
-        if time_since_last_claim < 172800:
-            streak += 1
-        else:
-            streak = 1
+    # Calculate the new streak
+    if daily_info and current_time - last_claim < 172800:
+        streak += 1
     else:
         streak = 1
 
@@ -1804,11 +1761,10 @@ async def daily(ctx):
 
     # Update daily info in the database
     update_user_daily_info(user_id, current_time, streak)
+    save_db()  # Save the database state
 
     await ctx.send(
-        f"{ctx.author.mention}, you have claimed {daily_credits} credits! Your current streak is {streak} days. "
-        f"You now have {new_credits} credits. You can claim your next daily credits in 24 hours."
-    )
+        f"{ctx.author.mention}, you have claimed {daily_credits} credits! Your current streak is {streak} days. You now have {new_credits} credits.")
 
 @bot.command()
 @is_allowed_channel()
@@ -1852,10 +1808,11 @@ async def rewards_command(ctx):
     await ctx.send(embed=embed)
 
 
+
+
 @bot.command()
 @is_allowed_channel()
 @is_Technical_Commander()
-
 async def git_push(ctx, branch='master'):
     try:
         # Add all changes
@@ -1873,4 +1830,7 @@ async def git_push(ctx, branch='master'):
             f"{ctx.author.mention}, changes have been force pushed to the Git repository successfully on branch {branch}. Repository link: {repo_url}")
     except subprocess.CalledProcessError as e:
         await ctx.send(f"{ctx.author.mention}, there was an error force pushing changes to the Git repository: {e}")
-bot.run(bot_token)
+
+
+bot.run('MTI0NDY3Mjk0NjcyMzYxODkzNg.Gca940.oCbgWxgpHWXOZVuRDf5frCLxHQRSckr4LxJs8g')
+

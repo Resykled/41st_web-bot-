@@ -526,7 +526,7 @@ def initialize_roles():
         ("Guerrilla Tactician", 2250),
         ("Unwavering", 1750),
         ("Guardian Angel", 1000),
-
+        ("No Mercy", 3500),
         # Regiment Medals
         ("Fixer Upper", 1500),
         ("Behind Enemy Lines", 1500),
@@ -814,6 +814,18 @@ def get_user_position(user_id):
         connection.close()
         return position
 
+# Add these functions to your database.py file
+
+
+
+def set_user_streak(user_id, streak):
+    with db_lock:
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute('UPDATE user_daily SET streak = ? WHERE user_id = ?', (streak, user_id))
+        connection.commit()
+        cursor.close()
+        connection.close()
 
 
 
