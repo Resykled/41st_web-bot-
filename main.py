@@ -1814,8 +1814,13 @@ async def rewards_command(ctx):
 @bot.command()
 @is_allowed_channel()
 @is_Technical_Commander()
-async def git_push(ctx, branch='main'):
+async def git_push(ctx, branch=None):
     try:
+        # Get the current branch if none is specified
+        if branch is None:
+            result = subprocess.run(['git', 'branch', '--show-current'], capture_output=True, text=True)
+            branch = result.stdout.strip()
+
         # Add all changes
         subprocess.run(['git', 'add', '.'], check=True)
 
