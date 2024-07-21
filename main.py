@@ -1047,11 +1047,7 @@ def remove_user_from_db(user_id):
     print(f"User {user_id} removed from the database.")
 
 
-@bot.command()
-@is_Technical_Commander()
-@is_allowed_channel()
-
-async def save_db(ctx):
+def save_database():
     try:
         # Absolute path to the database
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1078,6 +1074,25 @@ async def save_db(ctx):
 
         connection.close()
 
+    except FileNotFoundError as e:
+        print(f"File not found error: {e}")
+        raise e  # Rethrow the exception to be handled in the calling function
+
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+        raise e  # Rethrow the exception to be handled in the calling function
+
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise e  # Rethrow the exception to be handled in the calling function
+
+
+@bot.command()
+@is_Technical_Commander()
+@is_allowed_channel()
+async def save_db(ctx):
+    try:
+        save_database()
         embed = discord.Embed(
             title="Save Successful",
             description="Database has been saved locally.",
@@ -1086,7 +1101,6 @@ async def save_db(ctx):
         await ctx.send(embed=embed)
 
     except FileNotFoundError as e:
-        print(f"File not found error: {e}")
         embed = discord.Embed(
             title="File Not Found Error",
             description=f"The database file was not found: {e}",
@@ -1095,7 +1109,6 @@ async def save_db(ctx):
         await ctx.send(embed=embed)
 
     except sqlite3.Error as e:
-        print(f"SQLite error: {e}")
         embed = discord.Embed(
             title="SQLite Error",
             description=f"An SQLite error occurred while saving the database: {e}",
@@ -1104,13 +1117,15 @@ async def save_db(ctx):
         await ctx.send(embed=embed)
 
     except Exception as e:
-        print(f"Unexpected error: {e}")
         embed = discord.Embed(
             title="Unexpected Error",
             description=f"An unexpected error occurred while saving the database: {e}",
             color=discord.Color.red()
         )
         await ctx.send(embed=embed)
+
+
+
 
 
 @bot.command()
@@ -1738,7 +1753,6 @@ async def debug(ctx):
     await ctx.send(f"Debugging completed.\n\nResults:\n{result_message}")
     print("Debug: Debugging completed.")  # Debugging message
 
-
 @bot.command()
 @is_allowed_channel()
 async def daily(ctx):
@@ -1775,10 +1789,11 @@ async def daily(ctx):
 
     # Update daily info in the database
     update_user_daily_info(user_id, current_time, streak)
-    save_db()  # Save the database state
+    save_database()  # Save the database state
 
     await ctx.send(
         f"{ctx.author.mention}, you have claimed {daily_credits} credits! Your current streak is {streak} days. You now have {new_credits} credits.")
+
 
 @bot.command()
 @is_allowed_channel()
@@ -1940,6 +1955,5 @@ async def rock_paper_scissors(ctx, user_choice: str):
 
 
 bot.run(get_bot_token())
-
 
 

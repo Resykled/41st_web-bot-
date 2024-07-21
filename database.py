@@ -828,10 +828,44 @@ def set_user_streak(user_id, streak):
         connection.close()
 
 
+def create_reminder_table():
+    with db_lock:
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS daily_reminder (
+            user_id INTEGER PRIMARY KEY,
+            reminder_enabled BOOLEAN
+        )
+        ''')
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+def set_reminder(user_id, status):
+    with db_lock:
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute('INSERT OR REPLACE INTO daily_reminder (user_id, reminder_enabled) VALUES (?, ?)', (user_id, status))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+def get_reminder_status(user_id):
+    with db_lock:
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute('SELECT reminder_enabled FROM daily_reminder WHERE user_id = ?', (user_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return result[0] if result else False
+
 
 
 # Create the tables if they do not exist and initialize roles
 create_tables()
 create_non_stacking_roles_table()
+create_reminder_table()
 initialize_roles()
 initialize_non_stacking_roles()
