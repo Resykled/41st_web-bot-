@@ -10,7 +10,7 @@ import asyncio
 import gspread
 import re
 import time
-
+import random
 
 from database import unmark_role_credited
 from database import get_user_credits, update_user_credits, add_role_credits, get_all_role_credits, remove_role_credits, \
@@ -1853,6 +1853,90 @@ async def git_push(ctx, branch=None):
 
     except Exception as e:
         await ctx.send(f"{ctx.author.mention}, an unexpected error occurred: {e}")
+
+
+start_time = datetime.now()
+
+@bot.command()
+@is_allowed_channel()
+async def uptime(ctx):
+    uptime_duration = datetime.now() - start_time
+    await ctx.send(f"Bot has been running for {uptime_duration}")
+
+
+@bot.command()
+@is_allowed_channel()
+async def poll(ctx, *, question: str):
+    embed = discord.Embed(title="Poll", description=question, color=discord.Color.blue())
+    embed.set_footer(text="React to vote!")
+    message = await ctx.send(embed=embed)
+    await message.add_reaction("👍")
+    await message.add_reaction("👎")
+
+
+# Optional command to display poll results
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def poll_results(ctx, message_id: int):
+    try:
+        message = await ctx.fetch_message(message_id)
+        if not message.embeds or not message.embeds[0].title == "Poll":
+            await ctx.send("This message is not a poll.")
+            return
+
+        thumbs_up = discord.utils.get(message.reactions, emoji="👍")
+        thumbs_down = discord.utils.get(message.reactions, emoji="👎")
+
+        thumbs_up_count = thumbs_up.count - 1  # Subtract bot's initial reaction
+        thumbs_down_count = thumbs_down.count - 1  # Subtract bot's initial reaction
+
+        results = f"👍: {thumbs_up_count}\n👎: {thumbs_down_count}"
+        await ctx.send(f"Poll results:\n{results}")
+
+    except discord.NotFound:
+        await ctx.send("Poll message not found.")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
+
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user.bot:
+        return  # Ignore bot reactions
+
+    message = reaction.message
+    if message.author != bot.user:
+        return  # Ignore reactions on messages not sent by the bot
+
+    if not message.embeds or not message.embeds[0].title == "Poll":
+        return  # Ignore reactions on messages that are not polls
+
+    if reaction.emoji not in ["👍", "👎"]:
+        await message.remove_reaction(reaction.emoji, user)  # Remove any other reactions
+        return
+
+
+@bot.command(name='rps')
+@is_allowed_channel()
+async def rock_paper_scissors(ctx, user_choice: str):
+    choices = ['rock', 'paper', 'scissors']
+    bot_choice = random.choice(choices)
+
+    if user_choice.lower() not in choices:
+        await ctx.send(f"Invalid choice! Please choose rock, paper, or scissors.")
+        return
+
+    if user_choice.lower() == bot_choice:
+        result = "It's a tie!"
+    elif (user_choice.lower() == 'rock' and bot_choice == 'scissors') or \
+         (user_choice.lower() == 'scissors' and bot_choice == 'paper') or \
+         (user_choice.lower() == 'paper' and bot_choice == 'rock'):
+        result = "You win!"
+    else:
+        result = "You lose!"
+
+    await ctx.send(f'You chose {user_choice}, I chose {bot_choice}. {result}')
+
 
 
 bot.run(get_bot_token())
