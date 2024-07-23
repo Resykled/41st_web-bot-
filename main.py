@@ -427,7 +427,7 @@ async def remove_medal_from_user(user_id, medal_name):
 
 def is_allowed_channel():
     async def predicate(ctx):
-        ALLOWED_CHANNEL_NAMES = ['bot-commands', 'bot-test']  # List of allowed channels
+        ALLOWED_CHANNEL_NAMES = ['bot-commands', 'bot-test', 'econ-chat']  # List of allowed channels
         if ctx.channel.name not in ALLOWED_CHANNEL_NAMES:
             await ctx.send(f"This command can only be used in the #{' or #'.join(ALLOWED_CHANNEL_NAMES)} channels.")
             return False
