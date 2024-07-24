@@ -1703,7 +1703,7 @@ async def debug(ctx):
         "!store category",
         "!register",
 
-        "!exportdb",
+
         "!add @user 100",
         "!remove @user 50",
         "!setUserCredits @user",
