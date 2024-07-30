@@ -98,7 +98,7 @@ non_stacking_role_credits = dict(get_all_non_stacking_role_credits())
 
 
 # Channels where the bot commands are allowed
-ALLOWED_CHANNEL_NAMES = ['bot-test', 'bot-commands']
+ALLOWED_CHANNEL_NAMES = ['bot-test', 'bot-commands', 'econ-chat']
 REPORT_CHANNEL_NAME = 'bug-reports'
 # Google Sheets setup
 
@@ -161,7 +161,7 @@ async def on_ready():
 
     # Send startup message to bot-commands channel
     startup_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    version = "1.5.1"
+    version = ("1.7 ~ Purchase")
     embed = discord.Embed(
         title="Bot Startup",
         description=f"The bot has started successfully.\n\n**Startup Time:** {startup_time}\n**Version:** {version}",
@@ -552,9 +552,10 @@ async def report(ctx, *, problem: str = None):
 @is_allowed_channel()
 async def version(ctx):
     version_info = (
-        "Version: ```V1.7~ Purchase```\n"
-        "Date: ```05.06.2024```\n"
-        "Programmer: ```Sykles```"
+        "Version: `V1.7~ Purchase`\n"
+        "Date: `05.06.2024`\n"
+        "Last update: `27.07.2024`\n" 
+        "Programmer: `TCDR Sykles CC-5132`"
     )
     embed = discord.Embed(
         description=version_info,
@@ -569,38 +570,38 @@ async def help_command(ctx):
     is_admin = any(discord.utils.get(ctx.guild.roles, name=role) in ctx.author.roles for role in admin_roles)
 
     user_commands = (
-        f"**List of available commands:**\n\n"
-        f"**!hello**: Sends a simple greeting message.\n"
-        f"**!credits**: Displays your current credits.\n"
-        f"**!whoami**: Sends your information, including join date and credits, via direct message.\n"
-        f"**!report <problem>**: Sends a report message to the designated 'bug' channel.\n"
-        f"**!version**: Displays the current version of the bot.\n"
-        f"**!help**: Lists all available commands and their descriptions.\n"
-        f"**!ggn_store**: Displays Geetsly's Gaming Network Store Conversions.\n"
-        f"**!store <category>**: Displays store items for a specific credit category.\n"
-        f"**!register**: Registers a new user in the database.\n"
-        f"**!purchase**: Command to buy items.\n"
-        f"**!daily**: Get your daily reward and build a streak, you better don't miss a day.\n"
-        f"**!leader**: Shows you your position in the !daily ranking list.\n"
+        f"`List of available commands:`\n\n"
+        f"`!hello`: Sends a simple greeting message.\n"
+        f"`!credits`: Displays your current credits.\n"
+        f"`!whoami`: Sends your information, including join date and credits, via direct message.\n"
+        f"`!report <problem>`: Sends a report message to the designated 'bug' channel.\n"
+        f"`!version`: Displays the current version of the bot.\n"
+        f"`!help`: Lists all available commands and their descriptions.\n"
+        f"`!ggn_store`: Displays Geetsly's Gaming Network Store Conversions.\n"
+        f"`!store <category>`: Displays store items for a specific credit category.\n"
+        f"`!register`: Registers a new user in the database.\n"
+        f"`!purchase`: Command to buy items.\n"
+        f"`!daily`: Get your daily reward and build a streak, you better don't miss a day.\n"
+        f"`!leader`: Shows you your position in the !daily ranking list.\n"
         f"\n"
     )
 
     admin_commands = (
-        f"**Developer Commands:**\n"
+        f"`Developer Commands:`\n"
         f"\n"
-        f"**!addrole <credit_amount> <role_name>**: Adds a role with a specific credit amount.\n"
-        f"**!removerole <role_name>**: Removes a role and its associated credits.\n"
-        f"**!debug**: Runs a series of tests on all commands to check for errors.\n"
-        f"**!add <@user> <amount> <comment, not necessary>**: Adds credits to a user.\n"
-        f"**!remove <@user> <amount> <comment, not necessary>**: Sets the credit amount of a user.\n"
-        f"**!setUserCredits <@user> <amount>**: Sets the credit amount of a user to the given number.\n"
-        f"**!save_db**: Saves all data to the SQL database.\n"
-        f"**!resetStats <@user>**: Resets all data for a specific user.\n"
-        f"**!id <@user>**: Sends all information about the mentioned user via direct message.\n"
-        f"**!registerRemove <@user>**: Resets the register status of a user.\n"
-        f"**!registerEveryone**: Registers every user on the server in the database.\n"
-        f"**!removeNonCTs**: Removes every user without the clone trooper role from the db.\n"
-        f"**!useritems <@user>**: Shows all items a user has.\n"
+        f"`!addrole <credit_amount> <role_name>`: Adds a role with a specific credit amount.\n"
+        f"`!removerole <role_name>`: Removes a role and its associated credits.\n"
+        f"`!debug`: Runs a series of tests on all commands to check for errors.\n"
+        f"`!add <@user> <amount> <comment, not necessary>`: Adds credits to a user.\n"
+        f"`!remove <@user> <amount> <comment, not necessary>`: Sets the credit amount of a user.\n"
+        f"`!setUserCredits <@user> <amount>`: Sets the credit amount of a user to the given number.\n"
+        f"`!save_db`: Saves all data to the SQL database.\n"
+        f"`!resetStats <@user>`: Resets all data for a specific user.\n"
+        f"`!id <@user>`: Sends all information about the mentioned user via direct message.\n"
+        f"`!registerRemove <@user>`: Resets the register status of a user.\n"
+        f"`!registerEveryone`: Registers every user on the server in the database.\n"
+        f"`!removeNonCTs`: Removes every user without the clone trooper role from the db.\n"
+        f"`!useritems <@user>`: Shows all items a user has.\n"
     )
 
     help_message = user_commands
@@ -623,7 +624,7 @@ async def help_command(ctx):
 @is_allowed_channel()
 async def ggn_store(ctx):
     store_info = (
-        "**Geetsly's Gaming Network Store Conversions:**\n"
+        "`Geetsly's Gaming Network Store Conversions:`\n"
         "(Please note that these are not prices for credit values. These are credit value conversions, "
         "meaning that a store item which is 15,000 credits is purchasable with $12.50 USD.)\n\n"
         "credits: `7,500` - `$5.00 USD`\n"
@@ -684,7 +685,7 @@ async def store(ctx, category: int = None):
         4: (
             "credits: ```30,000``` - ```$25.00 USD```\n"
             "30,000 - 'Phase 1 ARF Helmet'\n"
-            "The ARF Helmet from 'Star Wars The Clone Wars'.\n"
+            "The ARF Helmet from 'Star Wars The Clone Wars' Only for ARF Trooper or SOF .\n"
             "30,000 - 'Snowtrooper/Flametrooper Helmet'\n"
             "BRING IN THE FLAMETHROWERS!\n"
             "30,000 - 'Custom Visor'\n"
@@ -1879,56 +1880,7 @@ async def uptime(ctx):
     await ctx.send(f"Bot has been running for {uptime_duration}")
 
 
-@bot.command()
-@is_allowed_channel()
-async def poll(ctx, *, question: str):
-    embed = discord.Embed(title="Poll", description=question, color=discord.Color.blue())
-    embed.set_footer(text="React to vote!")
-    message = await ctx.send(embed=embed)
-    await message.add_reaction("👍")
-    await message.add_reaction("👎")
 
-
-# Optional command to display poll results
-@bot.command()
-@commands.has_permissions(manage_messages=True)
-async def poll_results(ctx, message_id: int):
-    try:
-        message = await ctx.fetch_message(message_id)
-        if not message.embeds or not message.embeds[0].title == "Poll":
-            await ctx.send("This message is not a poll.")
-            return
-
-        thumbs_up = discord.utils.get(message.reactions, emoji="👍")
-        thumbs_down = discord.utils.get(message.reactions, emoji="👎")
-
-        thumbs_up_count = thumbs_up.count - 1  # Subtract bot's initial reaction
-        thumbs_down_count = thumbs_down.count - 1  # Subtract bot's initial reaction
-
-        results = f"👍: {thumbs_up_count}\n👎: {thumbs_down_count}"
-        await ctx.send(f"Poll results:\n{results}")
-
-    except discord.NotFound:
-        await ctx.send("Poll message not found.")
-    except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
-
-
-@bot.event
-async def on_reaction_add(reaction, user):
-    if user.bot:
-        return  # Ignore bot reactions
-
-    message = reaction.message
-    if message.author != bot.user:
-        return  # Ignore reactions on messages not sent by the bot
-
-    if not message.embeds or not message.embeds[0].title == "Poll":
-        return  # Ignore reactions on messages that are not polls
-
-    if reaction.emoji not in ["👍", "👎"]:
-        await message.remove_reaction(reaction.emoji, user)  # Remove any other reactions
-        return
 
 
 @bot.command(name='rps')
