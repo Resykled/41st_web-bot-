@@ -1670,14 +1670,14 @@ async def whoami(ctx, subcommand: str = None):
         embed.add_field(name="Removed Credits", value=removed_credits, inline=False)
 
         await ctx.send(embed=embed)
-
+    
     else:
         embed = discord.Embed(
             title="Whoami Command",
             description=f"Use one of the following subcommands:\n"
-                        f"!whoami medals - to see your medals\n"
-                        f"!whoami purchases - to see your purchases\n"
-                        f"!whoami stats - to see your stats",
+                        f"`!whoami medals` - to see your medals\n"
+                        f"`!whoami purchases` - to see your purchases\n"
+                        f"`!whoami stats` - to see your stats",
             color=discord.Color.red()
         )
         await ctx.send(embed=embed)
