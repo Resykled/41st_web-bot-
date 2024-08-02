@@ -1459,7 +1459,7 @@ async def buy(ctx, user: discord.Member, *, item_name: str = None):
 # Command to show purchased items of a user
 @bot.command()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Art Team')
-async def useritems(ctx, user: discord.Member):
+async def useritemsd(ctx, user: discord.Member):
     user_id = user.id
     purchased_items = get_user_purchases(user_id)
 
