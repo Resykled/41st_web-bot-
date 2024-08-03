@@ -1457,18 +1457,23 @@ async def buy(ctx, user: discord.Member, *, item_name: str = None):
 
 
 # Command to show purchased items of a user
-@bot.command()
-@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Art Team')
-async def useritemsd(ctx, user: discord.Member):
-    user_id = user.id
-    purchased_items = get_user_purchases(user_id)
 
-    if purchased_items:
-        items_list = "\n".join(purchased_items)
-        await ctx.send(f"{user.mention} has purchased the following items:\n{items_list}")
-    else:
-        await ctx.send(f"{user.mention} has not purchased any items yet.")
 
+@bot.command(name='useritems')
+@is_allowed_channel()  # Assuming this decorator is correctly defined elsewhere in your code
+@commands.has_any_role('Technical Commander', 'Republic Droids', 'Commander', 'Economy Lead', 'Economy Admin', 'Art Team')
+async def useritems(ctx, user: discord.Member):
+    try:
+        user_id = user.id
+        purchased_items = get_user_purchases(user_id)  # Ensure this function is defined and works as expected
+
+        if purchased_items:
+            items_list = "\n".join(purchased_items)
+            await ctx.send(f"{user.mention} has purchased the following items:\n{items_list}")
+        else:
+            await ctx.send(f"{user.mention} has not purchased any items yet.")
+    except Exception as e:
+        await ctx.send(f"An error occurred while fetching items: {e}")
 
 # Function to remove a purchase
 def remove_user_purchase(user_id, item_name):
@@ -1904,6 +1909,59 @@ async def rock_paper_scissors(ctx, user_choice: str):
 
     await ctx.send(f'You chose {user_choice}, I chose {bot_choice}. {result}')
 
+@bot.command()
+async def Test(ctx):
+    embed = discord.Embed(
+        title="Hello!",
+        description="Greetings from the bot.",
+        color=discord.Color.red()
+    )
+    embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
+    await ctx.send(embed=embed)
+    print(f"Message sent to {ctx.channel.name}")
+
+
+@bot.command(name='test_chat')
+async def debug_channel(ctx):
+    channel = ctx.channel
+    permissions = channel.permissions_for(ctx.guild.me)
+
+    reasons = []
+
+    # Check if the bot has send message permission
+    if not permissions.send_messages:
+        reasons.append("Bot lacks 'send_messages' permission.")
+
+    # Check if the bot has read messages permission
+    if not permissions.read_messages:
+        reasons.append("Bot lacks 'read_messages' permission.")
+
+    # Check if the bot is allowed to embed links
+    if not permissions.embed_links:
+        reasons.append("Bot lacks 'embed_links' permission.")
+
+    # Check if the bot can attach files
+    if not permissions.attach_files:
+        reasons.append("Bot lacks 'attach_files' permission.")
+
+    # Check if the bot can add reactions
+    if not permissions.add_reactions:
+        reasons.append("Bot lacks 'add_reactions' permission.")
+
+    # Check if the bot is not allowed due to a channel being NSFW
+    if channel.is_nsfw():
+        reasons.append("Channel is marked as NSFW.")
+
+    # If no reasons were found, assume the bot can send messages
+    if not reasons:
+        reasons.append("Bot should be able to send messages in this channel.")
+
+    # Print the reasons to the console
+    for reason in reasons:
+        print(f"Debug: {reason}")
+
+    # Send a response to the user
+    await ctx.send("Check the console for debug information.")
 
 
 bot.run(get_bot_token())
