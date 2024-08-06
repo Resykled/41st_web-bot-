@@ -98,7 +98,7 @@ non_stacking_role_credits = dict(get_all_non_stacking_role_credits())
 
 
 # Channels where the bot commands are allowed
-ALLOWED_CHANNEL_NAMES = ['bot-test', 'bot-commands', 'econ-chat']
+ALLOWED_CHANNEL_NAMES = ['bot-test', 'bot-commands']
 REPORT_CHANNEL_NAME = 'bug-reports'
 # Google Sheets setup
 
@@ -298,13 +298,13 @@ async def on_message(message):
         print("Message is from a DM channel, ignoring.")  # Debug: DM Channel
         return
 
-    # Check if the message is in the 'bot-commands' channel
+    # Process commands as usual
+    await bot.process_commands(message)
+
+    # Check if the message is in the 'bot-commands' channel for specific processing
     if message.channel.name not in ALLOWED_CHANNEL_NAMES:
         print("Message is not in the allowed channel.")  # Debug: Wrong channel
         return
-
-    # Process commands as usual
-    await bot.process_commands(message)
 
     # Check if the message is from '41st Utilities'
     if message.author.name == "41st Utilities":
@@ -361,6 +361,7 @@ async def on_message(message):
         print("Message is not from '41st Utilities'.")  # Debug: Command not matched
 
     print("Processed commands.")  # Debug: Processed commands
+
 
 def read_medals(file_path):
     medals = {}
@@ -757,7 +758,6 @@ async def store(ctx, category: int = None):
         await ctx.send(embed=embed)
 
 @bot.command()
-@is_allowed_channel()
 @commands.has_any_role( 'Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
 async def id(ctx, member: discord.Member):
     try:
@@ -1169,7 +1169,6 @@ async def kill(ctx):
 
 
 @bot.command()
-@is_allowed_channel()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
 async def add(ctx, member: discord.Member, amount: int, *, comment: str = None):
     try:
@@ -1196,7 +1195,6 @@ async def add(ctx, member: discord.Member, amount: int, *, comment: str = None):
 
 
 @bot.command()
-@is_allowed_channel()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
 async def remove(ctx, member: discord.Member, amount: int, *, comment: str = None):
     try:
@@ -1413,7 +1411,7 @@ async def purchase(ctx, *, item_name: str = None):
 
 
 @bot.command()
-@is_allowed_channel()
+
 @commands.has_any_role( 'Economy Lead', 'Commander', 'Technical Commander')
 async def buy(ctx, user: discord.Member, *, item_name: str = None):
     # Define the items_list here
@@ -1460,7 +1458,6 @@ async def buy(ctx, user: discord.Member, *, item_name: str = None):
 
 
 @bot.command(name='useritems')
-@is_allowed_channel()  # Assuming this decorator is correctly defined elsewhere in your code
 @commands.has_any_role('Technical Commander', 'Republic Droids', 'Commander', 'Economy Lead', 'Economy Admin', 'Art Team')
 async def useritems(ctx, user: discord.Member):
     try:
