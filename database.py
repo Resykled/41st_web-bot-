@@ -863,6 +863,7 @@ def get_reminder_status(user_id):
 
 
 
+
 # Create the tables if they do not exist and initialize roles
 create_tables()
 create_non_stacking_roles_table()
