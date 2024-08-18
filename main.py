@@ -1942,19 +1942,21 @@ async def debug_channel(ctx):
     # Send a response to the user
     await ctx.send("Check the console for debug information.")
 
-
-
 from discord.ext import commands
 
 # List of army qualifications to check for, excluding "Clone Trooper Veteran" and "Veteran Trooper"
 army_qualifications = [
     "Scout Trooper", "Aerial Trooper", "Engineer", "Ace Pilot", "ARF Trooper",
     "Interceptor Pilot", "Bomber Pilot", "Strike Cadre", "Juggernaut Cadre",
-    "Shadow Cadre", "ARC Trooper", "Republic Commando", "Frontliner",
-    "Submachine Gunner", "Rifleman", "CQC Trooper", "Suppressor",
-    "Grenadier", "Heavy Rifleman", "Hunter", "Aggressor", "Sniper", "Slug Shooter",
-    "Sharpshooter", "Operative", "Urban Warrior", "Gunslinger", "HERO Pilot - First Class",
-    "HERO Pilot - Second Class", "Galactic Marine", "Medic Cadre", "Shadow Pilot", "Sapper", "Sky Trooper"
+    "Shadow Cadre", "ARC Trooper", "Republic Commando", "Medic Cadre", "Shadow Pilot", "Sapper", "Sky Trooper",
+    "HERO Pilot - First Class", "HERO Pilot - Second Class", "Galactic Marine"
+]
+
+# Advanced Weaponry Qualifications
+advanced_weaponry_qualifications = [
+    "Frontliner", "Submachine Gunner", "Rifleman", "CQC Trooper", "Suppressor",
+    "Grenadier", "Heavy Rifleman", "Hunter", "Aggressor", "Slug Shooter",
+    "Sniper", "Sharpshooter", "Operative", "Urban Warrior", "Gunslinger"
 ]
 
 # Platform roles
@@ -1964,6 +1966,14 @@ platform_roles = {
     "Playstation": "PS"
 }
 
+# Main platform roles
+main_platform_roles = {
+    "Green Company": "PC",
+    "Krayt Company": "PS",
+    "Titan Company": "Xbox"
+}
+
+
 # Function to send long messages in chunks
 async def send_long_message(ctx, message):
     if len(message) <= 2000:
@@ -1971,12 +1981,13 @@ async def send_long_message(ctx, message):
     else:
         # Split the message into chunks of 2000 characters
         for i in range(0, len(message), 2000):
-            await ctx.send(message[i:i+2000])
+            await ctx.send(message[i:i + 2000])
+
 
 # Define the bot command
 @bot.command(name='show_quals')
 @is_allowed_channel()
-@is_Technical_Commander()
+@commands.has_any_role('SOF Staff')
 async def show_qualifications(ctx):
     # Define server IDs
     server_with_users = 1138926753931346090  # Server ID where users should be checked
@@ -1995,40 +2006,61 @@ async def show_qualifications(ctx):
 
     # Iterate over members in the first server
     for member in guild_with_users.members:
-        # Determine the user's platform
-        user_platform = None
+        # Determine the user's main platform
+        main_platform = None
         for role in member.roles:
-            if role.name in platform_roles:
-                user_platform = platform_roles[role.name]
-                break
+            if role.name in main_platform_roles:
+                main_platform = main_platform_roles[role.name]
+                break  # Main platform found, no need to check further
 
-        if not user_platform:
-            continue  # Skip users without a platform role
+        if not main_platform:
+            continue  # Skip users without a main platform role
 
         # Check if the user is also in the qualifications server
         member_in_qualifications_guild = guild_with_qualifications.get_member(member.id)
         if member_in_qualifications_guild:
             # Iterate over the member's roles in the qualifications server
             for role in member_in_qualifications_guild.roles:
+                # Check for Army qualifications
                 if role.name in army_qualifications:
-                    if role.name not in qualifications_by_platform[user_platform]:
-                        qualifications_by_platform[user_platform][role.name] = []
-                    qualifications_by_platform[user_platform][role.name].append(member.display_name)
+                    if role.name not in qualifications_by_platform[main_platform]:
+                        qualifications_by_platform[main_platform][role.name] = []
+                    qualifications_by_platform[main_platform][role.name].append(member.display_name)
+                # Check for Advanced Weaponry qualifications
+                elif role.name in advanced_weaponry_qualifications:
+                    if "Advanced Weaponry" not in qualifications_by_platform[main_platform]:
+                        qualifications_by_platform[main_platform]["Advanced Weaponry"] = {}
+                    if role.name not in qualifications_by_platform[main_platform]["Advanced Weaponry"]:
+                        qualifications_by_platform[main_platform]["Advanced Weaponry"][role.name] = []
+                    qualifications_by_platform[main_platform]["Advanced Weaponry"][role.name].append(
+                        member.display_name)
 
     # Create the output message
     output_message = ""
 
     for platform, qualifications_dict in qualifications_by_platform.items():
         output_message += f"\n**{platform} Users**:\n"
+
+        # If there are Advanced Weaponry qualifications
+        if "Advanced Weaponry" in qualifications_dict:
+            output_message += f"\n**Advanced Weaponry**:\n"
+            for sub_qualification, sub_users in qualifications_dict["Advanced Weaponry"].items():
+                output_message += f"\n*{sub_qualification}*:\n"
+                for user in sub_users:
+                    output_message += f"- {user}\n"
+
+        # Non-Advanced Weaponry qualifications
         for qualification, users in qualifications_dict.items():
+            if qualification == "Advanced Weaponry":
+                continue  # Skip since already handled above
             output_message += f"\n**{qualification}**:\n"
             for user in users:
                 output_message += f"- {user}\n"
 
     # Send the output in chunks if it's too long
-    await send_long_message(ctx, output_message if output_message else "No users with the specified qualifications found.")
+    await send_long_message(ctx,
+                            output_message if output_message else "No users with the specified qualifications found.")
 
-# Start the bot
 
 
 
