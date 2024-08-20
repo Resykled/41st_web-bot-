@@ -825,6 +825,12 @@ async def bitches(ctx):
     message = "you have no bitches"
     await ctx.send(message)
     print("no bitches.")
+@bot.command()
+@is_allowed_channel()
+async def water(ctx):
+   message = "Water IS wet https://youtu.be/ugyqOSUlR2A?si=ebf-y4IZtFmpHPpc"
+   await ctx.send(message)
+   print("water lmao")
 
 @bot.command()
 @is_allowed_channel()
