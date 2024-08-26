@@ -491,8 +491,16 @@ async def drugs(ctx):
 async def Sykles(ctx):
     await ctx.send("tf are you tring to do here")
 
+@bot.command()
+@is_allowed_channel()
+async def Gravestone(ctx):
+	user_id = "814590259219660831" #Gravestone ID
+	await ctx.send("hows it going {user.mention}?")
 
-
+@bot.command()
+@is_allowed_channel()
+async def Nuke(ctx):
+	await ctx.send("Hello 2LT Nuke")
 
 
 # Note: You can get the user's ID by enabling Developer Mode in Discord,
