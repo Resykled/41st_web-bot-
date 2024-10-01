@@ -22,14 +22,14 @@ from database import update_user_credits, get_user_credits
 from database import update_user_credits
 from database import get_user_removed_credits
 from database import get_user_credits, update_user_credits, add_role_credits, get_all_role_credits, remove_role_credits, \
-    get_all_non_stacking_role_credits, get_user_removed_credits, reset_user_stats, get_user_medals, get_user_purchases  # Import the new functions
-from database import get_user_credits, update_user_credits, mark_role_credited, check_role_credited, get_user_roles_from_servers
+    get_all_non_stacking_role_credits, get_user_removed_credits, reset_user_stats, get_user_medals, \
+    get_user_purchases  # Import the new functions
+from database import get_user_credits, update_user_credits, mark_role_credited, check_role_credited, \
+    get_user_roles_from_servers
 # main.py
 from database import get_user_daily_info, update_user_daily_info, get_user_credits, update_user_credits
 from database import get_top_streaks, get_user_position, get_user_daily_info
 from database import set_user_streak
-
-
 
 from database import remove_registered_status
 
@@ -37,12 +37,9 @@ from database import remove_registered_status
 auto_update_enabled = False
 debug_mode_enabled = False
 
-
-
-
 # Define the rewards based on roles
 rewards = {
-"Art Team": ["Bad Batch Echo helmet"],
+    "Art Team": ["Bad Batch Echo helmet"],
     "Art Team Veteran": ["Store Items for 10k and under are free"],
     "Clone Trooper": ["white and green colour on the helmet"],
     "Clone Trooper Veteran": ["camouflage and grey on the helmet"],
@@ -57,6 +54,7 @@ rewards = {
     "Republic Commando": ["decent amount of extra colour", "green still has to be the main colour"]
 }
 
+
 # Function to get the rewards based on user roles
 def get_rewards_for_roles(role_names):
     user_rewards = set()
@@ -64,6 +62,7 @@ def get_rewards_for_roles(role_names):
         if role in rewards:
             user_rewards.update(rewards[role])
     return list(user_rewards)
+
 
 def get_bot_token():
     with open('bot_token.txt', 'r') as file:
@@ -84,22 +83,18 @@ credits_dict = {}
 role_credits = {role: credits for role, credits in get_all_role_credits()}
 non_stacking_roles = {role: credits for role, credits in get_all_non_stacking_role_credits()}
 
-
-
-
 role_credits = dict(get_all_role_credits())
 non_stacking_role_credits = dict(get_all_non_stacking_role_credits())
 
-
-
 # Function to read a file and return its contents
 # Function to read a file and return its contents
-
 
 
 # Channels where the bot commands are allowed
 ALLOWED_CHANNEL_NAMES = ['bot-test', 'bot-commands']
 REPORT_CHANNEL_NAME = 'bug-reports'
+
+
 # Google Sheets setup
 
 # Function to read a file and return its contents
@@ -108,17 +103,11 @@ def read_file(file_path):
         return file.read().strip()
 
 
-
-
-
-
-
-
-
 # Ensure continuous operation
 async def keep_active():
     while True:
         await asyncio.sleep(3600)  # Keeps the loop running every hour
+
 
 async def has_role_elsewhere(member, role_name):
     for guild in bot.guilds:
@@ -127,8 +116,6 @@ async def has_role_elsewhere(member, role_name):
             if guild_member and any(role.name == role_name for role in guild_member.roles):
                 return True
     return False
-
-
 
 
 @bot.event
@@ -236,18 +223,19 @@ async def on_member_update(before, after):
 
             for role in added_roles:
                 if role in non_stacking_roles and non_stacking_roles[role] < max_before_non_stacking_credit:
-                    print(f"Non-stacking role {role} added but gives no credits because user {after.id} has a higher role")
+                    print(
+                        f"Non-stacking role {role} added but gives no credits because user {after.id} has a higher role")
 
         new_credits = current_credits - removed_credits + added_credits + max_after_non_stacking_credit - max_before_non_stacking_credit
         print(f"New credits calculation: {new_credits}")
 
         # Update credits in the database
-        print(f"Updating user credits: user_id={after.id}, current_credits={new_credits}, removed_credits={removed_credits}")
+        print(
+            f"Updating user credits: user_id={after.id}, current_credits={new_credits}, removed_credits={removed_credits}")
         update_user_credits(after.id, new_credits)
         credits_dict[after.id] = new_credits
 
         print(f'Updated credits for member {after.id}: {new_credits}')
-
 
 
 def add_or_update_user(member):
@@ -286,7 +274,9 @@ def add_or_update_user(member):
     connection.commit()
     connection.close()
 
+
 updated_users = set()
+
 
 @bot.event
 async def on_message(message):
@@ -376,9 +366,9 @@ def read_medals(file_path):
                     print(f"Zeile übersprungen aufgrund ungültigen Formats: {line.strip()}")
     return medals
 
+
 # Lade die Medaillen in ein Dictionary
 medals = read_medals('Regiment medals python.txt')
-
 
 
 # Function to add a medal to a user and update their credits
@@ -415,17 +405,6 @@ async def remove_medal_from_user(user_id, medal_name):
     return True, f"Removed {medal_name} from user with ID {user_id}, subtracting {credit_amount} credits."
 
 
-
-
-
-
-
-
-
-
-
-
-
 def is_allowed_channel():
     async def predicate(ctx):
         ALLOWED_CHANNEL_NAMES = ['bot-commands', 'bot-test', 'econ-chat']  # List of allowed channels
@@ -459,17 +438,9 @@ def get_user_roles_from_servers(user_id, server_ids):
                 all_roles.update({role.name for role in member.roles})
     return all_roles
 
+
 # List of server IDs to check
 server_ids = [850840453800919100, 1138926753931346090, 911409562970628167]
-
-
-
-
-
-
-
-
-
 
 
 @bot.command()
@@ -483,8 +454,6 @@ async def hello(ctx):
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
     await ctx.send(embed=embed)
     print(f"Message sent to {ctx.channel.name}")
-
-
 
 
 @bot.command()
@@ -547,15 +516,13 @@ async def report(ctx, *, problem: str = None):
         await ctx.send(embed=embed)
 
 
-
-
 @bot.command()
 @is_allowed_channel()
 async def version(ctx):
     version_info = (
         "Version: `V1.7~ Purchase`\n"
         "Date: `05.06.2024`\n"
-        "Last update: `27.07.2024`\n" 
+        "Last update: `27.07.2024`\n"
         "Programmer: `TCDR Sykles CC-5132`"
     )
     embed = discord.Embed(
@@ -563,7 +530,11 @@ async def version(ctx):
         color=discord.Color.red()
     )
     await ctx.send(embed=embed)
+
+
 bot.remove_command('help')
+
+
 @bot.command(name='help')
 @is_allowed_channel()
 async def help_command(ctx):
@@ -615,10 +586,6 @@ async def help_command(ctx):
     )
 
     await ctx.send(embed=embed)
-
-
-
-
 
 
 @bot.command()
@@ -757,8 +724,9 @@ async def store(ctx, category: int = None):
         )
         await ctx.send(embed=embed)
 
+
 @bot.command()
-@commands.has_any_role( 'Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
+@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
 async def id(ctx, member: discord.Member):
     try:
         user_id = member.id
@@ -773,7 +741,7 @@ async def id(ctx, member: discord.Member):
             color=discord.Color.red()
         )
         embed.add_field(name="ID", value=f"{user_id}", inline=False)
-        embed.add_field(name="Name" ,value=f"{member.display_name}", inline=False)
+        embed.add_field(name="Name", value=f"{member.display_name}", inline=False)
         embed.add_field(name="Current Credits", value=f"{current_credits}", inline=False)
         embed.add_field(name="Max Credits", value=f"{max_credits}", inline=False)
         embed.add_field(name="Removed Credits", value=f"{removed_credits}", inline=False)
@@ -785,13 +753,14 @@ async def id(ctx, member: discord.Member):
     except Exception as e:
         await ctx.send(f"An error occurred while fetching user info: {e}")
 
+
 # Start troll commands
 
 @bot.command()
 @is_allowed_channel()
 async def techno(ctx):
-    await ctx.send("Check this out  https://www.youtube.com/watch?v=Uj1ykZWtPYI&list=PL9JM2aC37BG03vlqyhiYX54NG_thqqvbg ")
-
+    await ctx.send(
+        "Check this out  https://www.youtube.com/watch?v=Uj1ykZWtPYI&list=PL9JM2aC37BG03vlqyhiYX54NG_thqqvbg ")
 
 
 @bot.command()
@@ -805,10 +774,13 @@ async def drugs(ctx):
 async def kyoda(ctx):
     await ctx.send("The requested function took too long to respond and timed out. Please try again later")
 
+
 @bot.command()
 @is_allowed_channel()
 async def Sykles(ctx):
     await ctx.send("tf are you tring to do here")
+
+
 # Note: You can get the user's ID by enabling Developer Mode in Discord,
 # right-clicking on the user, and selecting "Copy ID".
 @bot.command()
@@ -825,12 +797,15 @@ async def bitches(ctx):
     message = "you have no bitches"
     await ctx.send(message)
     print("no bitches.")
+
+
 @bot.command()
 @is_allowed_channel()
 async def water(ctx):
-   message = "Water IS wet https://youtu.be/ugyqOSUlR2A?si=ebf-y4IZtFmpHPpc"
-   await ctx.send(message)
-   print("water lmao")
+    message = "Water IS wet https://youtu.be/ugyqOSUlR2A?si=ebf-y4IZtFmpHPpc"
+    await ctx.send(message)
+    print("water lmao")
+
 
 @bot.command()
 @is_allowed_channel()
@@ -838,6 +813,7 @@ async def no_you(ctx):
     message = "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo."
     await ctx.send(message)
     print("no bitches.")
+
 
 @bot.command()
 @is_allowed_channel()
@@ -850,6 +826,7 @@ async def monte(ctx):
     else:
         await ctx.send("Could not find the user monte.")
         print("Could not find the user monte.")
+
 
 # End troll commands
 # Start DB commads
@@ -890,6 +867,7 @@ async def register(ctx):
 
     await ctx.send(f"{ctx.author.mention}, you have been registered with {credits} credits.")
 
+
 @bot.command()
 @is_Technical_Commander()  # Ensure only admins can use this command
 async def registerRemove(ctx, member: discord.Member):
@@ -900,13 +878,14 @@ async def registerRemove(ctx, member: discord.Member):
 
     await ctx.send(f"{member.mention}'s register status has been reset. They can use the !register command again.")
 
+
 @bot.command()
 @is_Technical_Commander()  # Ensure only authorized users can run this command
 async def registerEveryone(ctx):
     clone_trooper_role = discord.utils.get(ctx.guild.roles, name="#ddaa00")
-    #clone_trooper_role = discord.utils.get(ctx.guild.roles, name="Clone Trooper")
+    # clone_trooper_role = discord.utils.get(ctx.guild.roles, name="Clone Trooper")
     registered_count = 0
-# Republic Commmando
+    # Republic Commmando
     # Define the server IDs to fetch roles from
     server_ids = [850840453800919100, 911409562970628167, 1138926753931346090]
 
@@ -952,12 +931,12 @@ async def registerEveryone(ctx):
         f"All members with the 'Clone Trooper' role have been registered. Total registered: {registered_count}")
 
 
-@bot.command() # register help command to remove every user with a certain role
+@bot.command()  # register help command to remove every user with a certain role
 @is_Technical_Commander()  # Ensure only authorized users can run this command
 async def removeNonCTs(ctx):
     clone_trooper_role_name = "ARC Trooper"
     removed_count = 0
-# clone_trooper_role_name = "Clone Trooper"
+    # clone_trooper_role_name = "Clone Trooper"
     for guild in bot.guilds:
         for member in guild.members:
             user_id = member.id
@@ -994,10 +973,7 @@ async def removeARCTroopers(ctx):
     await ctx.send(f"Removed {removed_count} users who have the '{arc_trooper_role_name}' role.")
 
 
-
-
-
-@bot.command()  #resets DB ONLY FOR WORST CASE
+@bot.command()  # resets DB ONLY FOR WORST CASE
 @is_Technical_Commander()  # Ensure only authorized users can run this command
 async def cleardb(ctx):
     try:
@@ -1114,9 +1090,6 @@ async def save_db(ctx):
         await ctx.send(embed=embed)
 
 
-
-
-
 @bot.command()
 @is_Technical_Commander()
 @is_allowed_channel()
@@ -1127,6 +1100,7 @@ async def resetStats(ctx, user: discord.Member):
         await ctx.send(f"All statistics for {user.mention} have been reset.")
     except Exception as e:
         await ctx.send(f"An error occurred while resetting statistics for {user.mention}: {e}")
+
 
 # End Db commads
 
@@ -1149,11 +1123,7 @@ async def kill(ctx):
     await bot.close()
 
 
-
-
-
 # Start Credit commands
-
 
 
 @bot.command()
@@ -1210,7 +1180,7 @@ async def remove(ctx, member: discord.Member, amount: int, *, comment: str = Non
 
 
 @bot.command()
-@commands.has_any_role( 'Economy Lead', 'Commander', 'Technical Commander')
+@commands.has_any_role('Economy Lead', 'Commander', 'Technical Commander')
 async def setUserCredits(ctx, member: discord.Member, credits: int, *, comment: str = None):
     try:
         user_id = member.id
@@ -1249,9 +1219,6 @@ async def setUserCredits(ctx, member: discord.Member, credits: int, *, comment: 
         print(f"An error occurred while setting credits: {e}")
 
 
-
-
-
 @bot.command()
 @is_allowed_channel()
 async def credits(ctx):
@@ -1281,7 +1248,6 @@ async def credits(ctx):
     print(f"Message sent to {ctx.channel.name}")
 
 
-
 @bot.command()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
 async def check_credits(ctx, member: discord.Member):
@@ -1307,10 +1273,6 @@ async def check_credits(ctx, member: discord.Member):
         print(f"Credit info for {user_id} sent in embed.")  # Debug: Embed sent
     except Exception as e:
         await ctx.send(f"An error occurred while fetching credit info: {e}")
-
-
-
-
 
 
 # Function to get user purchases
@@ -1354,6 +1316,7 @@ store_items = {
     "Halfbody": 50000,
     # Add other items here
 }
+
 
 @bot.command()
 @is_allowed_channel()
@@ -1399,8 +1362,7 @@ async def purchase(ctx, *, item_name: str = None):
 
 
 @bot.command()
-
-@commands.has_any_role( 'Economy Lead', 'Commander', 'Technical Commander')
+@commands.has_any_role('Economy Lead', 'Commander', 'Technical Commander')
 async def buy(ctx, user: discord.Member, *, item_name: str = None):
     # Define the items_list here
     items_list = "\n".join(store_items.keys())
@@ -1446,7 +1408,8 @@ async def buy(ctx, user: discord.Member, *, item_name: str = None):
 
 
 @bot.command(name='useritems')
-@commands.has_any_role('Technical Commander', 'Republic Droids', 'Commander', 'Economy Lead', 'Economy Admin', 'Art Team')
+@commands.has_any_role('Technical Commander', 'Republic Droids', 'Commander', 'Economy Lead', 'Economy Admin',
+                       'Art Team')
 async def useritems(ctx, user: discord.Member):
     try:
         user_id = user.id
@@ -1459,6 +1422,7 @@ async def useritems(ctx, user: discord.Member):
             await ctx.send(f"{user.mention} has not purchased any items yet.")
     except Exception as e:
         await ctx.send(f"An error occurred while fetching items: {e}")
+
 
 # Function to remove a purchase
 def remove_user_purchase(user_id, item_name):
@@ -1491,9 +1455,6 @@ async def refund(ctx, user: discord.Member, *, item_name: str):
 
     await ctx.send(
         f"The item '{item_name}' has been refunded to {user.mention}. {item_price} credits have been returned. New balance: {new_credits} credits.")
-
-
-
 
 
 @bot.command()
@@ -1660,7 +1621,7 @@ async def whoami(ctx, subcommand: str = None):
         embed.add_field(name="Removed Credits", value=removed_credits, inline=False)
 
         await ctx.send(embed=embed)
-    
+
     else:
         embed = discord.Embed(
             title="Whoami Command",
@@ -1671,7 +1632,6 @@ async def whoami(ctx, subcommand: str = None):
             color=discord.Color.red()
         )
         await ctx.send(embed=embed)
-
 
 
 @bot.command(name='debug')
@@ -1693,7 +1653,6 @@ async def debug(ctx):
         "!ggn_store",
         "!store category",
         "!register",
-
 
         "!add @user 100",
         "!remove @user 50",
@@ -1743,6 +1702,7 @@ async def debug(ctx):
     result_message = "\n".join([f"{command}: {result}" for command, result in results])
     await ctx.send(f"Debugging completed.\n\nResults:\n{result_message}")
     print("Debug: Debugging completed.")  # Debugging message
+
 
 @bot.command()
 @is_allowed_channel()
@@ -1807,10 +1767,11 @@ async def leader(ctx):
     if user_info:
         user_streak = user_info[1]
         if user_position > 5:
-            embed.add_field(name="Your Position", value=f"{user_position}. {ctx.author.display_name} - Streak: {user_streak} days", inline=False)
+            embed.add_field(name="Your Position",
+                            value=f"{user_position}. {ctx.author.display_name} - Streak: {user_streak} days",
+                            inline=False)
 
     await ctx.send(embed=embed)
-
 
 
 @bot.command(name='rewards')
@@ -1863,14 +1824,12 @@ async def git_push(ctx, branch=None):
 
 start_time = datetime.now()
 
+
 @bot.command()
 @is_allowed_channel()
 async def uptime(ctx):
     uptime_duration = datetime.now() - start_time
     await ctx.send(f"Bot has been running for {uptime_duration}")
-
-
-
 
 
 @bot.command(name='rps')
@@ -1886,13 +1845,14 @@ async def rock_paper_scissors(ctx, user_choice: str):
     if user_choice.lower() == bot_choice:
         result = "It's a tie!"
     elif (user_choice.lower() == 'rock' and bot_choice == 'scissors') or \
-         (user_choice.lower() == 'scissors' and bot_choice == 'paper') or \
-         (user_choice.lower() == 'paper' and bot_choice == 'rock'):
+            (user_choice.lower() == 'scissors' and bot_choice == 'paper') or \
+            (user_choice.lower() == 'paper' and bot_choice == 'rock'):
         result = "You win!"
     else:
         result = "You lose!"
 
     await ctx.send(f'You chose {user_choice}, I chose {bot_choice}. {result}')
+
 
 @bot.command()
 async def Test(ctx):
@@ -1947,6 +1907,7 @@ async def debug_channel(ctx):
 
     # Send a response to the user
     await ctx.send("Check the console for debug information.")
+
 
 from discord.ext import commands
 
@@ -2068,8 +2029,5 @@ async def show_qualifications(ctx):
                             output_message if output_message else "No users with the specified qualifications found.")
 
 
-
-
 bot.run(get_bot_token())
-
 
