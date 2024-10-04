@@ -1,6 +1,7 @@
 import os
 import subprocess
 import discord
+from discord import user
 from discord.ext import commands
 import sys
 from datetime import datetime
@@ -1504,7 +1505,7 @@ async def whoami(ctx, subcommand: str = None):
 
         army_qualifications = [
             "Scout Trooper", "Aerial Trooper", "Engineer", "Ace Pilot", "ARF Trooper", "Interceptor Pilot",
-            "Bomber Pilot", "Veteran Trooper", "Strike Cadre", "Juggernaut Cadre", "Shadow Cadre", "ARC Trooper",
+            "Bomber Pilot", "Veteran Trooper", "Strike Cadre", "Juggernaut Cadre", "Shadow Cadre", "ARC Qualification",
             "Republic Commando", "Frontliner", "Submachine Gunner", "Rifleman", "CQC Trooper", "Suppressor",
             "Grenadier", "Heavy Rifleman", "Hunter", "Aggressor", "Sniper", "Slug Shooter", "Sharpshooter",
             "Operative", "Urban Warrior", "Gunslinger", "HERO Pilot - First Class", "HERO Pilot - Second Class",
@@ -1519,12 +1520,12 @@ async def whoami(ctx, subcommand: str = None):
         sof_medals = [
             "SOF Service Medal", "Special Forces Veteran", "Special Forces Legend", "Special Forces Myth",
             "Unexpected Assistance", "Devout Protector", "Strength in Unity", "Brotherhood of Steel",
-            "Brothers In Arms",
+            "Brothers in Arms",
             "Proven Advisor", "Impossible Odds", "41st Superiority", "Double The Effort", "Regime Toppler",
             "Survivalist", "Unbreakable", "Republic Juggernaut", "Death From Above", "Furry Frenzy", "Back to Basics",
             "Operation:SuppressiveShrout", "Seasoned Saboteur", "Support Scuttler", "Masterful Saboteur", "In And Out",
             "Superior Tactics", "Safety's Off", "Tinnie Scrapper", "Commando Culler", "Guerrilla Tactician",
-            "Unwavering", "No Mercy",
+            "Unwavering",
             "Guardian Angel"
         ]
 
@@ -1622,16 +1623,145 @@ async def whoami(ctx, subcommand: str = None):
 
         await ctx.send(embed=embed)
 
+    elif subcommand == "credits":
+        current_credits, max_credits, removed_credits = get_user_credits(user.id, user_roles, role_credits,
+                                                                         non_stacking_roles)
+        join_date = user.joined_at.strftime("%Y-%m-%d %H:%M:%S")
+        highest_non_stacking_role = max(
+            (role for role in user.roles if role.name in non_stacking_roles_list),
+            key=lambda r: non_stacking_roles_list.index(r.name),
+            default=None
+        )
+        army_rank = highest_non_stacking_role.name if highest_non_stacking_role else "No rank"
+
+        purchases_list = get_user_purchases(user.id)
+
+
+        if purchases_list:
+            purchases_str = "\n".join(purchases_list)
+
+        # Define role categories
+        army_medals = [
+            "Medal of Valor", "41st Service Medal", "Cadet Master", "Mythical Instructor", "Legendary Instructor",
+            "Hero of The 41st", "Absolutely Demolished", "Legendary Ranger", "Battle Hardened", "Bane of Clankers",
+            "Order of Dedication", "Vaunted Veteran Medal", "Seppie Scourge", "Plot Armor", "Superior Genetics",
+            "Flawless Leadership", "Supporting Act", "May the Score be with you", "Deadly and Discrete",
+            "The Best of the Best", "Clanker Crusher", "Terror in the Sky", "True Trooper", "Siegebreaker", "Top Gun",
+            "41st Representation Medal", "Lone Survivor", "Exemplar",
+            "Professional Soldier", "One Man Army", "The Good Batch", "Bred for War", "Outstanding Dedication",
+            "Fireteam on Fire", "First Try", "Experience Outranks Everything"
+        ]
+
+        level_medals = [
+            "Mythical ARF Medal", "Legendary ARF Medal", "Mythical Engineer Medal", "Elite ARF Medal",
+            "Legendary Engineer Medal", "Veteran ARF Medal", "Elite Engineer Medal", "Mythical Commando Medal",
+            "Mythical ARC Medal", "Mythical Aerial Medal", "Mythical Officer Medal", "Mythical Specialist Medal",
+            "Mythical Heavy Medal", "Mythical Assault Medal", "Veteran Engineer Medal", "Legendary Commando Medal",
+            "Legendary ARC Medal", "Legendary Aerial Medal", "Legendary Officer Medal", "Legendary Specialist Medal",
+            "Legendary Heavy Medal", "Legendary Assault Medal", "Elite Commando Medal", "Elite ARC Medal",
+            "Elite Aerial Medal", "Elite Officer Medal", "Elite Specialist Medal", "Elite Heavy Medal",
+            "Elite Assault Medal",
+            "Veteran Commando Medal", "Veteran ARC Medal", "Veteran Aerial Medal", "Veteran Officer Medal",
+            "Veteran Specialist Medal", "Veteran Heavy Medal", "Veteran Assault Medal"
+        ]
+
+        army_qualifications = [
+            "Scout Trooper", "Aerial Trooper", "Engineer", "Ace Pilot", "ARF Trooper", "Interceptor Pilot",
+            "Bomber Pilot", "Veteran Trooper", "Strike Cadre", "Juggernaut Cadre", "Shadow Cadre", "ARC Qualification",
+            "Republic Commando", "Frontliner", "Submachine Gunner", "Rifleman", "CQC Trooper", "Suppressor",
+            "Grenadier", "Heavy Rifleman", "Hunter", "Aggressor", "Sniper", "Slug Shooter", "Sharpshooter",
+            "Operative", "Urban Warrior", "Gunslinger", "HERO Pilot - First Class", "HERO Pilot - Second Class",
+            "Galactic Marine", "Medic Cadre", "Shadow Pilot", "Sapper", "Sky Trooper"
+        ]
+
+        navy_qualifications = [
+            "Interceptor Qualification", "Bomber Qualification", "Ace Pilot", "HERO - Dogfighter", "HERO - Objective",
+            "HERO - Aerial Denial", "HERO - Mobility", "HERO - Support"
+        ]
+
+        sof_medals = [
+            "SOF Service Medal", "Special Forces Veteran", "Special Forces Legend", "Special Forces Myth",
+            "Unexpected Assistance", "Devout Protector", "Strength in Unity", "Brotherhood of Steel",
+            "Brothers in Arms",
+            "Proven Advisor", "Impossible Odds", "41st Superiority", "Double The Effort", "Regime Toppler",
+            "Survivalist", "Unbreakable", "Republic Juggernaut", "Death From Above", "Furry Frenzy", "Back to Basics",
+            "Operation:SuppressiveShrout", "Seasoned Saboteur", "Support Scuttler", "Masterful Saboteur", "In And Out",
+            "Superior Tactics", "Safety's Off", "Tinnie Scrapper", "Commando Culler", "Guerrilla Tactician",
+            "Unwavering",
+            "Guardian Angel"
+        ]
+
+        regiment_medals = [
+            "Fixer Upper", "Behind Enemy Lines", "Above and Beyond", "Devout Protectors", "Altered Genetics",
+            "Dragway Genetics", "Perfect Attendance", "Honor Roll", "All Terrain Terror", "The Team to Beat",
+            "Leading to Victory", "To Sacrifice and Serve", "For the Republic", "Dedication is Key", "Squad Oriented",
+            "All but Special Forces", "Top Trainer", "Leading the Charge", "Participation Trophy", "A Cut Above",
+            "Base Class Champion", "Trials are our Speciality", "Team Player", "Old but Gold", "He's going for Speed",
+            "He's Going the Distance", "Basic Equipment Expert", "Instructor on Fire", "Praise the Maker",
+            "FEEL THE WRATH OF THE 41ST"
+        ]
+
+        # Get medals and qualifications from specific servers
+        army_server = bot.get_guild(850840453800919100)
+        army_roles, level_roles, army_qual_roles, navy_qual_roles = [], [], [], []
+        if army_server:
+            army_member = army_server.get_member(user.id)
+            if army_member:
+                army_roles = [role.name for role in army_member.roles if role.name in army_medals]
+                level_roles = [role.name for role in army_member.roles if role.name in level_medals]
+                army_qual_roles = [role.name for role in army_member.roles if role.name in army_qualifications]
+                navy_qual_roles = [role.name for role in army_member.roles if role.name in navy_qualifications]
+
+        sof_server = bot.get_guild(911409562970628167)
+        sof_roles = []
+        if sof_server:
+            sof_member = sof_server.get_member(user.id)
+            if sof_member:
+                sof_roles = [role.name for role in sof_member.roles if role.name in sof_medals]
+
+        regiment_server = bot.get_guild(1138926753931346090)
+        regiment_roles = []
+        if regiment_server:
+            regiment_member = regiment_server.get_member(user.id)
+            if regiment_member:
+                regiment_roles = [role.name for role in regiment_member.roles if role.name in regiment_medals]
+
+        # Prepare the embed
+        embed = discord.Embed(title="Your Breakdown", color=discord.Color.orange())
+
+        embed.add_field(name="Username", value=user.display_name, inline=False)
+        embed.add_field(name="Army Rank", value=army_rank, inline=False)
+        if army_roles:
+            embed.add_field(name="Army Medals", value="\n".join(army_roles), inline=False)
+        if level_roles:
+            embed.add_field(name="Level Medals", value="\n".join(level_roles), inline=False)
+        if army_qual_roles:
+            embed.add_field(name="Army Qualifications", value="\n".join(army_qual_roles), inline=False)
+        if navy_qual_roles:
+            embed.add_field(name="Navy Qualifications", value="\n".join(navy_qual_roles), inline=False)
+        if sof_roles:
+            embed.add_field(name="SOF Medals", value="\n".join(sof_roles), inline=False)
+        if regiment_roles:
+            embed.add_field(name="Regiment Medals", value="\n".join(regiment_roles), inline=False)
+        # embed.add_field(name="Your Purchases", description=purchases_str, inline=False)
+        embed.add_field(name="Max Credits", value=max_credits, inline=False)
+        embed.add_field(name="Current Credits", value=current_credits, inline=False)
+        embed.add_field(name="Removed Credits", value=removed_credits, inline=False)
+
+        await ctx.send(embed=embed)
+
     else:
         embed = discord.Embed(
             title="Whoami Command",
             description=f"Use one of the following subcommands:\n"
-                        f"`!whoami medals` - to see your medals\n"
-                        f"`!whoami purchases` - to see your purchases\n"
-                        f"`!whoami stats` - to see your stats",
+                        f"!whoami medals - to see your medals\n"
+                        f"!whoami purchases - to see your purchases\n"
+                        f"!whoami stats - to see your stats\n"
+                        f"!whoami credits - to see the full breakdown of your credits",
             color=discord.Color.red()
         )
         await ctx.send(embed=embed)
+
 
 
 @bot.command(name='debug')
