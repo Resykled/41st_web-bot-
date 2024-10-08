@@ -1839,31 +1839,47 @@ async def whoami(ctx, subcommand: str = None):
         if army_server:
             army_member = army_server.get_member(user.id)
             if army_member:
-                army_roles = [(role.name, y) for role in army_member.roles for (x, y) in army_medals if role.name == x]
-                army_roles_f = str(army_roles)
-                level_roles = [(role.name, y) for role in army_member.roles for (x, y) in level_medals if role.name == x]
-                level_roles_f = str(level_roles)
-                army_qual_roles = [(role.name, y) for role in army_member.roles for (x, y) in army_qualifications if role.name == x]
-                army_qual_roles_f = str(army_qual_roles)
-                navy_qual_roles = [(role.name, y) for role in army_member.roles for (x, y) in navy_qualifications if role.name == x]
-                navy_qual_roles_f = str(navy_qual_roles)
+                army_roles = [role.name for role in army_member.roles for (x, y) in army_medals if role.name == x]
+                army_credits = [y for role in army_member.roles for (x, y) in army_medals if role.name == x]
+                army_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(army_roles, army_credits))
 
+                level_roles = [role.name for role in army_member.roles for (x, y) in level_medals if role.name == x]
+                level_credits = [y for role in army_member.roles for (x, y) in level_medals if role.name == x]
+                level_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(level_roles, level_credits))
+
+                army_qual_roles = [role.name for role in army_member.roles for (x, y) in army_qualifications if
+                                   role.name == x]
+                army_qual_credits = [y for role in army_member.roles for (x, y) in army_qualifications if
+                                     role.name == x]
+                army_qual_roles_f = "\n".join(
+                    f"{role} {credit}" for role, credit in zip(army_qual_roles, army_qual_credits))
+
+                navy_qual_roles = [role.name for role in army_member.roles for (x, y) in navy_qualifications if
+                                   role.name == x]
+                navy_qual_credits = [y for role in army_member.roles for (x, y) in navy_qualifications if
+                                     role.name == x]
+                navy_qual_roles_f = "\n".join(
+                    f"{role} {credit}" for role, credit in zip(navy_qual_roles, navy_qual_credits))
 
         sof_server = bot.get_guild(911409562970628167)
         sof_roles = []
         if sof_server:
             sof_member = sof_server.get_member(user.id)
             if sof_member:
-                sof_roles = [(role.name, y) for role in sof_member.roles for (x, y) in sof_medals if role.name == x]
-                sof_roles_f = str(sof_roles)
+                sof_roles = [role.name for role in army_member.roles for (x, y) in sof_medals if role.name == x]
+                sof_credits = [y for role in army_member.roles for (x, y) in sof_medals if role.name == x]
+                sof_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(sof_roles, sof_credits))
 
         regiment_server = bot.get_guild(1138926753931346090)
         regiment_roles = []
         if regiment_server:
             regiment_member = regiment_server.get_member(user.id)
             if regiment_member:
-                regiment_roles = [(role.name, y) for role in regiment_member.roles for (x, y) in regiment_medals if role.name == x]
-                regiment_roles_f = str(regiment_roles)
+                regiment_roles = [role.name for role in army_member.roles for (x, y) in regiment_medals if
+                                  role.name == x]
+                regiment_credits = [y for role in army_member.roles for (x, y) in regiment_medals if role.name == x]
+                regiment_roles_f = "\n".join(
+                    f"{role} {credit}" for role, credit in zip(regiment_roles, regiment_credits))
 
 
         #Prepare the embed
@@ -1875,7 +1891,7 @@ async def whoami(ctx, subcommand: str = None):
 
         if army_roles:
            embed.add_field(name="Army Medals", value="".join(army_roles_f), inline=False)
-           
+
         if level_roles:
             embed.add_field(name="Level Medals", value="".join(level_roles_f), inline=False)
         if army_qual_roles:
