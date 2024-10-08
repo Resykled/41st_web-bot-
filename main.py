@@ -1461,6 +1461,7 @@ async def refund(ctx, user: discord.Member, *, item_name: str):
 @bot.command()
 @is_allowed_channel()
 async def whoami(ctx, subcommand: str = None):
+    global role
     user = ctx.author
     server_ids = [850840453800919100, 1138926753931346090, 911409562970628167]
     user_roles = get_user_roles_from_servers(user.id, server_ids)
@@ -1636,69 +1637,200 @@ async def whoami(ctx, subcommand: str = None):
 
         purchases_list = get_user_purchases(user.id)
 
-
-        if purchases_list:
-            purchases_str = "\n".join(purchases_list)
-
         # Define role categories
         army_medals = [
-            "Medal of Valor", "41st Service Medal", "Cadet Master", "Mythical Instructor", "Legendary Instructor",
-            "Hero of The 41st", "Absolutely Demolished", "Legendary Ranger", "Battle Hardened", "Bane of Clankers",
-            "Order of Dedication", "Vaunted Veteran Medal", "Seppie Scourge", "Plot Armor", "Superior Genetics",
-            "Flawless Leadership", "Supporting Act", "May the Score be with you", "Deadly and Discrete",
-            "The Best of the Best", "Clanker Crusher", "Terror in the Sky", "True Trooper", "Siegebreaker", "Top Gun",
-            "41st Representation Medal", "Lone Survivor", "Exemplar",
-            "Professional Soldier", "One Man Army", "The Good Batch", "Bred for War", "Outstanding Dedication",
-            "Fireteam on Fire", "First Try", "Experience Outranks Everything"
+            ("Medal of Valor", 20000),
+        ("41st Service Medal", 3000),
+        ("Cadet Master", 3000),
+        ("Mythical Instructor", 3000),
+        ("Legendary Instructor", 3000),
+        ("Hero of The 41st", 2500),
+        ("Absolutely Demolished", 2000),
+        ("Legendary Ranger", 2000),
+        ("Battle Hardened", 2000),
+        ("Bane of Clankers", 2000),
+        ("Order of Dedication", 2000),
+        ("Vaunted Veteran Medal", 4000),
+        ("Seppie Scourge", 1500),
+        ("Plot Armor", 1500),
+        ("Superior Genetics", 1500),
+        ("Flawless Leadership", 1500),
+        ("Supporting Act", 1000),
+        ("May the Score be with you", 1000),
+        ("Deadly and Discrete", 1000),
+        ("The Best of the Best", 1000),
+        ("Clanker Crusher", 1000),
+        ("Terror in the Sky", 1000),
+        ("True Trooper", 1000),
+        ("Siegebreaker", 1000),
+        ("Top Gun", 1000),
+        ("41st Representation Medal", 1000)
         ]
 
         level_medals = [
-            "Mythical ARF Medal", "Legendary ARF Medal", "Mythical Engineer Medal", "Elite ARF Medal",
-            "Legendary Engineer Medal", "Veteran ARF Medal", "Elite Engineer Medal", "Mythical Commando Medal",
-            "Mythical ARC Medal", "Mythical Aerial Medal", "Mythical Officer Medal", "Mythical Specialist Medal",
-            "Mythical Heavy Medal", "Mythical Assault Medal", "Veteran Engineer Medal", "Legendary Commando Medal",
-            "Legendary ARC Medal", "Legendary Aerial Medal", "Legendary Officer Medal", "Legendary Specialist Medal",
-            "Legendary Heavy Medal", "Legendary Assault Medal", "Elite Commando Medal", "Elite ARC Medal",
-            "Elite Aerial Medal", "Elite Officer Medal", "Elite Specialist Medal", "Elite Heavy Medal",
-            "Elite Assault Medal",
-            "Veteran Commando Medal", "Veteran ARC Medal", "Veteran Aerial Medal", "Veteran Officer Medal",
-            "Veteran Specialist Medal", "Veteran Heavy Medal", "Veteran Assault Medal"
+            ("Mythical ARF Medal", 7500),
+        ("Legendary ARF Medal", 6000),
+        ("Mythical Engineer Medal", 5000),
+        ("Elite ARF Medal", 4500),
+        ("Legendary Engineer Medal", 4000),
+        ("Veteran ARF Medal", 3000),
+        ("Elite Engineer Medal", 3000),
+        ("Mythical Commando Medal", 2500),
+        ("Mythical ARC Medal", 2500),
+        ("Mythical Aerial Medal", 2500),
+        ("Mythical Officer Medal", 2500),
+        ("Mythical Specialist Medal", 2500),
+        ("Mythical Heavy Medal", 2500),
+        ("Mythical Assault Medal", 2500),
+        ("Veteran Engineer Medal", 2000),
+        ("Legendary Commando Medal", 2000),
+        ("Legendary ARC Medal", 2000),
+        ("Legendary Aerial Medal", 2000),
+        ("Legendary Officer Medal", 2000),
+        ("Legendary Specialist Medal", 2000),
+        ("Legendary Heavy Medal", 2000),
+        ("Legendary Assault Medal", 2000),
+        ("Elite Commando Medal", 1500),
+        ("Elite ARC Medal", 1500),
+        ("Elite Aerial Medal", 1500),
+        ("Elite Officer Medal", 1500),
+        ("Elite Specialist Medal", 1500),
+        ("Elite Heavy Medal", 1500),
+        ("Elite Assault Medal", 1500),
+        ("Veteran Commando Medal", 1000),
+        ("Veteran ARC Medal", 1000),
+        ("Veteran Aerial Medal", 1000),
+        ("Veteran Officer Medal", 1000),
+        ("Veteran Specialist Medal", 1000),
+        ("Veteran Heavy Medal", 1000),
+        ("Veteran Assault Medal", 1000),
+        ("Lone Survivor", 5000),
+        ("Exemplar", 1000),
+        ("Professional Soldier", 5000),
+        ("One Man Army", 1500),
+        ("The Good Batch", 4000),
+        ("Bred for War", 1500),
+        ("Outstanding Dedication", 4000),
+        ("Fireteam on Fire", 3000),
+        ("First Try", 3000),
+        ("Experience Outranks Everything", 8000)
         ]
 
         army_qualifications = [
-            "Scout Trooper", "Aerial Trooper", "Engineer", "Ace Pilot", "ARF Trooper", "Interceptor Pilot",
-            "Bomber Pilot", "Veteran Trooper", "Strike Cadre", "Juggernaut Cadre", "Shadow Cadre", "ARC Qualification",
-            "Republic Commando", "Frontliner", "Submachine Gunner", "Rifleman", "CQC Trooper", "Suppressor",
-            "Grenadier", "Heavy Rifleman", "Hunter", "Aggressor", "Sniper", "Slug Shooter", "Sharpshooter",
-            "Operative", "Urban Warrior", "Gunslinger", "HERO Pilot - First Class", "HERO Pilot - Second Class",
-            "Galactic Marine", "Medic Cadre", "Shadow Pilot", "Sapper", "Sky Trooper"
+            ("Scout Trooper", 3000),
+        ("Aerial Trooper", 2500),
+        ("Engineer", 2500),
+        ("Ace Pilot", 3000),
+        ("ARF Trooper", 2000),
+        ("Interceptor Pilot", 2000),
+        ("Bomber Pilot", 2000),
+        ("Veteran Trooper", 2000),
+        ("Strike Cadre", 3000),
+        ("Juggernaut Cadre", 3000),
+        ("Shadow Cadre", 3000),
+        ("ARC Qualification", 20000),
+        ("Republic Commando", 23000),
+        ("Frontliner", 2000),
+        ("Submachine Gunner", 1500),
+        ("Rifleman", 1500),
+        ("CQC Trooper", 1500),
+        ("Suppressor", 1000),
+        ("Grenadier", 1500),
+        ("Heavy Rifleman", 2000),
+        ("Hunter", 1000),
+        ("Aggressor", 1500),
+        ("Sniper", 2000),
+        ("Slug Shooter", 1000),
+        ("Sharpshooter", 1500),
+        ("Operative", 1000),
+        ("Urban Warrior", 1500),
+        ("Gunslinger", 1000),
+        ("HERO Pilot - First Class", 8000),
+        ("HERO Pilot - Second Class", 4000),
+        ("Galactic Marine", 3000),
+        ("Medic Cadre", 3000),
+        ("Shadow Pilot", 8000),
+        ("Sapper", 2500),
+        ("Sky Trooper", 5000)
         ]
 
         navy_qualifications = [
-            "Interceptor Qualification", "Bomber Qualification", "Ace Pilot", "HERO - Dogfighter", "HERO - Objective",
-            "HERO - Aerial Denial", "HERO - Mobility", "HERO - Support"
+            ("Interceptor Qualification", 2000),
+        ("Bomber Qualification", 2000),
+        ("Ace Pilot", 3000),
+        ("HERO - Dogfighter", 4000),
+        ("HERO - Objective", 4000),
+        ("HERO - Aerial Denial", 4000),
+        ("HERO - Mobility", 4000),
+        ("HERO - Support", 4000)
         ]
 
         sof_medals = [
-            "SOF Service Medal", "Special Forces Veteran", "Special Forces Legend", "Special Forces Myth",
-            "Unexpected Assistance", "Devout Protector", "Strength in Unity", "Brotherhood of Steel",
-            "Brothers in Arms",
-            "Proven Advisor", "Impossible Odds", "41st Superiority", "Double The Effort", "Regime Toppler",
-            "Survivalist", "Unbreakable", "Republic Juggernaut", "Death From Above", "Furry Frenzy", "Back to Basics",
-            "Operation:SuppressiveShrout", "Seasoned Saboteur", "Support Scuttler", "Masterful Saboteur", "In And Out",
-            "Superior Tactics", "Safety's Off", "Tinnie Scrapper", "Commando Culler", "Guerrilla Tactician",
-            "Unwavering",
-            "Guardian Angel"
+            ("SOF Service Medal", 3000),
+        ("Special Forces Veteran", 1500),
+        ("Special Forces Legend", 2000),
+        ("Special Forces Myth", 2500),
+        ("Unexpected Assistance", 2000),
+        ("Devout Protector", 2500),
+        ("Strength in Unity", 2000),
+        ("Brotherhood of Steel", 2500),
+        ("Brothers in Arms", 2000),
+        ("Proven Advisor", 3000),
+        ("Impossible Odds", 2000),
+        ("41st Superiority", 2000),
+        ("Double The Effort", 2000),
+        ("Regime Toppler", 3500),
+        ("Survivalist", 2000),
+        ("Unbreakable", 2000),
+        ("Republic Juggernaut", 2000),
+        ("Death From Above", 2000),
+        ("Furry Frenzy", 2000),
+        ("Back to Basics", 2000),
+        ("Operation:SuppressiveShrout", 1000),
+        ("Seasoned Saboteur", 1250),
+        ("Support Scuttler", 1750),
+        ("Masterful Saboteur", 2250),
+        ("In And Out", 2000),
+        ("Superior Tactics", 2750),
+        ("Safety's Off", 2000),
+        ("Tinnie Scrapper", 2250),
+        ("Commando Culler", 2500),
+        ("Guerrilla Tactician", 2250),
+        ("Unwavering", 1750),
+        ("Guardian Angel", 1000)
         ]
 
         regiment_medals = [
-            "Fixer Upper", "Behind Enemy Lines", "Above and Beyond", "Devout Protectors", "Altered Genetics",
-            "Dragway Genetics", "Perfect Attendance", "Honor Roll", "All Terrain Terror", "The Team to Beat",
-            "Leading to Victory", "To Sacrifice and Serve", "For the Republic", "Dedication is Key", "Squad Oriented",
-            "All but Special Forces", "Top Trainer", "Leading the Charge", "Participation Trophy", "A Cut Above",
-            "Base Class Champion", "Trials are our Speciality", "Team Player", "Old but Gold", "He's going for Speed",
-            "He's Going the Distance", "Basic Equipment Expert", "Instructor on Fire", "Praise the Maker",
-            "FEEL THE WRATH OF THE 41ST"
+            ("Fixer Upper", 1500),
+        ("Behind Enemy Lines", 1500),
+        ("Above and Beyond", 1500),
+        ("Devout Protectors", 1500),
+        ("Altered Genetics", 1500),
+        ("Dragway Genetics", 1500),
+        ("Perfect Attendance", 2500),
+        ("Honor Roll", 3500),
+        ("All Terrain Terror", 2500),
+        ("The Team to Beat", 1500),
+        ("Leading to Victory", 2500),
+        ("To Sacrifice and Serve", 2000),
+        ("For the Republic", 1000),
+        ("Dedication is Key", 3000),
+        ("Squad Oriented", 2000),
+        ("All but Special Forces", 1000),
+        ("Top Trainer", 1500),
+        ("Leading the Charge", 2500),
+        ("Participation Trophy", 1500),
+        ("A Cut Above", 1000),
+        ("Base Class Champion", 2500),
+        ("Trials are our Speciality", 1500),
+        ("Team Player", 3000),
+        ("Old but Gold", 1500),
+        ("He's going for Speed", 1000),
+        ("He's Going the Distance", 1500),
+        ("Basic Equipment Expert", 2000),
+        ("Instructor on Fire", 1000),
+        ("Praise the Maker", 1500),
+        ("FEEL THE WRATH OF THE 41ST", 1000)
         ]
 
         # Get medals and qualifications from specific servers
@@ -1707,45 +1839,62 @@ async def whoami(ctx, subcommand: str = None):
         if army_server:
             army_member = army_server.get_member(user.id)
             if army_member:
-                army_roles = [role.name for role in army_member.roles if role.name in army_medals]
-                level_roles = [role.name for role in army_member.roles if role.name in level_medals]
-                army_qual_roles = [role.name for role in army_member.roles if role.name in army_qualifications]
-                navy_qual_roles = [role.name for role in army_member.roles if role.name in navy_qualifications]
+                army_roles = [(role.name, y) for role in army_member.roles for (x, y) in army_medals if role.name == x]
+                army_roles_f = str(army_roles)
+                level_roles = [(role.name, y) for role in army_member.roles for (x, y) in level_medals if role.name == x]
+                level_roles_f = str(level_roles)
+                army_qual_roles = [(role.name, y) for role in army_member.roles for (x, y) in army_qualifications if role.name == x]
+                army_qual_roles_f = str(army_qual_roles)
+                navy_qual_roles = [(role.name, y) for role in army_member.roles for (x, y) in navy_qualifications if role.name == x]
+                navy_qual_roles_f = str(navy_qual_roles)
+
 
         sof_server = bot.get_guild(911409562970628167)
         sof_roles = []
         if sof_server:
             sof_member = sof_server.get_member(user.id)
             if sof_member:
-                sof_roles = [role.name for role in sof_member.roles if role.name in sof_medals]
+                sof_roles = [(role.name, y) for role in sof_member.roles for (x, y) in sof_medals if role.name == x]
+                sof_roles_f = str(sof_roles)
 
         regiment_server = bot.get_guild(1138926753931346090)
         regiment_roles = []
         if regiment_server:
             regiment_member = regiment_server.get_member(user.id)
             if regiment_member:
-                regiment_roles = [role.name for role in regiment_member.roles if role.name in regiment_medals]
+                regiment_roles = [(role.name, y) for role in regiment_member.roles for (x, y) in regiment_medals if role.name == x]
+                regiment_roles_f = str(regiment_roles)
 
-        # Prepare the embed
+
+        #Prepare the embed
         embed = discord.Embed(title="Your Breakdown", color=discord.Color.orange())
 
         embed.add_field(name="Username", value=user.display_name, inline=False)
         embed.add_field(name="Army Rank", value=army_rank, inline=False)
-        if army_roles:
-            embed.add_field(name="Army Medals", value="\n".join(army_roles), inline=False)
-        if level_roles:
-            embed.add_field(name="Level Medals", value="\n".join(level_roles), inline=False)
-        if army_qual_roles:
-            embed.add_field(name="Army Qualifications", value="\n".join(army_qual_roles), inline=False)
-        if navy_qual_roles:
-            embed.add_field(name="Navy Qualifications", value="\n".join(navy_qual_roles), inline=False)
-        if sof_roles:
-            embed.add_field(name="SOF Medals", value="\n".join(sof_roles), inline=False)
-        if regiment_roles:
-            embed.add_field(name="Regiment Medals", value="\n".join(regiment_roles), inline=False)
-        # embed.add_field(name="Your Purchases", description=purchases_str, inline=False)
-        embed.add_field(name="Max Credits", value=max_credits, inline=False)
         embed.add_field(name="Current Credits", value=current_credits, inline=False)
+
+        if army_roles:
+           embed.add_field(name="Army Medals", value="".join(army_roles_f), inline=False)
+           
+        if level_roles:
+            embed.add_field(name="Level Medals", value="".join(level_roles_f), inline=False)
+        if army_qual_roles:
+            embed.add_field(name="Army Qualifications", value="".join(army_qual_roles_f), inline=False)
+        if navy_qual_roles:
+            embed.add_field(name="Navy Qualifications", value="".join(navy_qual_roles_f), inline=False)
+        if sof_roles:
+            embed.add_field(name="SOF Medals", value="".join(sof_roles_f), inline=False)
+        if regiment_roles:
+            embed.add_field(name="Regiment Medals", value="".join(regiment_roles_f), inline=False)
+
+        embed.add_field(name="Max Credits", value=max_credits, inline=False)
+
+        if purchases_list:
+            purchases_str = "\n".join(purchases_list)
+            embed.add_field(name="Your Purchases", value=purchases_str, inline=False)
+        else:
+            embed.add_field(name="Your Purchases", value="You have no purchases.", inline=False)
+
         embed.add_field(name="Removed Credits", value=removed_credits, inline=False)
 
         await ctx.send(embed=embed)
