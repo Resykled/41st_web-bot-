@@ -43,7 +43,7 @@ rewards = {
     "Art Team": ["Bad Batch Echo helmet"],
     "Art Team Veteran": ["Store Items for 10k and under are free"],
     "Clone Trooper": ["white and green colour on the helmet"],
-    "Clone Trooper Veteran": ["camouflage and grey on the helmet"],
+    "Veteran Trooper": ["camouflage and grey on the helmet"],
     "Sergeant": ["Rangefinder", "tiny amount of extra colour (no pink and gold)"],
     "2nd Lieutenant": ["Custom Visor (no gold, white and pink)", "small amount of extra colour (no gold)"],
     "Lieutenant": ["Custom Visor (no gold, white and pink)", "small amount of extra colour (no gold)"],
@@ -1627,7 +1627,6 @@ async def whoami(ctx, subcommand: str = None):
     elif subcommand == "credits":
         current_credits, max_credits, removed_credits = get_user_credits(user.id, user_roles, role_credits,
                                                                          non_stacking_roles)
-        join_date = user.joined_at.strftime("%Y-%m-%d %H:%M:%S")
         highest_non_stacking_role = max(
             (role for role in user.roles if role.name in non_stacking_roles_list),
             key=lambda r: non_stacking_roles_list.index(r.name),
@@ -1635,7 +1634,22 @@ async def whoami(ctx, subcommand: str = None):
         )
         army_rank = highest_non_stacking_role.name if highest_non_stacking_role else "No rank"
 
+        user = ctx.author
+        roles = user.roles
+        role_names = [role.name for role in roles]
+        user_rewards = get_rewards_for_roles(role_names)
+        reward_items = {item for rewards_list in rewards.values() for item in rewards_list}
+        if user_rewards:
+            rewards_message = "\n\n".join(
+                f"{role}: {', '.join(rewards[role])}" for role in role_names if role in rewards)
+        else:
+            rewards_message = "You have no rewards based on your current roles."
+
         purchases_list = get_user_purchases(user.id)
+
+        purchase_roles = [item for item in purchases_list if item in store_items and item not in reward_items]
+        purchase_credits = [str(-store_items[item]) for item in purchase_roles]
+        purchases_list_f = "\n".join(f"{role} {credit}" for role, credit in zip(purchase_roles, purchase_credits))
 
         # Define role categories
         army_medals = [
@@ -1834,7 +1848,7 @@ async def whoami(ctx, subcommand: str = None):
         ]
 
         # Get medals and qualifications from specific servers
-        army_server = bot.get_guild(850840453800919100)
+        army_server = bot.get_guild( 850840453800919100)
         army_roles, level_roles, army_qual_roles, navy_qual_roles = [], [], [], []
         if army_server:
             army_member = army_server.get_member(user.id)
@@ -1847,19 +1861,15 @@ async def whoami(ctx, subcommand: str = None):
                 level_credits = [y for role in army_member.roles for (x, y) in level_medals if role.name == x]
                 level_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(level_roles, level_credits))
 
-                army_qual_roles = [role.name for role in army_member.roles for (x, y) in army_qualifications if
-                                   role.name == x]
-                army_qual_credits = [y for role in army_member.roles for (x, y) in army_qualifications if
-                                     role.name == x]
-                army_qual_roles_f = "\n".join(
-                    f"{role} {credit}" for role, credit in zip(army_qual_roles, army_qual_credits))
+                army_qual_roles = [role.name for role in army_member.roles for (x, y) in army_qualifications if role.name == x]
+                army_qual_credits = [y for role in army_member.roles for (x, y) in army_qualifications if role.name == x]
+                army_qual_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(army_qual_roles, army_qual_credits))
 
-                navy_qual_roles = [role.name for role in army_member.roles for (x, y) in navy_qualifications if
-                                   role.name == x]
-                navy_qual_credits = [y for role in army_member.roles for (x, y) in navy_qualifications if
-                                     role.name == x]
+                navy_qual_roles = [role.name for role in army_member.roles for (x, y) in navy_qualifications if role.name == x]
+                navy_qual_credits = [y for role in army_member.roles for (x, y) in navy_qualifications if role.name == x]
                 navy_qual_roles_f = "\n".join(
                     f"{role} {credit}" for role, credit in zip(navy_qual_roles, navy_qual_credits))
+
 
         sof_server = bot.get_guild(911409562970628167)
         sof_roles = []
@@ -1875,11 +1885,9 @@ async def whoami(ctx, subcommand: str = None):
         if regiment_server:
             regiment_member = regiment_server.get_member(user.id)
             if regiment_member:
-                regiment_roles = [role.name for role in army_member.roles for (x, y) in regiment_medals if
-                                  role.name == x]
+                regiment_roles = [role.name for role in army_member.roles for (x, y) in regiment_medals if role.name == x]
                 regiment_credits = [y for role in army_member.roles for (x, y) in regiment_medals if role.name == x]
-                regiment_roles_f = "\n".join(
-                    f"{role} {credit}" for role, credit in zip(regiment_roles, regiment_credits))
+                regiment_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(regiment_roles, regiment_credits))
 
 
         #Prepare the embed
@@ -1890,8 +1898,7 @@ async def whoami(ctx, subcommand: str = None):
         embed.add_field(name="Current Credits", value=current_credits, inline=False)
 
         if army_roles:
-           embed.add_field(name="Army Medals", value="".join(army_roles_f), inline=False)
-
+            embed.add_field(name="Army Medals", value=army_roles_f, inline=False)
         if level_roles:
             embed.add_field(name="Level Medals", value="".join(level_roles_f), inline=False)
         if army_qual_roles:
@@ -1905,8 +1912,10 @@ async def whoami(ctx, subcommand: str = None):
 
         embed.add_field(name="Max Credits", value=max_credits, inline=False)
 
+        embed.add_field(name="Your Rank Rewards", value=rewards_message, inline=False)
+
         if purchases_list:
-            purchases_str = "\n".join(purchases_list)
+            purchases_str = purchases_list_f
             embed.add_field(name="Your Purchases", value=purchases_str, inline=False)
         else:
             embed.add_field(name="Your Purchases", value="You have no purchases.", inline=False)
@@ -1926,6 +1935,9 @@ async def whoami(ctx, subcommand: str = None):
             color=discord.Color.red()
         )
         await ctx.send(embed=embed)
+
+
+
 
 
 
