@@ -1647,6 +1647,10 @@ async def whoami(ctx, subcommand: str = None):
 
         purchases_list = get_user_purchases(user.id)
 
+        purchase_roles = [item for item in purchases_list if item in store_items and item not in user_rewards]
+        purchase_credits = [str(-store_items[item]) for item in purchase_roles]
+        purchases_list_f = "\n".join(f"{role} {credit}" for role, credit in zip(purchase_roles, purchase_credits))
+
         purchase_roles = [item for item in purchases_list if item in store_items and item not in reward_items]
         purchase_credits = [str(-store_items[item]) for item in purchase_roles]
         purchases_list_f = "\n".join(f"{role} {credit}" for role, credit in zip(purchase_roles, purchase_credits))
@@ -2358,6 +2362,39 @@ async def nuke(ctx):
 		await ctx.send(f"Hey, {user.mention}, not your command,you aint nuclear!")
 	else:
 		await ctx.send("Not for you")
+
+@bot.command()
+@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Sergant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
+async def ct_number(ctx):
+    file_path = '/home/dominik/Downloads/41st CT Numbers.txt'
+    existing_numbers = set()
+
+    # Lese die bestehenden CT-Nummern aus der Datei
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith('PLEASE ADD'):  # Überspringe die Überschrift
+                continue
+            numbers = line.split(', ')
+            existing_numbers.update(int(number) for number in numbers if number.isdigit())
+
+    # Generiere eine neue, nicht verwendete CT-Nummer
+    new_number = None
+    while not new_number or new_number in existing_numbers:
+        new_number = random.randint(1000, 9999)
+
+    # Füge die neue Nummer zur Datei hinzu
+    with open(file_path, 'a') as file:
+        file.write(f'{new_number}, ')
+
+    # Sende eine Nachricht mit der neuen Nummer an den Benutzer
+    embed = discord.Embed(
+        title="New CT Number Generated",
+        description=f"Your new CT number is: **{new_number}**",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
 
 bot.run(get_bot_token())
 
