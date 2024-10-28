@@ -1870,14 +1870,13 @@ async def whoami(ctx, subcommand: str = None):
                 navy_qual_roles_f = "\n".join(
                     f"{role} {credit}" for role, credit in zip(navy_qual_roles, navy_qual_credits))
 
-
         sof_server = bot.get_guild(911409562970628167)
         sof_roles = []
         if sof_server:
             sof_member = sof_server.get_member(user.id)
             if sof_member:
-                sof_roles = [role.name for role in army_member.roles for (x, y) in sof_medals if role.name == x]
-                sof_credits = [y for role in army_member.roles for (x, y) in sof_medals if role.name == x]
+                sof_roles = [role.name for role in sof_member.roles for (x, y) in sof_medals if role.name == x]
+                sof_credits = [y for role in sof_member.roles for (x, y) in sof_medals if role.name == x]
                 sof_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(sof_roles, sof_credits))
 
         regiment_server = bot.get_guild(1138926753931346090)
@@ -1885,10 +1884,11 @@ async def whoami(ctx, subcommand: str = None):
         if regiment_server:
             regiment_member = regiment_server.get_member(user.id)
             if regiment_member:
-                regiment_roles = [role.name for role in army_member.roles for (x, y) in regiment_medals if role.name == x]
-                regiment_credits = [y for role in army_member.roles for (x, y) in regiment_medals if role.name == x]
-                regiment_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(regiment_roles, regiment_credits))
-
+                regiment_roles = [role.name for role in regiment_member.roles for (x, y) in regiment_medals if
+                                  role.name == x]
+                regiment_credits = [y for role in regiment_member.roles for (x, y) in regiment_medals if role.name == x]
+                regiment_roles_f = "\n".join(
+                    f"{role} {credit}" for role, credit in zip(regiment_roles, regiment_credits))
 
         #Prepare the embed
         embed = discord.Embed(title="Your Breakdown", color=discord.Color.orange())
@@ -2335,6 +2335,29 @@ async def show_qualifications(ctx):
     await send_long_message(ctx,
                             output_message if output_message else "No users with the specified qualifications found.")
 
+
+@bot.command()
+@is_allowed_channel()
+async def gravestone(ctx):
+    user_id = "814590259219660831"  # Gravestone ID
+    user = await bot.fetch_user(user_id)
+    if user.id == int(user_id):
+        await ctx.send("{user.mention}, you should fix this.")
+    else:
+        await ctx.send(f"Hey, {user.mention}, come make sure everything works!")
+
+@bot.command()
+@is_allowed_channel()
+async def nuke(ctx):
+	user_id = "690011602510282771"  # Nuke ID
+	gravestone_id = "814590259219660831"
+	user = await bot.fetch_user(user_id)
+	if user.id == int(user_id):
+		await ctx.send(f"Hows it going, {user.mention}?")
+	elif user.id == int(gravestone_id):
+		await ctx.send(f"Hey, {user.mention}, not your command,you aint nuclear!")
+	else:
+		await ctx.send("Not for you")
 
 bot.run(get_bot_token())
 
