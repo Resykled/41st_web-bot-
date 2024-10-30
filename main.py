@@ -2396,5 +2396,551 @@ async def ct_number(ctx):
     await ctx.send(embed=embed)
 
 
+@bot.command()
+@is_allowed_channel()
+async def rules(ctx, category: int = None):
+    rules_categories = {
+
+        1: (
+
+            "Army Raid Rules:\n"
+
+            "All members involved in a raid are required to participate by the following rules, regardless of MilSim status.\n"
+
+            "1) Raid Leaders are in full command during raids. Follow their instructions to the best of your ability. "
+
+            "If you hear a raid leader state \"Clear Comms\", stop talking and listen to their instructions.\n"
+
+            "2) Refrain from screeching into the mic. Keep communications clear when using tact-comms.\n"
+
+            "3) All clones must use their default clone-wars era weaponry. All star cards are allowed. Default weaponry as follows:\n"
+
+            "  - DC-15A for Assault\n"
+
+            "  - DC-15 or DC-15 LE for Heavy (All attachments acceptable for DC-15 LE)\n"
+
+            "  - DC-17 for Officer\n"
+
+            "  - Valken-38x for Specialist\n"
+
+            "4) Officer may only be used by troopers of the rank Sergeant or above.\n"
+
+            "5) No trooper may utilize reinforcements or non-base weapons without having earned the related qualification. "
+
+            "This includes Aerial, Infiltrator, Enforcer, Tank, the AT-TE, and AT-RT. Speeder bikes are allowed on both droids and clones. "
+
+            "You must earn the right to use these classes. In addition, we are a clone MilSim, we do not use heroes.\n"
+
+            "6) Raid Leaders of SGT+ may host special raids with alternative rulesets. SGT+ troopers have earned trust from high command "
+
+            "and may alter the ruleset AT THE BEGINNING OF THE RAID if they so choose. Raid rules may NEVER be changed once a match has started. "
+
+            "Alternative rulesets are only allowed in the main server, squad raids, or events."
+
+        ),
+
+        2: (
+
+            "Skin Rules:\n"
+
+            "All members of any 41st regiment are expected to follow these rules while in any 41st event, regardless of raid rules.\n"
+
+            "- Default \"Shiny\": Cadets Only\n"
+
+            "- Phase 2 41st Elite Corps: Clone Troopers\n"
+
+            "- 41st Ranger Platoon: CTVs\n"
+
+            "- 41st Scout Battalion: Scout Troopers\n"
+
+            "- All Aerial skins: Aerial Troopers\n"
+
+            "- Phase 1 41st Elite Corps: Troopers who purchase phase 1 with credits or payment.\n"
+
+            "- 212th ARF: ARF Troopers\n"
+
+            "- BARC Trooper: Troopers who purchase the BARC Trooper helmet with credits or payment\n"
+
+            "- Engineers: 181st Armor Division"
+
+        ),
+
+        3: (
+
+            "Geetsly's 41st Elite Corps Server Guidelines:\n"
+
+            "By participating in Geetsly's 41st Elite Corps or any of its affiliated servers, you agree to abide by all the rules listed below.\n"
+
+            "Refusal to follow the rules or failing to follow staff instructions can lead to punishment leading up to a permanent ban.\n"
+
+        ),
+
+        4: (
+
+            "41st Community Rules:\n"
+
+            "1) Follow Discord's Terms of Service: https://discord.com/terms\n"
+
+            "2) Please use English in Geetsly's 41st and its affiliated servers.\n"
+
+            "3) Promotion of other discord communities is prohibited without direct approval.\n"
+
+            "4) Harassment of fellow members is not tolerated.\n"
+
+            "5) Treat other communities and individuals with respect.\n"
+
+            "6) Staff members regularly monitor chats.\n"
+
+            "7) Sexually explicit content, excessive gore, or animal cruelty are banned.\n"
+
+            "8) You must be 13 years of age to participate.\n"
+
+        ),
+
+        5: (
+
+            "Unruly Behavior Guidelines:\n"
+
+            "These guidelines govern the use of jokes, quips, and friendly insults within the 41st Elite Corps.\n"
+
+            "1) Stop your conversation immediately if requested by any member of the community.\n"
+
+            "2) Topics such as Racism, Sexism, Suicide, Sexual Themes, Misogyny, or Hate Speech will result in disciplinary action.\n"
+
+            "3) Utilizing banned topics may lead to a timeout or ban.\n"
+
+            "4) Avoid edgy topics even if meant as a joke.\n"
+
+        ),
+
+        6: (
+
+            "Staff Expectations:\n"
+
+            "All staff are expected to reach 3 attendance and host a minimum of 2 raids per attendance period.\n"
+
+        ),
+
+        7: (
+
+            "Hosting a Raid:\n"
+
+            "To host a raid, speak with your squadmates to determine a suitable time.\n"
+
+            "Announce the raid with a lore-friendly blurb and include the raid gif.\n"
+
+            "Raids must last at least 45 minutes. If shorter, a third game must be played.\n"
+
+            "Host raids in the appropriate raid channels. Notify with the correct tags.\n"
+
+        ),
+
+        8: (
+
+            "Running a Raid:\n"
+
+            "Keep the raid on-track, giving orders as necessary.\n"
+
+            "Use 'Clear Comms' to regain control when needed.\n"
+
+            "Report unruly behavior to higher staff.\n"
+
+        ),
+
+        9: (
+
+            "Emergency Situations:\n"
+
+            "Main server staff can remove members exhibiting extreme behavior immediately.\n"
+
+            "Report all emergencies to a High Command member for further actions.\n"
+
+        ),
+
+        10: (
+        "Rank Hierarchy:\n"
+        "Follow orders based on the rank hierarchy.\n"
+        "If someone's rank is higher than yours, they have authority over you.\n"
+        "- High Command\n"
+        "- Marshall Commander\n"
+        "- Commander = RC Commander = ARC Commander = Technical Commander\n"
+        "- Major\n"
+        "- Captain = RC Captain = ARC Captain\n"
+        "- Lieutenant = ARC Lieutenant = RC Lieutenant\n"
+        "- 2nd Lieutenant\n"
+        "- Sergeant Major = RC Sergeant = ARC Sergeant\n"
+        "- Staff Sergeant\n"
+        "- Sergeant = ARC = RC\n"
+        "- Corporal\n"
+        "- Lance Corporal\n"
+        "- Clone Trooper"
+
+
+
+
+    ),
+
+        11: (
+
+            "Strike System + Discipline:\n"
+
+            "Breaking rules can lead to disciplinary-reports and strikes.\n"
+
+            "Three strikes lead to permanent removal.\n"
+
+            "Strikes expire after six months.\n"
+
+            "The strike system applies to all ranks.\n"
+
+        ),
+
+    }
+
+    if category is None:
+
+        embed = discord.Embed(
+
+            title="41st Elite Corps Rules Categories",
+
+            description="Please choose a category by using !rules <number>.\n\n"
+
+                        "1 - Army Raid Rules\n"
+
+                        "2 - Skin Rules\n"
+
+                        "3 - Server Guidelines\n"
+
+                        "4 - Community Rules\n"
+
+                        "5 - Unruly Behavior Guidelines\n"
+
+                        "6 - Staff Expectations\n"
+
+                        "7 - Hosting a Raid\n"
+
+                        "8 - Running a Raid\n"
+
+                        "9 - Emergency Situations\n"
+
+                        "10 - Rank Hierarchy\n"
+
+                        "11 - Strike System + Discipline",
+
+            color=discord.Color.green()
+
+        )
+
+        await ctx.send(embed=embed)
+
+    elif category in rules_categories:
+
+        embed = discord.Embed(
+
+            title=f"41st Elite Corps Rules - Category {category}",
+
+            description=rules_categories[category],
+
+            color=discord.Color.blue()
+
+        )
+
+        await ctx.send(embed=embed)
+
+    else:
+
+        await ctx.send("Invalid category. Please use a number between 1 and 11.")
+
+
+
+
+
+@bot.command()
+@is_allowed_channel()
+async def helmets(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+
+    # Get user roles, rank, and purchases
+    user_roles = {role.name for role in member.roles}
+    user_purchases = get_user_purchases(member.id)
+    rank = None
+    for role in user_roles:
+        if role in ["High Command", "Marshall Commander", "Commander", "Major", "Captain", "Lieutenant", "2nd Lieutenant", "Sergeant Major", "Staff Sergeant", "Sergeant"]:
+            rank = role
+            break
+
+    # Define helmet and attachment options
+    helmet_options = {
+        "Assault Trooper": "Base Assault Helmet",
+        "Heavy Trooper": "Base Heavy Helmet",
+        "Specialist Trooper": "Base Specialist Helmet",
+        "Engineer": "Engineer Helmet",
+        "Aerial Trooper": "Airborne Helmet",
+        "ARF Trooper": "AT-RT Driver (ARF)",
+        "Credit purchase": ["ARF P1 Helmet (ARF)", "BARC Helmet", "Cold Assault Helmet", "Phase 1 Helmet", "Heavy GunnerHeavy", "Desert Helmet"],
+        "Strike cadre": "Spec Ops P1",
+        "Medic Cadre": "Medic Cadre",
+        "Shadow Cadre": "Shadow Cadre",
+        "Juggernaut Cadre": "Juggernaut Cadre",
+        "Galactic Marine": "Galactic Marine",
+        "Scout Trooper": "Scout",
+        "Sky Trooper": "Skytrooper",
+        "ARC Trooper": "ARC Helmet",
+        "Republic Commando": "RC Helmet"
+    }
+
+    # Correct helmet names for credit purchases
+    purchase_mappings = {
+        "Clone Gunner": "Heavy GunnerHeavy",
+        "Snowtrooper/Flametrooper": "Cold Assault Helmet",
+        "BARC": "BARC Helmet",
+        "Phase 1": "Phase 1 Helmet",
+        "Desert": "Desert Helmet",
+        "ARF": "ARF P1 Helmet (ARF)"
+    }
+
+    # Adjust user purchases based on mappings
+    user_purchases = [purchase_mappings.get(item, item) for item in user_purchases]
+
+    attachment_options = {
+        "Base Assault Helmet": [
+            "Heavy Sun Blinders and Top Attachments (Heavy, free)",
+            "Specialist Visor Down (Specialist, free)",
+            "Specialist Visor Up (Specialist)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Tubes (credits)",
+            "Hood (Shadow, SOF)"
+        ],
+        "Base Heavy Helmet": [
+            "Heavy Sun Blinders and Top Attachments (Heavy, free)",
+            "Specialist Visor Down (Specialist, free)",
+            "Specialist Visor Up (Specialist)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Tubes (credits)",
+            "Hood (Shadow, SOF)"
+        ],
+        "Base Specialist Helmet": [
+            "Heavy Sun Blinders and Top Attachments (Heavy, free)",
+            "Specialist Visor Down (Specialist, free)",
+            "Specialist Visor Up (Specialist)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Tubes (credits)",
+            "Hood (Shadow, SOF)"
+        ],
+        "Engineer Helmet": [
+            "Officer Antenna (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Tubes (credits)",
+            "Hood (Shadow)"
+        ],
+        "Airborne Helmet": [
+            "Officer Antenna (SGT+, free)",
+            "Heavy Sun Blinders and Top Attachments (Heavy)",
+            "Specialist Visor Down (Specialist)",
+            "Specialist Visor Up (Specialist)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Hood (Shadow)"
+        ],
+        "AT-RT Driver (ARF)": [
+            "Officer Antenna (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Tubes (credits)",
+            "Hood (Shadow)"
+        ],
+        "ARF P1 Helmet (ARF)": [
+            "Flaps (free)",
+            "Officer Antenna (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Tubes (credits)",
+            "Hood (Shadow)"
+        ],
+        "BARC Helmet": [
+            "Heavy Sun Blinders and Top Attachments (Heavy)",
+            "Specialist Visor Down (Specialist)",
+            "Specialist Visor Up (Specialist)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Hood (Shadow, SOF)"
+        ],
+        "Cold Assault Helmet": [
+            "Officer Antenna (SGT+, free)",
+            "Heavy Top Attachments (Heavy)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Tubes (credits)",
+            "Hood (Shadow, SOF)"
+        ],
+        "Heavy GunnerHeavy": [
+            "Sun Blinders (Heavy)",
+            "Specialist Visor Down (Specialist)",
+            "Specialist Visor Up (Specialist)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Tubes (credits)",
+            "Hood (Shadow, SOF)"
+        ],
+        "Spec Ops P1": [
+            "Officer Antenna (SGT+, free)"
+        ],
+        "Juggernaut Cadre": [
+            "Officer Antenna (SGT+, free)",
+            "Heavy Top Attachments (Heavy)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Tubes (credits)"
+        ],
+        "Medic Cadre": [
+            "Visor Down (credits)",
+            "Medic Cadre Visor Up (credits)",
+            "Heavy Sun Blinders and Top Attachments (Heavy)",
+            "Specialist Visor Down (Specialist)",
+            "Specialist Visor Up (Specialist)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Tubes (credits)",
+            "Hood (Shadow, SOF)"
+        ],
+        "Shadow Cadre": [
+            "Heavy Sun Blinders and Top Attachments (Heavy)",
+            "Specialist Visor Down (free)",
+            "Specialist Visor Up (Specialist)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Tubes (credits)",
+            "Hood (free)"
+        ],
+        "Phase 1 Helmet": [
+            "Heavy Sun Blinders (Heavy)",
+            "Specialist Visor Down (Specialist)",
+            "Specialist Visor Up (Specialist)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits, incompatible with rangefinder)",
+            "Floodlight (credits, requires heavy sun blinders)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Hood (Shadow)"
+        ],
+        "Galactic Marine": [
+            "Officer Antenna (SGT+, free)",
+            "Heavy Top Attachments (Heavy)",
+            "Antenna (credits)",
+            "Floodlight (credits)"
+        ],
+        "Scout": [
+            "Officer Antenna (SGT+, free)",
+            "Heavy Top Attachments (Heavy)",
+            "Antenna (credits)",
+            "Tubes (credits)",
+            "Hood (Shadow)"
+        ],
+        "Skytrooper": [
+            "Heavy Top Attachments (Heavy)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Hood (Shadow)"
+        ],
+        "Desert Helmet": [
+            "Heavy Sun Blinders and Top Attachments (Heavy)",
+            "Rangefinder (SGT+, free)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (SGT+)",
+            "Tubes (credits)",
+            "Hood (Shadow, SOF)"
+        ],
+        "ARC Helmet": [
+            "Heavy Sun Blinders and Top Attachments (credits)",
+            "Specialist Visor Down (credits)",
+            "Specialist Visor Up (credits)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (credits)",
+            "Tubes (credits)",
+            "Hood (credits)"
+        ],
+        "RC Helmet": [
+            "Heavy Sun Blinders and Top Attachments (credits)",
+            "Specialist Visor Down (credits)",
+            "Specialist Visor Up (credits)",
+            "Antenna (credits)",
+            "Floodlight (credits)",
+            "Communicator (credits)",
+            "Rangefinder Down (credits)",
+            "Hood (credits)"
+        ]
+    }
+
+    # Determine eligible helmets and attachments
+    eligible_helmets = {}
+
+    # Include helmets from user purchases directly in eligible helmets
+    for purchase in user_purchases:
+        if purchase in helmet_options["Credit purchase"]:
+            eligible_helmets[purchase] = []
+
+    for role, helmet in helmet_options.items():
+        if role in user_roles:
+            if isinstance(helmet, list):
+                for h in helmet:
+                    eligible_helmets[h] = []
+            else:
+                eligible_helmets[helmet] = []
+
+    for helmet in eligible_helmets.keys():
+        if helmet in attachment_options:
+            for attachment in attachment_options[helmet]:
+                if "(SGT+" in attachment and rank not in ["Sergeant", "Staff Sergeant", "Sergeant Major", "2nd Lieutenant", "Lieutenant", "Captain", "Major", "Commander", "High Command"]:
+                    continue  # Skip attachments not allowed for lower ranks
+                if "(credits)" in attachment and attachment not in user_purchases:
+                    continue  # Skip if the user hasn't bought this item with credits
+                eligible_helmets[helmet].append(attachment)
+
+    # Create an embed message with eligible helmets and attachments
+    embed = discord.Embed(title="Eligible Helmets and Attachments", color=discord.Color.blue())
+    for helmet, attachments in eligible_helmets.items():
+        attachment_list = "\n".join(attachments) if attachments else "No available attachments"
+        embed.add_field(name=f"{helmet}", value=attachment_list, inline=False)
+
+    # Send the embed message in the channel
+    await ctx.send(embed=embed)
+
+    print(f"Sent helmet and attachment options to {member.display_name} ({member.id}).")
+
+
+
+
+
 bot.run(get_bot_token())
 
