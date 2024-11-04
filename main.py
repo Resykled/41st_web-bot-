@@ -2940,6 +2940,51 @@ async def helmets(ctx, member: discord.Member = None):
 
 
 
+@bot.command()
+@is_allowed_channel()
+async def ranks(ctx):
+    rank_text_part_1 = (
+        "41st Rank Hierarchy:\n\n"
+        "If ranks are placed without space between them it means that they have the same power.\n\n"
+        "If someone's rank is higher than yours on this list, that means they have full authority over you within the main server.\n"
+        "You should follow orders if given. If you have complaints regarding a staff member's behavior, feel free to reach out to myself or any members of High Command.\n\n"
+        "Failure to follow a cease and desist order from a superior ranking officer is cause for immediate demotion.\n\n"
+        "This list is also appropriate for determining who has more authority than you within your own regiment.\n\n"
+        "High Command: The leader of their respectable platform or Creative Team and overall command of the server\n"
+        "Marshall Commander: Overall command of the server\n\n"
+        "Commander: Commander of the army\n"
+        "RC Commander: Commander of the Republic Commandos\n"
+        "ARC Commander: Commander of the ARC Troopers\n"
+        "Technical Commander: Commander of the technical side (logistics, bot)\n\n"
+        "Major: Overall command of the server, directly under the rank of Commander\n\n"
+        "Captain: Leader of their respective platform\n"
+        "RC Captain: Leader of their respective department\n"
+        "ARC Captain: Leader of their respective department\n\n"
+        "Lieutenant: In command of their Platoons, directly under their Captain\n"
+        "ARC Lieutenant: In command of their troopers directly under their Captain\n"
+        "RC Lieutenant: In command of their troopers directly under their Captain\n\n"
+    )
+
+    rank_text_part_2 = (
+        "2nd Lieutenant: In command of their Platoons, directly under their Lieutenant\n\n"
+        "Sergeant Major: Leader of their Platoon and Squads, directly under their 2nd Lieutenant, Lieutenant, and Captain\n"
+        "RC Sergeant: Leader of their Squad, directly under their Lieutenant\n"
+        "ARC Sergeant: Leader of their Squad, directly under their Lieutenant\n\n"
+        "Staff Sergeant: Leader of their Squad, helping hand for their Sergeant Major\n\n"
+        "Sergeant: Leader of their Squad, under the command of their Staff Sergeant and Sergeant Major\n"
+        "ARC: Part of their Squad\n"
+        "RC: Part of their Squad\n\n"
+        "Corporal: Co-squad leader with their Sergeant / Staff Sergeant\n\n"
+        "Lance Corporal: Leader of their fire team\n\n"
+        "Clone Trooper: Part of a fire team in a Squad"
+    )
+
+    # Send the rank information in two separate messages
+    await ctx.send(rank_text_part_1)
+    await ctx.send(rank_text_part_2)
+
+    print(f"Sent rank hierarchy information to {ctx.author.display_name} ({ctx.author.id}).")
+
 
 
 bot.run(get_bot_token())
