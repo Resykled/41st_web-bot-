@@ -556,6 +556,10 @@ async def help_command(ctx):
         f"`!purchase`: Command to buy items.\n"
         f"`!daily`: Get your daily reward and build a streak, you better don't miss a day.\n"
         f"`!leader`: Shows you your position in the !daily ranking list.\n"
+        f"`!rules`: Shows you all the rules the server has .\n"
+        f"`!ct_number`: Generates an new CT number (only for SGM and above).\n"
+        f"`!helmets`: shows you an list of all attachments you can put on your helmet .\n"
+        f"`!ranks`: Get a brief introduction to each rank and its function .\n"
         f"\n"
     )
 
@@ -790,6 +794,19 @@ async def oldest(ctx):
     message = "```We know you are the first member Izzy, but you don't get a special medal```"
     await ctx.send(message)
     print("Sent anniversary message.")
+
+
+@bot.command()
+@is_allowed_channel()
+async def froger(ctx):
+    # Send the "da frog" message
+    await ctx.send("da frog")
+
+    # Send the GIF as a separate message
+    await ctx.send(
+        "https://tenor.com/de/view/frog-jumpscare-jump-jumpscare-frog-toad-jumpscare-gif-17126897754304945804")
+
+    print("Sent 'da frog' message and jumpscare GIF link.")
 
 
 @bot.command()
@@ -2940,50 +2957,82 @@ async def helmets(ctx, member: discord.Member = None):
 
 
 
+
 @bot.command()
 @is_allowed_channel()
-async def ranks(ctx):
-    rank_text_part_1 = (
-        "41st Rank Hierarchy:\n\n"
-        "If ranks are placed without space between them it means that they have the same power.\n\n"
-        "If someone's rank is higher than yours on this list, that means they have full authority over you within the main server.\n"
-        "You should follow orders if given. If you have complaints regarding a staff member's behavior, feel free to reach out to myself or any members of High Command.\n\n"
-        "Failure to follow a cease and desist order from a superior ranking officer is cause for immediate demotion.\n\n"
-        "This list is also appropriate for determining who has more authority than you within your own regiment.\n\n"
-        "High Command: The leader of their respectable platform or Creative Team and overall command of the server\n"
-        "Marshall Commander: Overall command of the server\n\n"
-        "Commander: Commander of the army\n"
-        "RC Commander: Commander of the Republic Commandos\n"
-        "ARC Commander: Commander of the ARC Troopers\n"
-        "Technical Commander: Commander of the technical side (logistics, bot)\n\n"
-        "Major: Overall command of the server, directly under the rank of Commander\n\n"
-        "Captain: Leader of their respective platform\n"
-        "RC Captain: Leader of their respective department\n"
-        "ARC Captain: Leader of their respective department\n\n"
-        "Lieutenant: In command of their Platoons, directly under their Captain\n"
-        "ARC Lieutenant: In command of their troopers directly under their Captain\n"
-        "RC Lieutenant: In command of their troopers directly under their Captain\n\n"
-    )
+async def ranks(ctx, rank_number: int = None):
+    rank_list = [
+        "High Command",
+        "Marshall Commander",
+        "Technical Commander",
+        "Commander / RC Commander / ARC Commander",
+        "Major",
+        "Captain",
+        "Lieutenant",
+        "2nd Lieutenant",
+        "Sergeant Major",
+        "Staff Sergeant",
+        "Sergeant",
+        "Corporal",
+        "Lance Corporal",
+        "Clone Trooper"
+    ]
 
-    rank_text_part_2 = (
-        "2nd Lieutenant: In command of their Platoons, directly under their Lieutenant\n\n"
-        "Sergeant Major: Leader of their Platoon and Squads, directly under their 2nd Lieutenant, Lieutenant, and Captain\n"
-        "RC Sergeant: Leader of their Squad, directly under their Lieutenant\n"
-        "ARC Sergeant: Leader of their Squad, directly under their Lieutenant\n\n"
-        "Staff Sergeant: Leader of their Squad, helping hand for their Sergeant Major\n\n"
-        "Sergeant: Leader of their Squad, under the command of their Staff Sergeant and Sergeant Major\n"
-        "ARC: Part of their Squad\n"
-        "RC: Part of their Squad\n\n"
-        "Corporal: Co-squad leader with their Sergeant / Staff Sergeant\n\n"
-        "Lance Corporal: Leader of their fire team\n\n"
-        "Clone Trooper: Part of a fire team in a Squad"
-    )
+    rank_descriptions = [
+        "The leader of their respective platform or Creative Team and overall command of the server.",
+        "Overall command of the server.",
+        "Commander of the technical side (logistics, bot).",
+        "Commander of the army, Republic Commandos, or ARC Troopers. All of these ranks share the same power and authority level.",
+        "Overall command of the server, directly under the rank of Commander.",
+        "Leader of their respective platform.",
+        "In command of their troopers directly under their Captain.",
+        "In command of their Platoons, directly under their Lieutenant.",
+        "Leader of their Platoon and Squads, directly under their 2nd Lieutenant, Lieutenant, and Captain.",
+        "Leader of their Squad, helping hand for their Sergeant Major.",
+        "Leader of their Squad, under the command of their Staff Sergeant and Sergeant Major.",
+        "Co-squad leader with their Sergeant / Staff Sergeant.",
+        "Leader of their fire team.",
+        "Part of a fire team in a Squad."
+    ]
 
-    # Send the rank information in two separate messages
-    await ctx.send(rank_text_part_1)
-    await ctx.send(rank_text_part_2)
+    if rank_number is None:
+        # Send the list of ranks with numbers, highest at the top in an embed
+        rank_text = "\n".join(f"{i + 1}. {rank}" for i, rank in enumerate(rank_list))
+        embed = discord.Embed(
+            title="41st Rank Hierarchy (Highest to Lowest)",
+            description=rank_text,
+            color=discord.Color.blue()
+        )
+        embed.add_field(
+            name="Note",
+            value="If ranks are grouped (e.g., 'Commander / RC Commander / ARC Commander'), they have equal authority.",
+            inline=False
+        )
+        embed.set_footer(text="To view details of a specific rank, use !ranks <number>.")
+        await ctx.send(embed=embed)
+    elif 1 <= rank_number <= len(rank_list):
+        # Send the description of the requested rank in an embed
+        rank_index = rank_number - 1
+        rank_name = rank_list[rank_index]
+        rank_description = rank_descriptions[rank_index]
 
-    print(f"Sent rank hierarchy information to {ctx.author.display_name} ({ctx.author.id}).")
+        embed = discord.Embed(
+            title=f"Rank: {rank_name}",
+            description=rank_description,
+            color=discord.Color.green()
+        )
+        await ctx.send(embed=embed)
+    else:
+        # Send an error message if the rank number is invalid
+        embed = discord.Embed(
+            title="Invalid Rank Number",
+            description="Please use a number between 1 and 14.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+
+    print(f"Sent rank information to {ctx.author.display_name} ({ctx.author.id}).")
+
 
 
 
