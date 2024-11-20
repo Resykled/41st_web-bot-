@@ -12,7 +12,7 @@ import gspread
 import re
 import time
 import random
-
+from datetime import timedelta
 from database import unmark_role_credited
 from database import get_user_credits, update_user_credits, add_role_credits, get_all_role_credits, remove_role_credits, \
     get_all_non_stacking_role_credits, get_user_removed_credits, reset_user_stats  # Import the new function
@@ -2381,7 +2381,7 @@ async def nuke(ctx):
 		await ctx.send("Not for you")
 
 @bot.command()
-@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Sergant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
+@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Sergeant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
 async def ct_number(ctx):
     file_path = '/home/dominik/Downloads/41st CT Numbers.txt'
     existing_numbers = set()
@@ -2999,7 +2999,7 @@ async def ranks(ctx, rank_number: int = None):
         # Send the list of ranks with numbers, highest at the top in an embed
         rank_text = "\n".join(f"{i + 1}. {rank}" for i, rank in enumerate(rank_list))
         embed = discord.Embed(
-            title="41st Rank Hierarchy (Highest to Lowest)",
+            title="41st Rank Hierarchy (Highest to Lowest) \n To view details of a specific rank, use !ranks <number>.",
             description=rank_text,
             color=discord.Color.blue()
         )
@@ -3008,7 +3008,7 @@ async def ranks(ctx, rank_number: int = None):
             value="If ranks are grouped (e.g., 'Commander / RC Commander / ARC Commander'), they have equal authority.",
             inline=False
         )
-        embed.set_footer(text="To view details of a specific rank, use !ranks <number>.")
+        embed.set_footer(text=".")
         await ctx.send(embed=embed)
     elif 1 <= rank_number <= len(rank_list):
         # Send the description of the requested rank in an embed
@@ -3034,6 +3034,88 @@ async def ranks(ctx, rank_number: int = None):
     print(f"Sent rank information to {ctx.author.display_name} ({ctx.author.id}).")
 
 
+
+@bot.command()
+async def sleep(ctx, duration: int = 7):
+    """
+    Timeout the command invoker (the user who calls this command) for a specified duration.
+    Usage: !sleep duration_in_hours
+    """
+    from datetime import timedelta
+
+    # Calculate the timeout duration
+    timeout_duration = timedelta(hours=duration)
+    member = ctx.author  # The user who invoked the command
+
+    try:
+        # Use the timeout method to apply the timeout
+        await member.timeout(timeout_duration, reason="Encouraging sleep!")
+        await ctx.send(f"{member.mention}, you've been put to sleep for {duration} hours. Rest well!")
+    except discord.Forbidden:
+        await ctx.send("I don't have permission to timeout you.")
+    except discord.HTTPException as e:
+        await ctx.send(f"Failed to apply sleep timeout: {e}")
+
+@bot.command()
+@is_Technical_Commander()
+async def replace_roles_server(ctx):
+    """
+    Replace specific Xbox/PS4 roles with corresponding general roles for all server members.
+    """
+    # Define the mappings of old roles to new roles
+    role_mapping = {
+        # Xbox Roles
+        "Supremacy (Xbox)": "Supremacy",
+        "Galactic Assault (Xbox)": "Galactic Assault",
+        "Heroes versus Villains (Xbox)": "Heroes versus Villains",
+        "Other Gamemodes (Xbox)": "Other Gamemodes",
+        "Starfighter Assault (Xbox)": "Starfighter Assault",
+        # PS4 Roles
+        "Supremacy (PS4)": "Supremacy",
+        "Galactic Assault (PS4)": "Galactic Assault",
+        "Heroes versus Villains (PS4)": "Heroes versus Villains",
+        "Other Gamemodes (PS4)": "Other Gamemodes",
+        "Starfighter Assault (PS4)": "Starfighter Assault"
+    }
+
+    guild = ctx.guild  # Get the current guild (server)
+    updated_members = 0  # Counter for members processed
+
+    # Iterate through all members in the guild
+    for member in guild.members:
+        # Gather the roles the member currently has
+        user_roles = member.roles
+
+        # Roles to add and remove for this member
+        roles_to_add = []
+        roles_to_remove = []
+
+        for role in user_roles:
+            if role.name in role_mapping:
+                # Add the mapped general role
+                new_role_name = role_mapping[role.name]
+                new_role = discord.utils.get(guild.roles, name=new_role_name)
+                if new_role and new_role not in user_roles:  # Avoid adding duplicate roles
+                    roles_to_add.append(new_role)
+
+                # Add the old role to the list for removal
+                roles_to_remove.append(role)
+
+        # Update the roles for the member
+        try:
+            if roles_to_remove:
+                await member.remove_roles(*roles_to_remove, reason="Role replacement command executed")
+            if roles_to_add:
+                await member.add_roles(*roles_to_add, reason="Role replacement command executed")
+            if roles_to_add or roles_to_remove:
+                updated_members += 1  # Increment the counter if changes were made
+        except discord.Forbidden:
+            await ctx.send(f"Could not update roles for {member.mention} due to insufficient permissions.")
+        except discord.HTTPException as e:
+            await ctx.send(f"An error occurred while updating roles for {member.mention}: {e}")
+
+    # Send a confirmation message
+    await ctx.send(f"Role replacement completed. Updated roles for {updated_members} members.")
 
 
 bot.run(get_bot_token())
