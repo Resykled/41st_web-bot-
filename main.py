@@ -38,6 +38,15 @@ from database import remove_registered_status
 auto_update_enabled = False
 debug_mode_enabled = False
 
+from discord.ext.commands import CommandInvokeError
+
+async def is_registered(ctx):
+    user_id = ctx.author.id
+    if not has_registered(user_id) and ctx.command.name != 'register':
+        await ctx.send(f"{ctx.author.mention}, you must use `!register` to register before using other commands.")
+        raise CommandInvokeError("User not registered.")
+    return True
+
 # Define the rewards based on roles
 rewards = {
     "Art Team": ["Bad Batch Echo helmet"],
@@ -446,6 +455,7 @@ server_ids = [850840453800919100, 1138926753931346090, 911409562970628167]
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def hello(ctx):
     embed = discord.Embed(
         title="Hello!",
@@ -459,6 +469,7 @@ async def hello(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def report(ctx, *, problem: str = None):
     if problem is None:
         bug_report_info = (
@@ -519,6 +530,7 @@ async def report(ctx, *, problem: str = None):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def version(ctx):
     version_info = (
         "Version: `V1.7~ Purchase`\n"
@@ -538,6 +550,7 @@ bot.remove_command('help')
 
 @bot.command(name='help')
 @is_allowed_channel()
+@commands.check(is_registered)
 async def help_command(ctx):
     admin_roles = ['Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander']
     is_admin = any(discord.utils.get(ctx.guild.roles, name=role) in ctx.author.roles for role in admin_roles)
@@ -560,6 +573,7 @@ async def help_command(ctx):
         f"`!ct_number`: Generates an new CT number (only for SGM and above).\n"
         f"`!helmets`: shows you an list of all attachments you can put on your helmet .\n"
         f"`!ranks`: Get a brief introduction to each rank and its function .\n"
+        f"`!sleep`: Time yourself out and get some sleep without noticifactions from the server  .\n"
         f"\n"
     )
 
@@ -595,6 +609,7 @@ async def help_command(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def ggn_store(ctx):
     store_info = (
         "`Geetsly's Gaming Network Store Conversions:`\n"
@@ -626,6 +641,7 @@ async def ggn_store(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def store(ctx, category: int = None):
     store_categories = {
         1: (
@@ -732,6 +748,7 @@ async def store(ctx, category: int = None):
 
 @bot.command()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
+@commands.check(is_registered)
 async def id(ctx, member: discord.Member):
     try:
         user_id = member.id
@@ -763,6 +780,7 @@ async def id(ctx, member: discord.Member):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def techno(ctx):
     await ctx.send(
         "Check this out  https://www.youtube.com/watch?v=Uj1ykZWtPYI&list=PL9JM2aC37BG03vlqyhiYX54NG_thqqvbg ")
@@ -770,18 +788,21 @@ async def techno(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def drugs(ctx):
     await ctx.send("Deathsticks ?")
 
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def kyoda(ctx):
     await ctx.send("The requested function took too long to respond and timed out. Please try again later")
 
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def Sykles(ctx):
     await ctx.send("tf are you tring to do here")
 
@@ -790,6 +811,7 @@ async def Sykles(ctx):
 # right-clicking on the user, and selecting "Copy ID".
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def oldest(ctx):
     message = "```We know you are the first member Izzy, but you don't get a special medal```"
     await ctx.send(message)
@@ -798,6 +820,7 @@ async def oldest(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def froger(ctx):
     # Send the "da frog" message
     await ctx.send("da frog")
@@ -811,6 +834,7 @@ async def froger(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def bitches(ctx):
     message = "you have no bitches"
     await ctx.send(message)
@@ -819,6 +843,7 @@ async def bitches(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def water(ctx):
     message = "Water IS wet https://youtu.be/ugyqOSUlR2A?si=ebf-y4IZtFmpHPpc"
     await ctx.send(message)
@@ -827,6 +852,7 @@ async def water(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def no_you(ctx):
     message = "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo."
     await ctx.send(message)
@@ -835,6 +861,7 @@ async def no_you(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def monte(ctx):
     user_id = "1047317588755095592"  # Replace with the actual user ID of "monte"
     user = await bot.fetch_user(user_id)
@@ -850,25 +877,24 @@ async def monte(ctx):
 # Start DB commads
 
 @bot.command()
-@is_allowed_channel()
 async def register(ctx):
     user_id = ctx.author.id
 
-    # Check if the user has already registered
+    # �berpr�fen, ob der Nutzer bereits registriert ist
     if has_registered(user_id):
-        await ctx.send(f"{ctx.author.mention}, you have already used the !register command.")
+        await ctx.send(f"{ctx.author.mention}, you have already used the `!register` command.")
         return
 
-    # Define the server IDs to fetch roles from
+    # Definiere Server-IDs, aus denen die Rollen geholt werden sollen
     server_ids = [850840453800919100, 911409562970628167, 1138926753931346090]
 
-    # Get roles from all specified servers
+    # Alle Rollen aus den angegebenen Servern abrufen
     roles_from_servers = get_user_roles_from_servers(user_id, server_ids + [ctx.guild.id])
 
-    # Calculate credits based on unique roles
+    # Berechnung der Credits basierend auf den Rollen
     credits = 0
     added_non_stacking_roles = set()
-    unique_roles = set(roles_from_servers)  # Use a set to ensure unique roles
+    unique_roles = set(roles_from_servers)  # Set zur Sicherstellung von eindeutigen Rollen
 
     for role_name in unique_roles:
         if role_name in role_credits:
@@ -877,13 +903,15 @@ async def register(ctx):
             credits += non_stacking_role_credits[role_name]
             added_non_stacking_roles.add(role_name)
 
-    # Update credits in the database
+    # Benutzer-Credits in der Datenbank aktualisieren
     update_user_credits(user_id, credits)
 
-    # Mark the user as registered
+    # Nutzer als registriert markieren
     mark_as_registered(user_id)
 
-    await ctx.send(f"{ctx.author.mention}, you have been registered with {credits} credits.")
+    # R�ckmeldung an den Benutzer
+    await ctx.send(f"{ctx.author.mention}, you have been successfully registered with **{credits} credits**.")
+
 
 
 @bot.command()
@@ -1146,6 +1174,7 @@ async def kill(ctx):
 
 @bot.command()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
+@commands.check(is_registered)
 async def add(ctx, member: discord.Member, amount: int, *, comment: str = None):
     try:
         user_id = member.id
@@ -1172,6 +1201,7 @@ async def add(ctx, member: discord.Member, amount: int, *, comment: str = None):
 
 @bot.command()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
+@commands.check(is_registered)
 async def remove(ctx, member: discord.Member, amount: int, *, comment: str = None):
     try:
         user_id = member.id
@@ -1199,6 +1229,7 @@ async def remove(ctx, member: discord.Member, amount: int, *, comment: str = Non
 
 @bot.command()
 @commands.has_any_role('Economy Lead', 'Commander', 'Technical Commander')
+@commands.check(is_registered)
 async def setUserCredits(ctx, member: discord.Member, credits: int, *, comment: str = None):
     try:
         user_id = member.id
@@ -1239,6 +1270,7 @@ async def setUserCredits(ctx, member: discord.Member, credits: int, *, comment: 
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def credits(ctx):
     user_id = ctx.author.id
     member = ctx.author
@@ -1268,6 +1300,7 @@ async def credits(ctx):
 
 @bot.command()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
+@commands.check(is_registered)
 async def check_credits(ctx, member: discord.Member):
     try:
         user_id = member.id
@@ -1338,6 +1371,7 @@ store_items = {
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def purchase(ctx, *, item_name: str = None):
     # Define the items_list here
     items_list = "\n".join(store_items.keys())
@@ -1381,6 +1415,7 @@ async def purchase(ctx, *, item_name: str = None):
 
 @bot.command()
 @commands.has_any_role('Economy Lead', 'Commander', 'Technical Commander')
+@commands.check(is_registered)
 async def buy(ctx, user: discord.Member, *, item_name: str = None):
     # Define the items_list here
     items_list = "\n".join(store_items.keys())
@@ -1426,8 +1461,8 @@ async def buy(ctx, user: discord.Member, *, item_name: str = None):
 
 
 @bot.command(name='useritems')
-@commands.has_any_role('Technical Commander', 'Republic Droids', 'Commander', 'Economy Lead', 'Economy Admin',
-                       'Art Team')
+@commands.has_any_role('Technical Commander', 'Republic Droids', 'Commander', 'Economy Lead', 'Economy Admin', 'Art Team')
+@commands.check(is_registered)
 async def useritems(ctx, user: discord.Member):
     try:
         user_id = user.id
@@ -1477,6 +1512,7 @@ async def refund(ctx, user: discord.Member, *, item_name: str):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def whoami(ctx, subcommand: str = None):
     global role
     user = ctx.author
@@ -2034,6 +2070,7 @@ async def debug(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def daily(ctx):
     user_id = ctx.author.id
     current_time = int(time.time())
@@ -2076,6 +2113,7 @@ async def daily(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def leader(ctx):
     user_id = ctx.author.id
     top_streaks = get_top_streaks()
@@ -2103,6 +2141,7 @@ async def leader(ctx):
 
 
 @bot.command(name='rewards')
+@commands.check(is_registered)
 async def rewards_command(ctx):
     user = ctx.author
     roles = user.roles
@@ -2155,6 +2194,7 @@ start_time = datetime.now()
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def uptime(ctx):
     uptime_duration = datetime.now() - start_time
     await ctx.send(f"Bot has been running for {uptime_duration}")
@@ -2162,6 +2202,7 @@ async def uptime(ctx):
 
 @bot.command(name='rps')
 @is_allowed_channel()
+@commands.check(is_registered)
 async def rock_paper_scissors(ctx, user_choice: str):
     choices = ['rock', 'paper', 'scissors']
     bot_choice = random.choice(choices)
@@ -2183,6 +2224,7 @@ async def rock_paper_scissors(ctx, user_choice: str):
 
 
 @bot.command()
+@commands.check(is_registered)
 async def Test(ctx):
     embed = discord.Embed(
         title="Hello!",
@@ -2283,6 +2325,7 @@ async def send_long_message(ctx, message):
 @bot.command(name='show_quals')
 @is_allowed_channel()
 @commands.has_any_role('SOF Staff')
+@commands.check(is_registered)
 async def show_qualifications(ctx):
     # Define server IDs
     server_with_users = 1138926753931346090  # Server ID where users should be checked
@@ -2359,6 +2402,7 @@ async def show_qualifications(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def gravestone(ctx):
     user_id = "814590259219660831"  # Gravestone ID
     user = await bot.fetch_user(user_id)
@@ -2369,6 +2413,7 @@ async def gravestone(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def nuke(ctx):
 	user_id = "690011602510282771"  # Nuke ID
 	gravestone_id = "814590259219660831"
@@ -2382,7 +2427,9 @@ async def nuke(ctx):
 
 @bot.command()
 @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Sergeant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
+@commands.check(is_registered)
 async def ct_number(ctx):
+
     file_path = '/home/dominik/Downloads/41st CT Numbers.txt'
     existing_numbers = set()
 
@@ -2415,6 +2462,7 @@ async def ct_number(ctx):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def rules(ctx, category: int = None):
     rules_categories = {
 
@@ -2673,6 +2721,7 @@ async def rules(ctx, category: int = None):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def helmets(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.author
@@ -2960,6 +3009,7 @@ async def helmets(ctx, member: discord.Member = None):
 
 @bot.command()
 @is_allowed_channel()
+@commands.check(is_registered)
 async def ranks(ctx, rank_number: int = None):
     rank_list = [
         "High Command",
@@ -3035,87 +3085,70 @@ async def ranks(ctx, rank_number: int = None):
 
 
 
+
+
 @bot.command()
-async def sleep(ctx, duration: int = 7):
+async def sleep(ctx, *, duration: str = None):
     """
     Timeout the command invoker (the user who calls this command) for a specified duration.
-    Usage: !sleep duration_in_hours
+    Usage: !sleep 1h 30min (for 1 hour and 30 minutes) or !sleep 7 (for 7 hours).
+           If no duration is specified, the bot will provide usage instructions.
     """
     from datetime import timedelta
+    import re
 
-    # Calculate the timeout duration
-    timeout_duration = timedelta(hours=duration)
+    # If no duration is provided, show usage instructions
+    if not duration:
+        await ctx.send(
+            "Usage: `!sleep <duration>`\n"
+            "Examples:\n"
+            "- `!sleep 7h` to sleep for 7 hours.\n"
+            "- `!sleep 1h 30min` to sleep for 1 hour and 30 minutes.\n"
+            "Note: The maximum duration is 24 hours."
+        )
+        return
+
+    # Support extended formats like '1h 30min'
+    duration_match = re.match(r"(?:(\d+)h)?\s*(?:(\d+)min)?", duration)
+    if not duration_match:
+        await ctx.send(
+            "Invalid duration format! Use a number (e.g., `!sleep 7h`) or specify time like `!sleep 1h 30min`."
+        )
+        return
+
+    # Parse hours and minutes
+    hours = int(duration_match.group(1)) if duration_match.group(1) else 0
+    minutes = int(duration_match.group(2)) if duration_match.group(2) else 0
+
+    # Ensure at least 1 minute
+    if hours == 0 and minutes == 0:
+        await ctx.send("Duration must be at least 1 minute.")
+        return
+
+    timeout_duration = timedelta(hours=hours, minutes=minutes)
+
+    # Ensure timeout duration does not exceed 24 hours
+    max_duration = timedelta(hours=24)
+    if timeout_duration > max_duration:
+        await ctx.send("The maximum sleep duration is 24 hours. Please provide a shorter duration.")
+        return
+
     member = ctx.author  # The user who invoked the command
 
     try:
-        # Use the timeout method to apply the timeout
+        # Apply the timeout
         await member.timeout(timeout_duration, reason="Encouraging sleep!")
-        await ctx.send(f"{member.mention}, you've been put to sleep for {duration} hours. Rest well!")
+        await ctx.send(
+            f"{member.mention}, you've been put to sleep for {hours} hours and {minutes} minutes. Rest well!"
+        )
     except discord.Forbidden:
         await ctx.send("I don't have permission to timeout you.")
     except discord.HTTPException as e:
         await ctx.send(f"Failed to apply sleep timeout: {e}")
 
-@bot.command()
-@is_Technical_Commander()
-async def replace_roles_server(ctx):
-    """
-    Replace specific Xbox/PS4 roles with corresponding general roles for all server members.
-    """
-    # Define the mappings of old roles to new roles
-    role_mapping = {
-        # Xbox Roles
-        "Supremacy (Xbox)": "Supremacy",
-        "Galactic Assault (Xbox)": "Galactic Assault",
-        "Heroes versus Villains (Xbox)": "Heroes versus Villains",
-        "Other Gamemodes (Xbox)": "Other Gamemodes",
-        "Starfighter Assault (Xbox)": "Starfighter Assault",
-        # PS4 Roles
-        "Supremacy (PS4)": "Supremacy",
-        "Galactic Assault (PS4)": "Galactic Assault",
-        "Heroes versus Villains (PS4)": "Heroes versus Villains",
-        "Other Gamemodes (PS4)": "Other Gamemodes",
-        "Starfighter Assault (PS4)": "Starfighter Assault"
-    }
 
-    guild = ctx.guild  # Get the current guild (server)
-    updated_members = 0  # Counter for members processed
 
-    # Iterate through all members in the guild
-    for member in guild.members:
-        # Gather the roles the member currently has
-        user_roles = member.roles
 
-        # Roles to add and remove for this member
-        roles_to_add = []
-        roles_to_remove = []
-
-        for role in user_roles:
-            if role.name in role_mapping:
-                # Add the mapped general role
-                new_role_name = role_mapping[role.name]
-                new_role = discord.utils.get(guild.roles, name=new_role_name)
-                if new_role and new_role not in user_roles:  # Avoid adding duplicate roles
-                    roles_to_add.append(new_role)
-
-                # Add the old role to the list for removal
-                roles_to_remove.append(role)
-
-        # Update the roles for the member
-        try:
-            if roles_to_remove:
-                await member.remove_roles(*roles_to_remove, reason="Role replacement command executed")
-            if roles_to_add:
-                await member.add_roles(*roles_to_add, reason="Role replacement command executed")
-            if roles_to_add or roles_to_remove:
-                updated_members += 1  # Increment the counter if changes were made
-        except discord.Forbidden:
-            await ctx.send(f"Could not update roles for {member.mention} due to insufficient permissions.")
-        except discord.HTTPException as e:
-            await ctx.send(f"An error occurred while updating roles for {member.mention}: {e}")
-
-    # Send a confirmation message
-    await ctx.send(f"Role replacement completed. Updated roles for {updated_members} members.")
 
 
 bot.run(get_bot_token())
