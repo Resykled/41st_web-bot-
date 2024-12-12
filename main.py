@@ -3147,10 +3147,11 @@ async def sleep(ctx, *, duration: str = None):
         await ctx.send(f"Failed to apply sleep timeout: {e}")
 
 @bot.command()
+@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Sergeant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
+
 async def mute(ctx, member: discord.Member = None, *, duration: str = None):
-   
-    from datetime import timedelta
-    import re
+
+    
 
     # Check if user and duration are provided
     if member is None or duration is None:
