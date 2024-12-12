@@ -3146,6 +3146,65 @@ async def sleep(ctx, *, duration: str = None):
     except discord.HTTPException as e:
         await ctx.send(f"Failed to apply sleep timeout: {e}")
 
+@bot.command()
+async def mute(ctx, member: discord.Member = None, *, duration: str = None):
+   
+    from datetime import timedelta
+    import re
+
+    # Check if user and duration are provided
+    if member is None or duration is None:
+        await ctx.send(
+            "Usage: !mute @user <duration>\n"
+            "Examples:\n"
+            "- !mute @user 5d 10h (for 5 days and 10 hours)\n"
+            "- !mute @user 5h (for 5 hours)\n"
+            "- !mute @user 1d (for 1 day)"
+        )
+        return
+
+
+    duration_match = re.match(r"(?:(\d+)d)?\s*(?:(\d+)h)?", duration)
+    if not duration_match:
+        await ctx.send(
+            "Invalid duration format! Please use 'd' for days and 'h' for hours.\n"
+            "Examples:\n"
+            "- !mute @user 5d 10h\n"
+            "- !mute @user 5h\n"
+            "- !mute @user 1d"
+        )
+        return
+
+    # Extract days and hours from the match
+    days = int(duration_match.group(1)) if duration_match.group(1) else 0
+    hours = int(duration_match.group(2)) if duration_match.group(2) else 0
+
+    # Ensure at least one of days or hours is provided
+    if days == 0 and hours == 0:
+        await ctx.send(
+            "Duration must include at least one day or hour component.\n"
+            "Examples:\n"
+            "- !mute @user 5h\n"
+            "- !mute @user 1d\n"
+            "- !mute @user 1d 5h"
+        )
+        return
+
+    # Convert the duration into a timedelta
+    timeout_duration = timedelta(days=days, hours=hours)
+
+    # Attempt to apply the timeout
+    try:
+        await member.timeout(timeout_duration, reason="Muted via command!")
+        # Confirm the action
+        await ctx.send(
+            f"{member.mention} has been muted for {days} days and {hours} hours."
+        )
+    except discord.Forbidden:
+        await ctx.send("I don't have permission to timeout this user.")
+    except discord.HTTPException as e:
+        await ctx.send(f"Failed to apply timeout: {e}")
+
 
 
 
