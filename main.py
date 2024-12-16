@@ -3151,7 +3151,7 @@ async def sleep(ctx, *, duration: str = None):
 
 async def mute(ctx, member: discord.Member = None, *, duration: str = None):
 
-    
+
 
     # Check if user and duration are provided
     if member is None or duration is None:
@@ -3208,6 +3208,26 @@ async def mute(ctx, member: discord.Member = None, *, duration: str = None):
 
 
 
+@bot.command()
+@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Sergeant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
+
+async def unmute(ctx, member: discord.Member = None):
+    """
+    Remove the timeout (unmute) from the specified user.
+    Usage: !unmute @user
+    """
+    if member is None:
+        await ctx.send("Please mention a user to unmute. Example: !unmute @user")
+        return
+
+    try:
+        # Setting timeout to None removes the current timeout
+        await member.timeout(None)
+        await ctx.send(f"{member.mention} has been unmuted.")
+    except discord.Forbidden:
+        await ctx.send("I don't have permission to unmute this user.")
+    except discord.HTTPException as e:
+        await ctx.send(f"Failed to unmute the user: {e}")
 
 
 
