@@ -3102,7 +3102,7 @@ async def sleep(ctx, *, duration: str = None):
         await ctx.send(
             "Usage: `!sleep <duration>`\n"
             "Examples:\n"
-            "- `!sleep 7h` to sleep for 7 hours.\n"
+            "- !sleep 7h` to sleep for 7 hours.\n"
             "- `!sleep 1h 30min` to sleep for 1 hour and 30 minutes.\n"
             "Note: The maximum duration is 24 hours."
         )
