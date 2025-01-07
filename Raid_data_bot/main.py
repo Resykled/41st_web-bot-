@@ -163,7 +163,7 @@ async def on_message(message):
             db.update_raid_stats(raid_id, len(attendees_lines) + 1, total_attendance)  # Include host in total attendees
 
             print(f"Raid logged successfully (RaidID: {raid_id}).")
-            await message.add_reaction("✅")
+            #await message.add_reaction("✅")
 
     await bot.process_commands(message)
 
@@ -187,72 +187,8 @@ def extract_mention_or_name(line_text):
         user_id = username
     return (user_id, username, points)
 
-# ----------------------------
-#   BOT COMMANDS
-# ----------------------------
-
-@bot.command(name="raid_info")
-async def raid_info(ctx):
-    """
-    Provides statistics about raids.
-    Usage: !raid_info
-    """
-    try:
-        # Fetch data from the database
-        top_games, top_raid_type = db.get_raid_statistics()
-
-        # Check if top_games data exists
-        if not top_games:
-            await ctx.send("No raid data available.")
-            return
-
-        # Format top games text
-        top_games_text = "\n".join(
-            [f"{i+1}. {game[0]} - {game[1]} attendance points" for i, game in enumerate(top_games)]
-        )
-
-        # Handle the case where top_raid_type might not exist
-        top_raid_type_text = top_raid_type[0] if top_raid_type else "No data"
-
-        # Build the response
-        response = (
-            f"**Raid Statistics:**\n\n"
-            f"Top 5 Games by Attendance:\n{top_games_text}\n\n"
-            f"Most Used Raid Type: {top_raid_type_text}"
-        )
-
-        # Send the response
-        await ctx.send(response)
-
-    except Exception as e:
-        # Catch and log errors, and notify the user
-        print(f"Error in !raid_info: {e}")
-        await ctx.send("An error occurred while fetching raid statistics. Please try again later.")
-
-
-@bot.command(name="attendance")
-async def attendance(ctx):
-    """
-    Shows the calling user's attendance totals.
-    Usage: !attendance
-    """
-    user_id = str(ctx.author.id)
-    # Fetch attendance data from the updated database
-    user_data = db.get_user_attendance(user_id)
-    if not user_data:
-        await ctx.send(f"**{ctx.author.display_name}'s Attendance**\nNo data found.")
-        return
-
-    current_att, current_host, all_time_att, all_time_host = user_data
-    await ctx.send(
-        f"**{ctx.author.display_name}'s Attendance**\n"
-        f"Current Attendance: {current_att}\n"
-        f"Current Hosting: {current_host}\n"
-        f"All-Time Attendance: {all_time_att}\n"
-        f"All-Time Hosting: {all_time_host}"
-    )
-
 @bot.command(name="raid_data")
+@commands.has_any_role('Commander', 'Technical Commander', 'Captain', 'Major', 'High Command')
 async def raid_data(ctx):
     """
     Provides detailed raid statistics with main and sub-bars for raid types.
@@ -275,31 +211,41 @@ async def raid_data(ctx):
     raid_types.discard("total")
     raid_types = list(raid_types)
 
-    raid_type_data = {rtype: [raid_data[game].get(rtype, 0) for game in games] for rtype in raid_types}
+    raid_type_data = {
+        rtype: [raid_data[game].get(rtype, 0) for game in games] for rtype in raid_types
+    }
 
-    # Create the bar chart
     x = np.arange(len(games))  # Position of groups
-    num_bars = len(raid_types) + 1  # Total bars per group including "Total Attendance"
-    bar_width = 0.9 / num_bars  # Adjust bar width to reduce white spaces
+    bar_width = 0.9 / (len(raid_types) + 1)  # Adjust bar width to fit all bars tightly
 
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(14, 8))
 
-    # Plot each category
-    for i, (rtype, values) in enumerate(raid_type_data.items()):
-        plt.bar(x + (i - num_bars / 2) * bar_width + bar_width / 2, values, width=bar_width, label=rtype, alpha=0.7)
+    # Plot each raid type with stack
+    bottom_stack = [0] * len(games)  # Initialize bottom stack
+    for rtype, values in raid_type_data.items():
+        plt.bar(
+            x, values,
+            width=bar_width,
+            label=rtype,
+            bottom=bottom_stack,
+            alpha=0.85
+        )
+        bottom_stack = [sum(x) for x in zip(bottom_stack, values)]
 
-    # Plot total attendance as the last bar
-    plt.bar(x + (num_bars - 1 - num_bars / 2) * bar_width + bar_width / 2, total_attendance, width=bar_width, color='blue', label='Total Attendance')
+    # Add grid for better readability
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
 
     # Add labels, title, and legend
-    plt.title("Attendance by Game and Raid Type", fontsize=16)
-    plt.xlabel("Games", fontsize=12)
-    plt.ylabel("Attendance Points", fontsize=12)
-    plt.xticks(x, games, rotation=0)
-    plt.legend(title="Raid Types", fontsize=10)
+    plt.title("Attendance by Game and Raid Type", fontsize=18, fontweight='bold')
+    plt.xlabel("Games", fontsize=14)
+    plt.ylabel("Attendance Points", fontsize=14)
+    plt.xticks(x, games, rotation=15, fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(title="Raid Types", fontsize=10, loc='upper left', bbox_to_anchor=(1, 1))
 
     # Save the plot to a buffer
     buf = io.BytesIO()
+    plt.tight_layout()
     plt.savefig(buf, format='png', bbox_inches="tight")
     buf.seek(0)
     plt.close()
@@ -320,81 +266,8 @@ async def raid_data(ctx):
         await ctx.send(f"**Raid Data Summary:**\n\n" + "\n".join(chunk))
 
 
-
-@bot.command(name="attendance_check")
-async def attendance_check(ctx, member: discord.Member = None):
-    """
-    Checks another user's attendance record.
-    Usage: !attendance_check @user
-    """
-    if not member:
-        await ctx.send("Please mention a user to check, e.g. !attendance_check @username.")
-        return
-
-    user_id = str(member.id)
-    # Fetch attendance data from the updated database
-    user_data = db.get_user_attendance(user_id)
-    if not user_data:
-        await ctx.send(f"**{member.display_name}'s Attendance**\nNo data found.")
-        return
-
-    current_att, current_host, all_time_att, all_time_host = user_data
-    await ctx.send(
-        f"**{member.display_name}'s Attendance**\n"
-        f"Current Attendance: {current_att}\n"
-        f"Current Hosting: {current_host}\n"
-        f"All-Time Attendance: {all_time_att}\n"
-        f"All-Time Hosting: {all_time_host}"
-    )
-
-
-@bot.command(name="check_platoon")
-async def check_platoon(ctx, platoon_name: str = None):
-    """
-    Usage: !check_platoon Brumac
-    This will look for a Discord Role named "Brumac Platoon" and list attendance
-    for all members who have that role.
-    """
-    if not platoon_name:
-        await ctx.send("Please specify a platoon name, e.g. !check_platoon Brumac.")
-        return
-
-    # Construct the role name e.g. "Brumac Platoon"
-    role_name = f"{platoon_name} Platoon"
-
-    # Find the role in the guild
-    platoon_role = discord.utils.get(ctx.guild.roles, name=role_name)
-    if not platoon_role:
-        await ctx.send(f"No role found named '{role_name}'. "
-                       f"Make sure the role exists and uses this exact format.")
-        return
-
-    # Gather all members that have this role
-    platoon_members = [member for member in ctx.guild.members if platoon_role in member.roles]
-
-    if not platoon_members:
-        await ctx.send(f"No members found with the role '{role_name}'.")
-        return
-
-    response_lines = [f"**{platoon_name} Platoon Attendance**"]
-    for member in platoon_members:
-        user_id = str(member.id)
-        # Fetch attendance data from the updated database
-        user_data = db.get_user_attendance(user_id)
-        if user_data:
-            current_att, current_host, _, _ = user_data
-            mark = "LOW ATTENDANCE" if current_att < 2 else ""
-            response_lines.append(
-                f"{member.display_name} - Attendance: {current_att}, Hosts: {current_host} {mark}"
-            )
-        else:
-            response_lines.append(f"{member.display_name} - No data found.")
-
-    # Send a nicely formatted list
-    await ctx.send("\n".join(response_lines))
-
-
 @bot.command(name="reset")
+@commands.has_any_role('Commander', 'Technical Commander', 'Captain', 'Major', 'High Command')
 @commands.has_permissions(administrator=True)
 async def reset_db_command(ctx):
         """
