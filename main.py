@@ -801,6 +801,19 @@ async def kyoda(ctx):
 
 
 @bot.command()
+async def please(ctx, *, request: str = None):
+    """Responds politely to any request made with !please"""
+    if request:
+        responses = [
+            f"Of course, {ctx.author.name}! I'll do my best! 😊",
+            f"I'm just a bot, but I appreciate the politeness, {ctx.author.name}!",
+            f"Thank you for asking nicely, {ctx.author.name}! I'll see what I can do."
+        ]
+        await ctx.send(random.choice(responses))
+    else:
+        await ctx.send("Please say what you need help with! 😊")
+
+@bot.command()
 @is_allowed_channel()
 @commands.check(is_registered)
 async def Sykles(ctx):
