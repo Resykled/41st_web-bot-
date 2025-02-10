@@ -813,6 +813,41 @@ async def please(ctx, *, request: str = None):
     else:
         await ctx.send("Please say what you need help with! 😊")
 
+
+@bot.command(name='lean')
+async def lean(ctx):
+    # Prüfen, ob wir im richtigen Server (Guild) und den richtigen Kanälen sind
+    if (ctx.guild and str(ctx.guild.id) == '911409562970628167'
+            and ctx.channel.name in ['bot-commands', 'lean-zone']):
+
+        gifs = [
+            'https://tenor.com/view/the-cup-dave-blunts-blunt-cup-gif-2447846343543578333',
+            'https://tenor.com/view/kys-keep-yourself-safe-low-tier-god-gif-24664025',
+            'https://tenor.com/view/family-guy-stewie-junkie-stewie-high-stewie-opiates-gif-16490677',
+            'https://tenor.com/view/i-love-lean-meme-lean-cat-loves-lean-purple-drank-gif-24893809',
+            'https://tenor.com/view/kys-keep-yourself-safe-low-tier-god-gif-24664025',
+            'https://tenor.com/view/juice-wrld-juice-wrld-lean-gif-24992173',
+            'https://tenor.com/view/lean-minion-i-love-lean-yeah-help-me-love-gif-24941423',
+            'https://tenor.com/view/ashe-gif-22268015',
+            'https://tenor.com/view/kys-keep-yourself-safe-low-tier-god-gif-24664025',
+            'https://tenor.com/view/fate-grand-order-ritsuka-fujimaru-lean-i-love-gif-24868009',
+            'https://tenor.com/view/kys-keep-yourself-safe-low-tier-god-gif-24664025',
+            'https://tenor.com/view/htp-happy-tree-friends-flippy-flippy-happy-tree-friends-gif-25050180',
+            'https://tenor.com/view/i-love-lean-i-love-lean-meme-broly-dragon-ball-super-dragon-ball-super-broly-gif-24908426',
+            'https://tenor.com/view/carnage-venom-venom-let-there-be-carnage-lean-carnage-carnage-lean-gif-24709803',
+            'https://tenor.com/view/lean-swaggles-swagsoul-funny-i-love-lean-gif-24944891',
+            'https://tenor.com/view/i-love-lean-garfield-gif-24997588'
+        ]
+
+        # Zufälliges GIF auswählen
+        random_gif = random.choice(gifs)
+
+        # Ausgewähltes GIF senden
+        await ctx.send(random_gif)
+    else:
+        # Falls der Server oder der Channel nicht korrekt ist, kann man hier entweder nichts machen oder eine Meldung senden
+        return
+
 @bot.command()
 @is_allowed_channel()
 @commands.check(is_registered)
@@ -871,6 +906,75 @@ async def no_you(ctx):
     await ctx.send(message)
     print("no bitches.")
 
+
+@bot.command()
+async def FunkyTown(ctx):
+    # Send the GIF before the lyrics start.
+    await ctx.send("https://tenor.com/view/fish-spin-sha-gif-26863370")
+
+    # List of lyrics for "Funkytown"
+    lyrics = [
+        "Gotta make a move to a town that's right for me",
+        "Town to keep me movin'",
+        "Keep me groovin' with some energy",
+        "Well, I talk about it, talk about it",
+        "Talk about it, talk about it",
+        "Talk about, talk about",
+        "Talk about movin'",
+        "Gotta move on",
+        "Gotta move on",
+        "Gotta move on",
+        "Won't you take me to",
+        "Funkytown?",
+        "Won't you take me to",
+        "Funkytown?",
+        "Won't you take me to",
+        "Funkytown?",
+        "Won't you take me to",
+        "Funkytown?"
+    ]
+
+    # Loop through each lyric, sending it with a delay and the :speaking_head: emoji at the start.
+    for line in lyrics:
+        await ctx.send(f":speaking_head: {line}")
+        await asyncio.sleep(1)  # Adjust the delay (in seconds) as needed
+
+@bot.command()
+async def AllStar(ctx):
+    # Send the GIF before the lyrics start.
+    await ctx.send("https://tenor.com/view/shrek-gif-25336944")
+
+    # List of lyrics for "Funkytown"
+    lyrics = [
+       " Somebody once told me",
+       " The world is gonna roll me",
+        "I ain't the sharpest tool in the shed",
+        "She was looking kind of dumb",
+        "With her finger and her thumb",
+        "In the shape of an L on her forehead",
+        "Well, the years start coming",
+        "And they don't stop coming",
+        "Fed to the rules and I hit the ground running",
+        "Didn't make sense not to live for fun",
+        "Your brain gets smart, but your head gets dumb",
+        "So much to do, so much to see",
+        "So what's wrong with taking the back streets?",
+        "You'll never know if you don't go",
+        "You'll never shine if you don't glow",
+        "Hey now, you're an all star",
+        "Get your game on, go play",
+        "Hey now, you're a rock star",
+        "Get the show on, get paid",
+        "And all that glitters is gold",
+        "Only shooting stars"
+
+    
+    ]
+
+    # Loop through each lyric, sending it with a delay and the :speaking_head: emoji at the start.
+    for line in lyrics:
+        await ctx.send(f":speaking_head: {line}")
+        await asyncio.sleep(1)  # Adjust the delay (in seconds) as needed
 
 @bot.command()
 @is_allowed_channel()
