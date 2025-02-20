@@ -1658,7 +1658,7 @@ async def whoami(ctx, subcommand: str = None):
             "The Best of the Best", "Clanker Crusher", "Terror in the Sky", "True Trooper", "Siegebreaker", "Top Gun",
             "41st Representation Medal", "Lone Survivor", "Exemplar",
             "Professional Soldier", "One Man Army", "The Good Batch", "Bred for War", "Outstanding Dedication",
-            "Fireteam on Fire", "First Try", "Experience Outranks Everything"
+            "Fireteam on Fire", "First Try", "Experience Outranks Everything", "The best of the best "
         ]
 
         level_medals = [
@@ -1901,7 +1901,8 @@ async def whoami(ctx, subcommand: str = None):
         ("Outstanding Dedication", 4000),
         ("Fireteam on Fire", 3000),
         ("First Try", 3000),
-        ("Experience Outranks Everything", 8000)
+        ("Experience Outranks Everything", 7000)
+        ("The best of the best", 9000 )
         ]
 
         army_qualifications = [

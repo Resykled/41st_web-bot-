@@ -372,6 +372,7 @@ def initialize_roles():
         ("1 Year Service Medal", 3000),
         ("2 Year Service Medal", 4000),
         ("3 Year Service Medal", 6000),
+        ("4 Year Service Medal", 8000),
         ("Cadet Master", 3000),
         ("Mythical Instructor", 3000),
         ("Legendary Instructor", 3000),
@@ -405,7 +406,8 @@ def initialize_roles():
         ("Outstanding Dedication", 4000),
         ("Fireteam on Fire", 3000),
         ("First Try", 3000),
-        ("Experience Outranks Everything", 8000),
+        ("Experience Outranks Everything", 7000), #500 attendance medal
+        ("The best of the best ", 9000), # 1000 attendance medal
 
         # LEVEL MEDALS
         ("Mythical ARF Medal", 7500),
