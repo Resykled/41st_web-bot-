@@ -1658,7 +1658,7 @@ async def whoami(ctx, subcommand: str = None):
             "The Best of the Best", "Clanker Crusher", "Terror in the Sky", "True Trooper", "Siegebreaker", "Top Gun",
             "41st Representation Medal", "Lone Survivor", "Exemplar",
             "Professional Soldier", "One Man Army", "The Good Batch", "Bred for War", "Outstanding Dedication",
-            "Fireteam on Fire", "First Try", "Experience Outranks Everything", "The best of the best "
+            "Fireteam on Fire", "First Try", "Experience Outranks Everything", "The best of the 41st "
         ]
 
         level_medals = [
@@ -1829,15 +1829,16 @@ async def whoami(ctx, subcommand: str = None):
         army_medals = [
             ("Medal of Valor", 20000),
         ("41st Service Medal", 3000),
-        ("Cadet Master", 3000),
-        ("Mythical Instructor", 3000),
+        ("Cadet Master", 9000),
+        ("Mythical Instructor", 6000),
         ("Legendary Instructor", 3000),
-        ("Hero of The 41st", 2500),
+        ("Hero of The 41st", 6500),
         ("Absolutely Demolished", 2000),
-        ("Legendary Ranger", 2000),
+        ("Legendary Ranger", 4000),
         ("Battle Hardened", 2000),
-        ("Bane of Clankers", 2000),
+        ("Bane of Clankers", 3500),
         ("Order of Dedication", 2000),
+        ("Outstanding Dedication", 6000),
         ("Vaunted Veteran Medal", 4000),
         ("Seppie Scourge", 1500),
         ("Plot Armor", 1500),
@@ -1853,6 +1854,9 @@ async def whoami(ctx, subcommand: str = None):
         ("Siegebreaker", 1000),
         ("Top Gun", 1000),
         ("41st Representation Medal", 1000)
+        ("Professional Soldier", 15000),
+        ("Experience Outranks Everything", 18500)
+        ("The best of the 41st", 20000 )
         ]
 
         level_medals = [
@@ -1894,15 +1898,12 @@ async def whoami(ctx, subcommand: str = None):
         ("Veteran Assault Medal", 1000),
         ("Lone Survivor", 5000),
         ("Exemplar", 1000),
-        ("Professional Soldier", 5000),
         ("One Man Army", 1500),
         ("The Good Batch", 4000),
         ("Bred for War", 1500),
-        ("Outstanding Dedication", 4000),
         ("Fireteam on Fire", 3000),
         ("First Try", 3000),
-        ("Experience Outranks Everything", 7000)
-        ("The best of the best", 9000 )
+        
         ]
 
         army_qualifications = [
@@ -2003,7 +2004,7 @@ async def whoami(ctx, subcommand: str = None):
         ("Leading to Victory", 2500),
         ("To Sacrifice and Serve", 2000),
         ("For the Republic", 1000),
-        ("Dedication is Key", 3000),
+        ("Dedication is Key", 5000),
         ("Squad Oriented", 2000),
         ("All but Special Forces", 1000),
         ("Top Trainer", 1500),
@@ -2014,10 +2015,10 @@ async def whoami(ctx, subcommand: str = None):
         ("Trials are our Speciality", 1500),
         ("Team Player", 3000),
         ("Old but Gold", 1500),
-        ("He's going for Speed", 1000),
-        ("He's Going the Distance", 1500),
+        ("He's going for Speed", 2500),
+        ("He's Going the Distance", 1000),
         ("Basic Equipment Expert", 2000),
-        ("Instructor on Fire", 1000),
+        #("Instructor on Fire", 1000),
         ("Praise the Maker", 1500),
         ("FEEL THE WRATH OF THE 41ST", 1000)
         ]
