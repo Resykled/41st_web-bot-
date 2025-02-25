@@ -792,6 +792,14 @@ async def techno(ctx):
 async def drugs(ctx):
     await ctx.send("Deathsticks ?")
 
+@bot.command()
+@is_allowed_channel()
+@commands.check(is_registered)
+async def ra(ctx):
+
+    await ctx.send(
+
+        "Check this out  https://tenor.com/view/nigel-farage-up-the-ra-gif-26930624 ")
 
 @bot.command()
 @is_allowed_channel()
