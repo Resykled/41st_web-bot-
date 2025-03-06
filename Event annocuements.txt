@@ -1,0 +1,57 @@
+Petranaki-Arena
+"The Jedi forces are holding their ground in the Petranaki-Arena. Reinforcements are needed immediately to secure the arena and launch a counterstrike. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Droid Factory
+"The Separatists are amping up droid production in the factory. Destroy the assembly lines before the enemy overpowers our forces. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Stalgasin-Hive
+"The Geonosians are fortifying Stalgasin-Hive. We have 5 hours to breach their defenses and claim the hive. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosian Catacombs
+"Enemy forces are hiding within the catacombs. Scouting teams must navigate the tunnels and eliminate all threats. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Dooku’s Hideout
+"Dooku has been spotted at his Geonosis hideout. Launch an immediate strike to capture him before he escapes. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosian Hangars
+"Separatist fleets are preparing for launch from the hangars. Stop them before they reinforce their fleet. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosis Battlefields
+"The open battlefields are a warzone. Push through enemy lines to dominate this sector. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Hyperspace Ring Factory
+"The hyperspace ring factory is operational again. Destroy it before more fleets gain interstellar mobility. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Karina the Great’s Nestn
+"Karina the Great has retreated to her nest. Eliminate her before she rallies her drones. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+Progate Temple
+"The droids are attempting to seize the Progate Temple. Defend it and prepare for a counter-push. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+Stalgasin Tunnels
+"Enemy forces are using the tunnels for surprise attacks. Seal them off to gain the upper hand. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosian Mines
+"The mines are producing valuable resources for the Separatists. Take control to cut off their supplies. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Archduke Poggle’s Palace
+"Archduke Poggle has called for reinforcements. Launch an immediate assault on his palace.(Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosian Incubation Chambers
+"The incubation chambers are critical to Geonosian troop replenishment. Destroy them before it’s too late. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Droid Command Post
+"A major droid command post has been identified. Disable it to disrupt enemy operations. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosian Archives
+"The Geonosian Archives contain valuable intelligence. Secure the data before it’s destroyed. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosian Defense Platforms
+"The defense platforms are targeting our fleet. Disable them to secure the skies.(Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Separatist Command Center
+"The Separatist command center is vulnerable. Strike now to dismantle their coordination. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Energy Node
+"The energy node powers Separatist operations. Sabotage it to cripple their forces. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
+
+Geonosian Weapon Factories
+"The weapon factories are churning out arms for the enemy. Shut them down before they reach full capacity. (Raids are scored twice in the next 5h until two fields are conquered or the time runs out) "
