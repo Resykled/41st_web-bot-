@@ -1666,7 +1666,7 @@ async def whoami(ctx, subcommand: str = None):
             "The Best of the Best", "Clanker Crusher", "Terror in the Sky", "True Trooper", "Siegebreaker", "Top Gun",
             "41st Representation Medal", "Lone Survivor", "Exemplar",
             "Professional Soldier", "One Man Army", "The Good Batch", "Bred for War", "Outstanding Dedication",
-            "Fireteam on Fire", "First Try", "Experience Outranks Everything", "The best of the 41st "
+            "Fireteam on Fire", "First Try", "Experience Outranks Everything", "The Best of the 41st ","The Best of the Best",
         ]
 
         level_medals = [
@@ -1861,10 +1861,11 @@ async def whoami(ctx, subcommand: str = None):
         ("True Trooper", 1000),
         ("Siegebreaker", 1000),
         ("Top Gun", 1000),
-        ("41st Representation Medal", 1000)
+        ("41st Representation Medal", 1000),
         ("Professional Soldier", 15000),
-        ("Experience Outranks Everything", 18500)
-        ("The best of the 41st", 20000 )
+        ("Experience Outranks Everything", 18500),
+        ("The Best of the 41st", 20000 ),
+       
         ]
 
         level_medals = [
@@ -2026,9 +2027,8 @@ async def whoami(ctx, subcommand: str = None):
         ("He's going for Speed", 2500),
         ("He's Going the Distance", 1000),
         ("Basic Equipment Expert", 2000),
-        #("Instructor on Fire", 1000),
         ("Praise the Maker", 1500),
-        ("FEEL THE WRATH OF THE 41ST", 1000)
+        ("FEEL THE WRATH OF THE 41ST", 1000),
         ]
 
         # Get medals and qualifications from specific servers

@@ -407,7 +407,8 @@ def initialize_roles():
         ("Fireteam on Fire", 3000),
         ("First Try", 3000),
         ("Experience Outranks Everything", 18500), #500 attendance medal
-        ("The best of the 41st", 20000), # 1000 attendance medal
+        ("The Best of the 41st", 20000), # 1000 attendance medal
+        ("The Best of the Best ", 1000),
 
         # LEVEL MEDALS
         ("Mythical ARF Medal", 7500),
