@@ -19,12 +19,13 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 # ------------------------------------------
 # --- NEW OR CHANGED ---
 # Channel IDs (update with actual channel IDs):
-CAMP_MAP_ID = 1338952160657932339
-CAMP_ANNOUNCE_ID = 1338952435921584138
-CAMP_LOGS_ID = 1338951678468296835
-CAMP_COMMANDS_ID = 1338952906052997204
+CAMP_MAP_ID = 1349129397738930268
+CAMP_ANNOUNCE_ID = 1349129257623883856
+CAMP_LOGS_ID = 1349129328679714890
+CAMP_COMMANDS_ID = 1349129429661782160
+CAMP_STATUS_ID = 1349129302972694618
 # ------------------------------------------
-
+campaign_status_message_id = None
 # In-memory structure for voting
 voting_session_active = False
 current_vote = {"north": 0, "south": 0, "east": 0, "west": 0}
@@ -41,32 +42,84 @@ MOVES = {
 }
 
 WIN_ANNOUNCEMENTS = [
-    "Good work troopers! With that objective achieved we've made a significant breakthrough on liberating this planet...",
-    "Excellent shooting men! With the enemy defeated for now, we can continue our advance...",
-    "Fleet reports enemy signatures dropping, whoever's left is on the run...",
-    "Excellent work men! We're one step closer to taking this planet for the Republic...",
-    "Look at those seppies run! Troopers, rally together and lets demolish the rest of them...",
-    "Air support is on the way to help with clean-up, late as usual to the party!...",
-    "That did it troopers! The clankers are in a full-scale retreat...",
-    "Word has it that Republic Commandos were able to break through...",
-    "Get heavy weapons set up troopers! We've won the day, but those droids are absolutely going to be working their way back...",
-    "Heavy armor is obliterating the last of the enemy forces as they attempt to make their escape..."
+    "**Good work troopers! With that objective achieved we've made a significant breakthrough on liberating this planet...**",
+    "**Excellent shooting men! With the enemy defeated for now, we can continue our advance...**",
+    "**Fleet reports enemy signatures dropping, whoever's left is on the run...**",
+    "**Excellent work men! We're one step closer to taking this planet for the Republic...**",
+    "**Look at those seppies run! Troopers, rally together and lets demolish the rest of them...**",
+    "**Air support is on the way to help with clean-up, late as usual to the party!...**",
+    "**That did it troopers! The clankers are in a full-scale retreat...**",
+    "**Word has it that Republic Commandos were able to break through...**",
+    "**Get heavy weapons set up troopers! We've won the day, but those droids are absolutely going to be working their way back...**",
+    "**Heavy armor is obliterating the last of the enemy forces as they attempt to make their escape...**"
 ]
 
 LOSS_ANNOUNCEMENTS = [
-    "Pack it up men, we've lost too many brothers to continue the offensive...",
-    "We did what we could troopers, but the Seppies have us beat this time...",
-    "Heads down! Our vanguard just got blasted and now they're coming for us...",
-    "Mission failed men, we couldn't crack the droids. They're using this as an opportunity to push us hard...",
-    "Buckle up troopers, we're in for the fight of our lives now...",
-    "Take cover men! Venators in orbit are providing an orbital bombardment for us to make our retreat...",
-    "Commando droids just took out our left flank and are about to make contact!",
-    "Those droidekas have tough shields! They're counterpushing with those rollers...",
-    "Those supers have tough armor! They're breaking through our forward positions...",
-    "That's it men, we've lost too many troopers to continue the push..."
+    "**Pack it up men, we've lost too many brothers to continue the offensive...**",
+    "**We did what we could troopers, but the Seppies have us beat this time...**",
+    "**Heads down! Our vanguard just got blasted and now they're coming for us...**",
+    "**Mission failed men, we couldn't crack the droids. They're using this as an opportunity to push us hard...**",
+    "**Buckle up troopers, we're in for the fight of our lives now...**",
+    "**Take cover men! Venators in orbit are providing an orbital bombardment for us to make our retreat...**",
+    "**Commando droids just took out our left flank and are about to make contact!**",
+    "**Those droidekas have tough shields! They're counterpushing with those rollers...**",
+    "**Those supers have tough armor! They're breaking through our forward positions...**",
+    "**That's it men, we've lost too many troopers to continue the push...**",
 ]
 
+# Define positive and negative rule lists
+positive_rules = {
+    "CLASS": [
+        "**Assault Only** \n + 1 reinforcement class\n",
+        "**Assault Only**  \n + allowing heroes\n",
+        "**Heavy Only** \n + 1 reinforcement class\n",
+        "**Heavy Only**  \n + allowing heroes\n",
+        "**Specialist Only**  \n + 1 reinforcement class\n",
+        "**Specialist Only**  \n + allowing heroes\n",
+        "**Officer only**  \n + 1 reinforcement class\n",
+        "**Officer only**  \n + allowing heroes\n"
+    ],
+    "WEAPON": [
+        "**Up in their face** \n (ASSAULT: CR-2, E-11D; HEAVY: TL-50; SPECIALIST: A-280CFE; OFFICER: Blurrg, SE-44C)\n",
+        "**Long Distance** \n (ASSAULT: EL-16HFE; HEAVY: T-21; SPECIALIST: NT-242; OFFICER: S-5)\n"
+    ],
+    "STAR_CARD": [
+        "**ASSAULT:** \n Carabiners (Improved Weapons Handling, Bodyguard, Grenade of choice)\n",
+        "**ASSAULT:** \n Close and Personal (Assault Training, Bodyguard, Toughen up)\n",
+        "**HEAVY:** \n We go Boom (Improved Grenade/detonite charge, Barrage, Explosive Sentry)\n",
+        "**HEAVY:** \n Brawlers (ICS, Detonite Charge, Bodyguard)\n",
 
+        "**HEAVY** \n + one base class only (HEAVY: Turtles - ICS, Bodyguard, Survivalist)\n",
+        "**SPECIALIST:** \n Wack-a-mole (Stealth, Hardened Infiltration, Personal Shield)\n",
+        "**SPECIALIST:** \n Snipers (Marksman, Trip Mine, Stealth)\n",
+        "**SPECIALIST:** \n Tooth and Nail (Improved Shock, Killstreak Infil, Survivalist)\n",
+        "**OFFICER:** \n Commanders (Improved Battle Command, Blaster Turret, Officer’s Presence)\n",
+        "**OFFICER:** \n Missile Operator (Recharge Command, Homing Shot, Resourceful)\n"
+    ]
+}
+
+negative_rules = {
+    "CLASS": [
+        "**Assault Only** \n + use EL-16HF\n",
+        "**Heavy Only** \n + use FWMBK\n",
+        "**Specialist Only** \n + use Cycler Rifle\n",
+        "**Officer only** \n + use BLURRG-1120\n"
+    ],
+    "WEAPON": [
+        "**Medium Engagement** \n (ASSAULT: A280/default; HEAVY: DC-15, DC-15LE, FWMB-10K; SPECIALIST: VALKEN, IQA, CYCLER; OFFICER: Default, DL-18)\n"
+    ],
+    "STAR_CARD": [
+        "**No Star Cards!**",
+        "**No Star Cards** \n + Base Classes Only\n",
+        "**No Star Cards** \n + one base class only (ASSAULT: Memesault - Flash pistol, Slug Vanguard, Acid Launcher)\n",
+        "**No Star Cards** \n + one base class only (ASSAULT: Distantly Deadly - Marksman, Improved Scan Dart, Acid/Improved/Ion Grenades)\n",
+        "**No Star Cards** \n + one base class only (HEAVY: Defenders - Expert Weapons Handling, ICS, Mobile Sentry/Supercharged Sentry)\n",
+        "**No Star Cards** \n + one base class only (SPECIALIST: Scouts - Scramble, Improved Binos, Repulsor Cannon)\n",
+        "**No Star Cards** \n + one base class only (SPECIALIST: Stingers - Stinger Pistol, other star cards)\n",
+        "**No Star Cards** \n + one base class only (OFFICER: Phalanx - Recharge Command, Squad Shield, Defuser)\n",
+        "**No Star Cards** \n + one base class only (OFFICER: Urban Specialist - Survivalist, Disruption, Blast Command)\n"
+    ]
+}
 def is_Technical_Commander():
     async def predicate(ctx):
         bot_dev_role = discord.utils.get(ctx.guild.roles, name="Technical Commander")
@@ -77,9 +130,32 @@ def is_Technical_Commander():
 
     return commands.check(predicate)
 
+def Right_role():
+    async def predicate(ctx):
+        allowed_roles = [
+            "Technical Commander",
+            "Corporal",
+            "Sergeant",
+            "Staff Sergeant",
+            "Sergeant Major",
+            "2nd Lieutenant",
+            "Lieutenant",
+            "Captain",
+            "Major",
+            "Commander"
+        ]
+        if any(role.name in allowed_roles for role in ctx.author.roles):
+            return True
+        await ctx.send("You do not have permission to use this command.")
+        return False
+
+    return commands.check(predicate)
+
+
 
 # --- NEW OR CHANGED ---
 # Global check: all commands except raid_win / raid_loss must be called in campain-commands channel
+
 @bot.check
 def global_channel_check(ctx):
     if ctx.command.name in ("raid_win", "raid_loss", "map"):
@@ -90,6 +166,114 @@ def global_channel_check(ctx):
 
 # ------------------------
 
+@tasks.loop(minutes=1)
+async def campaign_status_update():
+    """
+    Updates the campaign status message in the designated status channel.
+    The message includes:
+      - The current map (using render_friendly_map) plus a legend.
+      - Active special rule details (if one is active): rule type, rule text,
+        remaining raid count, and time remaining.
+      - Current voting session info: vote counts per direction and time remaining.
+      - HQ objectives counts: how many friendly and enemy HQs remain.
+    It ensures that the channel contains only one message.
+    """
+    global campaign_status_message_id
+    channel = bot.get_channel(CAMP_STATUS_ID)
+    if channel is None:
+        print("[DEBUG] Campaign status channel not found.")
+        return
+
+    # Retrieve the current game state
+    state = db.get_game_state()
+
+    # 1. Build the map and legend section.
+    map_str = render_friendly_map(state)
+    legend = (
+        "Legend:\n"
+        "⬜ - Hidden\n"
+        "⬛ - Visited / Old HQ\n"
+        "🟩 - Friendly HQ\n"
+        "🟥 - Enemy HQ\n"
+        "🟦 - Friendly Marker\n"
+        "🟪 - Enemy Marker\n"
+        "🟨 - Side Quest"
+    )
+    map_section = f"**Campaign Map:**\n```\n{map_str}\n```\n{legend}"
+
+    # 2. Active special rule info.
+    active_rule = state.get("active_rule", {})
+    if active_rule.get("rule"):
+        try:
+            expires_at = datetime.datetime.fromisoformat(active_rule["expires_at"])
+            time_remaining = expires_at - datetime.datetime.utcnow()
+            time_remaining_str = str(time_remaining).split('.')[0] if time_remaining.total_seconds() > 0 else "Expired"
+        except Exception as e:
+            print(f"[DEBUG] Error parsing active rule expiry: {e}")
+            time_remaining_str = "Unknown"
+        rule_section = (
+            f"**Active Special Rule:** {active_rule['type'].title()} - **{active_rule['rule']}**\n"
+            f"Raids remaining: {active_rule['raid_count']}\n"
+            f"Time remaining: {time_remaining_str}"
+        )
+    else:
+        rule_section = "**Active Special Rule:** None"
+
+    # 3. Voting session info.
+    if voting_session_active:
+        vote_section = "**Voting Session:** Active\n"
+        for direction, count in current_vote.items():
+            vote_section += f"{direction.title()}: {count} votes\n"
+        if vote_start_time:
+            now = datetime.datetime.utcnow()
+            elapsed = (now - vote_start_time).total_seconds()
+            remaining = vote_duration - elapsed
+            if remaining > 0:
+                hrs, rem = divmod(remaining, 3600)
+                mins, secs = divmod(rem, 60)
+                vote_section += f"Time remaining: {int(hrs)}h {int(mins)}m {int(secs)}s"
+            else:
+                vote_section += "Voting session ending soon"
+    else:
+        vote_section = "**Voting Session:** Not active"
+
+    # 4. HQ Objectives info.
+    grid = state["grid"]
+    friendly_count = sum(cell["state"] == "friendly_objective" for row in grid for cell in row)
+    enemy_count = sum(cell["state"] == "enemy_objective" for row in grid for cell in row)
+    hq_section = f"**HQ Objectives:**\nFriendly: {friendly_count}\nEnemy: {enemy_count}"
+
+    # Combine all sections into one status message.
+    status_message = "\n\n".join([map_section, rule_section, vote_section, hq_section])
+
+    # Delete any existing messages in this channel except the one we're updating.
+    try:
+        messages = [msg async for msg in channel.history(limit=100)]
+        for msg in messages:
+            if campaign_status_message_id and msg.id == campaign_status_message_id:
+                continue
+            try:
+                await msg.delete()
+            except Exception as e:
+                print(f"[DEBUG] Error deleting message: {e}")
+    except Exception as e:
+        print(f"[DEBUG] Error fetching channel history: {e}")
+
+    # Update the existing status message or send a new one.
+    if campaign_status_message_id:
+        try:
+            msg = await channel.fetch_message(campaign_status_message_id)
+            await msg.edit(content=status_message)
+        except Exception as e:
+            print(f"[DEBUG] Error editing status message: {e}. Sending new message.")
+            new_msg = await channel.send(status_message)
+            campaign_status_message_id = new_msg.id
+    else:
+        new_msg = await channel.send(status_message)
+        campaign_status_message_id = new_msg.id
+
+
+
 @bot.event
 async def on_ready():
     print(f"Bot is online as {bot.user}")
@@ -97,6 +281,7 @@ async def on_ready():
     daily_event_check.start()
     vote_check_loop.start()
     hq_event_check_loop.start()
+    campaign_status_update.start()
 
 
 def can_move_back(last_direction, new_direction):
@@ -193,17 +378,16 @@ def reposition_enemy_hq(grid, old_x, old_y):
     setzt es an eine zufällige neue Position auf der Karte,
     die kein Friendly-HQ und kein Enemy-HQ ist.
     """
-    # Altes Feld auf "visited" setzen
     grid[old_x][old_y]["state"] = "visited"
 
-    # Alle möglichen Zellen sammeln, die kein HQ sind
+
     possible_cells = []
     for x in range(10):
         for y in range(10):
             if grid[x][y]["state"] not in ["friendly_objective", "enemy_objective"]:
                 possible_cells.append((x, y))
 
-    # Falls es gar keinen freien Platz gibt, brechen wir ab
+
     if not possible_cells:
         return (old_x, old_y)
 
@@ -211,6 +395,32 @@ def reposition_enemy_hq(grid, old_x, old_y):
     new_x, new_y = random.choice(possible_cells)
     grid[new_x][new_y]["state"] = "enemy_objective"
     return (new_x, new_y)
+
+
+def reposition_friendly_hq(grid, old_x, old_y):
+    """
+    Removes the attacked friendly HQ from (old_x, old_y) by marking it as visited,
+    then places a new friendly HQ in a random cell that is not already an HQ.
+    """
+    # Remove the old HQ.
+    grid[old_x][old_y]["state"] = "visited"
+
+    # Gather all cells that are NOT already designated as any HQ.
+    possible_cells = []
+    for x in range(10):
+        for y in range(10):
+            if grid[x][y]["state"] not in ["friendly_objective", "enemy_objective"]:
+                possible_cells.append((x, y))
+
+    # If no cell is available, return the original coordinates.
+    if not possible_cells:
+        return (old_x, old_y)
+
+    # Choose a new cell at random and mark it as the friendly HQ.
+    new_x, new_y = random.choice(possible_cells)
+    grid[new_x][new_y]["state"] = "friendly_objective"
+    return (new_x, new_y)
+
 
 
 @tasks.loop(minutes=1)
@@ -276,6 +486,76 @@ def start_hq_event(state, event_type, target_x, target_y):
         f"[DEBUG] start_hq_event: Starting {event_type} event at ({target_x}, {target_y}). Wins required: {hq_event['wins_required']}. Event will end at {hq_event['end_time']}.")
 
 
+def get_random_buff():
+    # Combine all positive rules into one list and return a random choice.
+    all_buffs = positive_rules["CLASS"] + positive_rules["WEAPON"] + positive_rules["STAR_CARD"]
+    return random.choice(all_buffs)
+
+def get_random_nerfs():
+    # For punishment, pick one random rule from each negative category.
+    nerf_list = []
+    for cat in ["CLASS", "WEAPON", "STAR_CARD"]:
+        nerf_list.append(random.choice(negative_rules[cat]))
+    return nerf_list
+
+# Special cells (side objectives) data: 5 fixed special rule sets.
+special_cells_data = [
+    {"type": "buff", "rule": "Everyone Plays RC / B2"},
+    {"type": "nerf", "rule": "Everyone Plays Cycler rifle"},
+    {"type": "nerf", "rule": "Everyone Plays FWMBK"},
+    {"type": "buff", "rule": "One Person Plays an hero of choice"},
+    {"type": "nerf", "rule": "IQE Without star Cards"}
+]
+
+def place_special_cells(grid):
+    """
+    Randomly select 5 hidden cells to become buff/nerf cells.
+    The cell state is set to "buff_nerf" and its special rule details are attached.
+    """
+    hidden_cells = [(x, y) for x in range(10) for y in range(10) if grid[x][y]["state"] == "hidden"]
+    random.shuffle(hidden_cells)
+    for cell_rule in special_cells_data:
+        if hidden_cells:
+            x, y = hidden_cells.pop()
+            grid[x][y]["state"] = "buff_nerf"
+            grid[x][y]["special_rule_type"] = cell_rule["type"]
+            grid[x][y]["special_rule_description"] = cell_rule["rule"]
+    return grid
+
+def check_special_cell(state, x, y, ctx=None):
+    """
+    Checks if the cell at (x, y) is a special side quest cell (buff/nerf).
+    If so, it adds the corresponding rule to the rule register, updates the cell state to "visited",
+    and announces the collection in the current context (or in the announcement channel).
+    """
+    cell = state["grid"][x][y]
+    if cell["state"] == "buff_nerf":
+        rule_type = cell.get("special_rule_type")
+        rule_desc = cell.get("special_rule_description")
+        # Ensure the rule register exists
+        if "rule_register" not in state:
+            state["rule_register"] = {"buffs": [], "nerfs": []}
+        if rule_type == "buff":
+            state["rule_register"]["buffs"].append(rule_desc)
+        elif rule_type == "nerf":
+            state["rule_register"]["nerfs"].append(rule_desc)
+        # Mark the cell as visited so it can't be collected again
+        cell["state"] = "visited"
+        announcement = f"Friendly troops have collected a special {rule_type}: **{rule_desc}**!"
+        db.update_game_state(state)
+        if ctx:
+            # Send announcement using the provided context
+            asyncio.create_task(ctx.send(announcement))
+        else:
+            # If no context is available, use the announcements channel
+            channel = bot.get_channel(CAMP_ANNOUNCE_ID)
+            if channel:
+                asyncio.create_task(channel.send(announcement))
+        return rule_type, rule_desc
+    return None, None
+
+
+
 async def finish_hq_event(state, success):
     hq_event = state["hq_event"]
     grid = state["grid"]
@@ -285,43 +565,38 @@ async def finish_hq_event(state, success):
     if success:
         if hq_event["type"] == "attack":
             grid[hq_event["target_x"]][hq_event["target_y"]]["state"] = "friendly_objective"
-            print(f"[DEBUG] finish_hq_event: Enemy HQ captured at ({hq_event['target_x']}, {hq_event['target_y']}).")
-        text_snippet = random.choice(WIN_ANNOUNCEMENTS)
-    else:
-        text_snippet = random.choice(LOSS_ANNOUNCEMENTS)
-
-    if hq_event["type"] == "defense":
-        if success:
-            announcement = (
-                "Defense SUCCESS! The friendly HQ has been saved! "
-                "However, it will no longer trigger another event."
-            )
+            buff_reward = get_random_buff()
+            state["rule_register"]["buffs"].append(buff_reward)
+            announcement = f"**Attack SUCCESS!** \n `Enemy HQ captured! Reward gained:` **{buff_reward}**"
+            print(f"[DEBUG] finish_hq_event: Buff reward assigned: {buff_reward}")
         else:
-            announcement = (
-                "Defense FAILED! The friendly HQ was overrun and removed from the map!"
-            )
-        grid[hq_event["target_x"]][hq_event["target_y"]]["state"] = "visited"
-        print(
-            f"[DEBUG] finish_hq_event: Defense ended at ({hq_event['target_x']}, {hq_event['target_y']}). Marker removed.")
+            # Defense event: reposition the friendly HQ.
+            old_x = hq_event["target_x"]
+            old_y = hq_event["target_y"]
+            new_x, new_y = reposition_friendly_hq(grid, old_x, old_y)
+            announcement = f"**Defense SUCCESS!** \n `Friendly HQ repositioned to` ({new_x}, {new_y})!"
     else:
-        if not success:
+        if hq_event["type"] == "defense":
+            grid[hq_event["target_x"]][hq_event["target_y"]]["state"] = "visited"
+            nerf_rewards = get_random_nerfs()
+            state["rule_register"]["nerfs"].extend(nerf_rewards)
+            announcement = f"**Defense FAILED!** \n `HQ lost. Punishments applied:` {' '.join(nerf_rewards)}"
+            print(f"[DEBUG] finish_hq_event: Nerf punishments assigned: {nerf_rewards}")
+        else:
             old_x = hq_event["target_x"]
             old_y = hq_event["target_y"]
             reposition_enemy_hq(grid, old_x, old_y)
-            announcement = (
-                "We were not able to capture the enemy HQ in time. "
-                "The enemy got reinforcements and repositioned!"
-            )
-            print(f"[DEBUG] finish_hq_event: Attack failed; enemy HQ repositioned from ({old_x},{old_y}).")
-        else:
-            announcement = "Attack SUCCESS! The enemy HQ has been captured!"
+            announcement = "**Attack FAILED!** \n `Enemy repositioned!`"
 
+    # Announce the outcome and update state...
     channel = bot.get_channel(CAMP_ANNOUNCE_ID)
     if channel:
+        text_snippet = random.choice(WIN_ANNOUNCEMENTS) if success else random.choice(LOSS_ANNOUNCEMENTS)
         await channel.send(f"{announcement}\n{text_snippet}")
     else:
         print("[DEBUG] finish_hq_event: CAMP_ANNOUNCE_ID channel not found.")
 
+    # Reset HQ event data.
     state["hq_event"] = {
         "active": False,
         "type": "",
@@ -343,8 +618,108 @@ async def finish_hq_event(state, success):
     else:
         print("[DEBUG] finish_hq_event: CAMP_MAP_ID channel not found.")
 
-    # Check campaign status after finishing HQ event
     await check_campaign_status(state)
+
+
+@bot.command(name="berfs")
+async def list_berfs(ctx):
+    """
+    Lists all currently stockpiled raid effects.
+    """
+    state = db.get_game_state()
+    register = state.get("rule_register", {"buffs": [], "nerfs": []})
+    buff_list = register.get("buffs", [])
+    nerf_list = register.get("nerfs", [])
+    msg = "**Positive Raid Rules:**\n"
+    if buff_list:
+        for idx, rule in enumerate(buff_list, start=1):
+            msg += f"Rule Set {idx}: {rule}\n"
+    else:
+        msg += "None\n"
+    msg += "\n**Negative Raid Rules:**\n"
+    if nerf_list:
+        for idx, rule in enumerate(nerf_list, start=1):
+            msg += f"Rule Set {idx}: {rule}\n"
+    else:
+        msg += "None\n"
+    await ctx.send(msg)
+
+@bot.command(name="srule")
+async def select_rule(ctx):
+    """
+    Allows a user to activate a stockpiled rule set.
+    Negative rules are prioritized if available.
+    The activated rule remains for 3 raid results or 2 hours.
+    """
+    state = db.get_game_state()
+    active = state.get("active_rule", {})
+    if active.get("rule"):
+        await ctx.send("A special rule is already active.")
+        return
+
+    register = state.get("rule_register", {"buffs": [], "nerfs": []})
+    chosen_rule = None
+    rule_type = None
+    # Prioritize negative rules if available
+    if register.get("nerfs"):
+        chosen_rule = register["nerfs"].pop(0)
+        rule_type = "nerf"
+    elif register.get("buffs"):
+        chosen_rule = register["buffs"].pop(0)
+        rule_type = "buff"
+    else:
+        await ctx.send("No special rules available in the register.")
+        return
+
+    now = datetime.datetime.utcnow()
+    active_rule = {
+        "rule": chosen_rule,
+        "type": rule_type,
+        "activated_by": ctx.author.id,
+        "activated_at": now.isoformat(),
+        "raid_count": 3,  # active for next 3 raids
+        "expires_at": (now + datetime.timedelta(hours=2)).isoformat()
+    }
+    state["active_rule"] = active_rule
+    db.update_game_state(state)
+    await ctx.send(f"Special {rule_type} rule activated: **{chosen_rule}**. It will expire after 3 raids or 2 hours, whichever comes first.")
+
+@bot.command(name="aberfs")
+async def active_berfs(ctx):
+    """
+    Displays the currently active special rule set.
+    """
+    state = db.get_game_state()
+    active = state.get("active_rule", {})
+    if active.get("rule"):
+        expires_at = datetime.datetime.fromisoformat(active["expires_at"])
+        time_left = expires_at - datetime.datetime.utcnow()
+        await ctx.send(
+            f"Active Special Rule ({active['type']}): **{active['rule']}**\n"
+            f"Raids remaining: {active['raid_count']}\n"
+            f"Time remaining: {str(time_left).split('.')[0]}"
+        )
+    else:
+        await ctx.send("No special rule is currently active.")
+
+# --- Background Task: Check active rule expiration ---
+@tasks.loop(minutes=1)
+async def active_rule_expiration_check():
+    state = db.get_game_state()
+    active = state.get("active_rule", {})
+    if active.get("rule"):
+        expires_at = datetime.datetime.fromisoformat(active["expires_at"])
+        if datetime.datetime.utcnow() >= expires_at:
+            try:
+                user = await bot.fetch_user(active["activated_by"])
+            except Exception as e:
+                print(f"[DEBUG] Error fetching user: {e}")
+                user = None
+            channel = bot.get_channel(CAMP_ANNOUNCE_ID)
+            if channel and user:
+                await channel.send(f"{user.mention}, your special rule **{active['rule']}** has expired due to time limit.")
+            state["active_rule"] = {}
+            db.update_game_state(state)
 
 
 def single_step_move(x, y, direction):
@@ -392,6 +767,7 @@ async def vote_check_loop():
                 state["grid"][new_x][new_y]["state"] = "visited"
 
             db.update_game_state(state)
+            check_special_cell(state, new_x, new_y, None)
 
             # >>> NEU: Check, ob Friendly auf Enemy-HQ steht <<<
             await check_if_friendly_on_enemy_hq(state)
@@ -539,7 +915,7 @@ async def handle_raid_result(ctx, result):
         increment = 2 if state["special_event_active"] else 1
         state["losses"] += increment
         print(f"[DEBUG] handle_raid_result: Raid lost. Losses incremented to {state['losses']}.")
-        if state["losses"] >= 10:
+        if state["losses"] >= 5 :
             state = move_enemy_after_losses(state)
             print("[DEBUG] handle_raid_result: Enemy moved due to reaching 10 losses.")
             await ctx.send("Enemy moved due to reaching 10 losses.")
@@ -552,6 +928,22 @@ async def handle_raid_result(ctx, result):
             await check_if_enemy_on_friendly_hq(state)
         else:
             await ctx.send(f"Raid lost! Total losses: {state['losses']}")
+
+    # Decrement the active rule's raid counter (if one is active)
+    if state.get("active_rule", {}).get("rule"):
+        state["active_rule"]["raid_count"] -= 1
+        print(f"[DEBUG] Active rule raid_count decremented to {state['active_rule']['raid_count']}.")
+        if state["active_rule"]["raid_count"] <= 0:
+            try:
+                user = await bot.fetch_user(state["active_rule"]["activated_by"])
+            except Exception as e:
+                print(f"[DEBUG] Error fetching user: {e}")
+                user = None
+            channel = bot.get_channel(CAMP_ANNOUNCE_ID)
+            if channel and user:
+                await channel.send(
+                    f"{user.mention}, your special rule **{state['active_rule']['rule']}** has expired after 3 raids.")
+            state["active_rule"] = {}
     db.update_game_state(state)
 
 
@@ -576,12 +968,14 @@ async def check_campaign_status(state):
 
 
 @bot.command(name="raid_win")
+@Right_role()
 @commands.check(lambda ctx: ctx.channel.id == CAMP_LOGS_ID)
 async def raid_win_command(ctx):
     await handle_raid_result(ctx, "win")
 
 
 @bot.command(name="raid_loss")
+@Right_role()
 @commands.check(lambda ctx: ctx.channel.id == CAMP_LOGS_ID)
 async def raid_loss_command(ctx):
     await handle_raid_result(ctx, "loss")
@@ -616,13 +1010,13 @@ async def start_voting(channel):
         possible_dirs.remove(opposite_dir)
 
     # 2) Wände entfernen
-    if fx == 0 and "north" in possible_dirs:
+    if fy == 0 and "north" in possible_dirs:
         possible_dirs.remove("north")
-    if fx == 9 and "south" in possible_dirs:
+    if fy == 9 and "south" in possible_dirs:
         possible_dirs.remove("south")
-    if fy == 0 and "west" in possible_dirs:
+    if fx == 0 and "west" in possible_dirs:
         possible_dirs.remove("west")
-    if fy == 9 and "east" in possible_dirs:
+    if fx == 9 and "east" in possible_dirs:
         possible_dirs.remove("east")
 
     current_vote = {d: 0 for d in possible_dirs}
@@ -684,34 +1078,32 @@ def render_friendly_map(state):
     fx, fy = state["friendly_x"], state["friendly_y"]
     ex, ey = state["enemy_x"], state["enemy_y"]
 
-    # matrix[row][col]
     matrix = []
     for row in range(10):
         row_symbols = []
         for col in range(10):
-            cell_state = grid[col][row]["state"]  # col=x, row=y
+            cell_state = grid[col][row]["state"]
             if cell_state == "visited":
                 row_symbols.append("⬛")
             elif cell_state == "friendly_objective":
                 row_symbols.append("🟩")
             elif cell_state == "enemy_objective":
                 row_symbols.append("🟥")
+            elif cell_state == "buff_nerf":
+                row_symbols.append("🟨")  # Yellow for special buff/nerf cells
             else:
                 row_symbols.append("⬜")
         matrix.append(row_symbols)
 
-    # Friendly Marker
     if 0 <= fx < 10 and 0 <= fy < 10:
         matrix[fy][fx] = "🟦"
-
-    # Enemy Marker
     if 0 <= ex < 10 and 0 <= ey < 10:
         matrix[ey][ex] = "🟪"
 
     rows = ["".join(r) for r in matrix]
     return "\n".join(rows)
 
-
+# --- Example: Update reset command to also place special cells ---
 @bot.command()
 async def map(ctx):
     """
@@ -723,11 +1115,12 @@ async def map(ctx):
     legend = """
 Legend:
 ⬜ - Hidden
-⬛ - Visited
-🟩 - Friendly Objective
-🟥 - Enemy Objective
+⬛ - Visited / old HQ 
+🟩 - Friendly HQ
+🟥 - Enemy HQ
 🟦 - Friendly Marker
-🟪 - Enemy Marker (only if adjacent)
+🟪 - Enemy Marker 
+🟨 - Side quest
 """
 
     await ctx.send(f"```\n{friendly_map_str}\n```{legend}")
@@ -761,12 +1154,17 @@ async def objectives(ctx):
     )
 
 
+
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def reset(ctx):
     db.reset_db()
     db.place_objectives(10, 10)
-    await ctx.send("Campaign has been reset. A new map has been created.")
+    # Get the current state and place special cells on the grid.
+    state = db.get_game_state()
+    state["grid"] = place_special_cells(state["grid"])
+    db.update_game_state(state)
+    await ctx.send("Campaign has been reset. A new map  has been created.")
 
 
 @bot.command()
@@ -783,7 +1181,6 @@ async def forcemove(ctx, direction: str):
         return
 
     old_x, old_y = state["friendly_x"], state["friendly_y"]
-
     new_x, new_y = single_step_move(old_x, old_y, direction)
     state["friendly_x"] = new_x
     state["friendly_y"] = new_y
@@ -792,13 +1189,12 @@ async def forcemove(ctx, direction: str):
     if state["grid"][new_x][new_y]["state"] == "hidden":
         state["grid"][new_x][new_y]["state"] = "visited"
 
+    # Check if the cell has a special buff/nerf
+    check_special_cell(state, new_x, new_y, ctx)
+
     db.update_game_state(state)
 
-    # >>> NEU: Check, ob Friendly auf Enemy-HQ steht <<<
-    await check_if_friendly_on_enemy_hq(state)
-
     await ctx.send(f"Forced move {direction.upper()}. Friendly now at ({new_x}, {new_y}).")
-
     map_channel = bot.get_channel(CAMP_MAP_ID)
     updated_map = render_friendly_map(state)
     await map_channel.send("**Map updated by forcemove!**\n```\n" + updated_map + "\n```")
@@ -935,26 +1331,21 @@ async def timeleft(ctx):
 async def helpme(ctx):
     help_text = """
 **Core Gameplay Commands**
-1. `!map` - Shows discovered (visited) parts of the map.
-2. `!stats` - Displays the current win/loss count.
-3. `!raid_win` / `!raid_loss` - Logs a raid result (campain-logs only).
-4. `!objectives` - Shows how many friendly/enemy objectives remain.
-5. `!currentvote` - Shows current vote counts (if any).
-6. `!status` - Quick summary of the current campaign state.
-7. `!timeleft` - Time remaining for voting/special events.
+1 `!stats` - Displays the current win/loss count.
+2. `!raid_win` / `!raid_loss` - Logs a raid result (campain-logs only) only for CPL and above .
+3. `!objectives` - Shows how many friendly/enemy objectives remain.
+4. `!currentvote` - Shows current vote counts (if any).
+5. `!status` - Quick summary of the current campaign state.
+6. `!timeleft` - Time remaining for voting/special events.
+
+**Buffs & Nerfs**
+1. `!berfs` - lists all buffs & nerfs available
+2. `!srule` - selects & activates an special rulest
+3. `!aberfs` - lists active buffs & nerfs
 
 **Special Event Commands**
 1. `!currentevent` - Shows the current special event info.
 2. `!events` - Lists possible events (placeholder).
-3. `!startspecialevent` / `!endspecialevent` (Admin) - Manage events.
-
-**Administrative Commands**
-1. `!reset` - Resets the entire campaign (map, stats, etc.).
-2. `!forcemove <direction>` - Forces a friendly marker move for testing.
-3. `!viewgrid` - Shows the raw grid JSON data.
-4. `!position` - Shows the friendly/enemy positions.
-5. `!mapadmin` - Shows the full admin map (HQ, enemy, etc.).
-6. `!skipvote` - Ends voting session early, admin only.
 
 Use `!helpme` to see this message again.
 """
@@ -1008,6 +1399,8 @@ async def skipvote(ctx):
     await check_if_friendly_on_enemy_hq(state)
 
     print(f"[DEBUG] skipvote: from ({old_x},{old_y}) -> ({new_x},{new_y}) via '{winner_direction}'")
+
+    check_special_cell(state, new_x, new_y, None)
 
     await ctx.send(
         f"Voting skipped by admin. Winner was **{winner_direction.upper()}** "
@@ -1082,6 +1475,10 @@ async def mapadmin(ctx):
     )
 
     await ctx.send(message)
+
+
+
+
 
 
 @bot.command()

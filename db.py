@@ -3,7 +3,7 @@ import sqlite3
 import os
 import json
 import random
-
+import requests
 DB_NAME = "campaign.db"
 
 def init_db():
@@ -14,7 +14,7 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
-    # 1) Tabelle anlegen (falls noch nicht existiert)
+    # Create table if it does not exist
     c.execute("""
         CREATE TABLE IF NOT EXISTS game_state (
             id INTEGER PRIMARY KEY,
@@ -29,34 +29,42 @@ def init_db():
             special_event_active INTEGER,
             special_event_end_time TEXT,
             event_name TEXT,
-            -- Neu: Hier fügen wir eine Spalte für HQ-Event-Daten hinzu
-            hq_event_json TEXT
+            hq_event_json TEXT,
+            rule_register_json TEXT,
+            active_rule_json TEXT
         )
     """)
 
-    # 2) Versuchen, hq_event_json nachträglich anzulegen, falls sie in einer älteren DB noch fehlt
+    # Try to add new columns (if missing)
     try:
-        c.execute("ALTER TABLE game_state ADD COLUMN hq_event_json TEXT")
+        c.execute("ALTER TABLE game_state ADD COLUMN rule_register_json TEXT")
     except sqlite3.OperationalError:
-        # Spalte existiert bereits - alles gut
+        pass
+    try:
+        c.execute("ALTER TABLE game_state ADD COLUMN active_rule_json TEXT")
+    except sqlite3.OperationalError:
         pass
 
-    # 3) Prüfen, ob schon ein Datensatz existiert
+    # Check if a record exists
     c.execute("SELECT COUNT(*) FROM game_state")
     count = c.fetchone()[0]
 
     if count == 0:
-        # Erster Datensatz -> Standardzustand
         grid = [[{"state": "hidden"} for _ in range(10)] for _ in range(10)]
         friendly_x, friendly_y = 0, 0
         enemy_x, enemy_y = 9, 9
+
+        # New fields: empty register and no active rule
+        rule_register = {"buffs": [], "nerfs": []}
+        active_rule = {}
 
         c.execute("""
             INSERT INTO game_state 
             (id, grid_json, friendly_x, friendly_y, enemy_x, enemy_y, 
              wins, losses, last_move_direction, special_event_active, 
-             special_event_end_time, event_name, hq_event_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             special_event_end_time, event_name, hq_event_json,
+             rule_register_json, active_rule_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             1,
             json.dumps(grid),
@@ -70,7 +78,9 @@ def init_db():
             0,       # special_event_active
             "",      # special_event_end_time
             "",      # event_name
-            json.dumps({})  # leeres HQ-Event
+            json.dumps({}),  # hq_event (empty)
+            json.dumps(rule_register),  # rule register
+            json.dumps(active_rule)     # active rule
         ))
         conn.commit()
 
@@ -87,25 +97,23 @@ def get_game_state():
     conn.close()
 
     if row:
-        # row schema nach obigem CREATE:
-        # 0: id
-        # 1: grid_json
-        # 2: friendly_x
-        # 3: friendly_y
-        # 4: enemy_x
-        # 5: enemy_y
-        # 6: wins
-        # 7: losses
-        # 8: last_move_direction
-        # 9: special_event_active
-        # 10: special_event_end_time
-        # 11: event_name
-        # 12: hq_event_json (neu)
-        hq_event_raw = row[12] if row[12] else "{}"
+        # Column order:
+        # 0: id, 1: grid_json, 2: friendly_x, 3: friendly_y, 4: enemy_x, 5: enemy_y,
+        # 6: wins, 7: losses, 8: last_move_direction, 9: special_event_active,
+        # 10: special_event_end_time, 11: event_name, 12: hq_event_json,
+        # 13: rule_register_json, 14: active_rule_json
         try:
-            hq_event = json.loads(hq_event_raw)
+            hq_event = json.loads(row[12]) if row[12] else {}
         except:
             hq_event = {}
+        try:
+            rule_register = json.loads(row[13]) if row[13] else {"buffs": [], "nerfs": []}
+        except:
+            rule_register = {"buffs": [], "nerfs": []}
+        try:
+            active_rule = json.loads(row[14]) if row[14] else {}
+        except:
+            active_rule = {}
 
         return {
             "grid": json.loads(row[1]),
@@ -119,22 +127,24 @@ def get_game_state():
             "special_event_active": bool(row[9]),
             "special_event_end_time": row[10],
             "event_name": row[11],
-            "hq_event": hq_event  # das gesamte Dictionary für HQ-Events
+            "hq_event": hq_event,
+            "rule_register": rule_register,
+            "active_rule": active_rule
         }
     else:
         return None
 
 def update_game_state(state_dict):
+    """
+    Updates the game state in SQLite, then pushes the update to the Node server.
+    """
     print(f"[DEBUG] update_game_state: friendly=({state_dict['friendly_x']},{state_dict['friendly_y']}) "
           f"enemy=({state_dict['enemy_x']},{state_dict['enemy_y']}), "
           f"wins={state_dict['wins']}, losses={state_dict['losses']}")
-    """
-    Persists the entire game state dictionary back into the database.
-    """
+
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
-    # Alles, was wir in state_dict haben, wieder zurückschreiben
     c.execute("""
         UPDATE game_state
         SET grid_json = ?,
@@ -148,7 +158,9 @@ def update_game_state(state_dict):
             special_event_active = ?,
             special_event_end_time = ?,
             event_name = ?,
-            hq_event_json = ?
+            hq_event_json = ?,
+            rule_register_json = ?,
+            active_rule_json = ?
         WHERE id = 1
     """, (
         json.dumps(state_dict["grid"]),
@@ -162,11 +174,47 @@ def update_game_state(state_dict):
         1 if state_dict["special_event_active"] else 0,
         state_dict["special_event_end_time"],
         state_dict["event_name"],
-        json.dumps(state_dict["hq_event"])  # hq_event als JSON
+        json.dumps(state_dict["hq_event"]),
+        json.dumps(state_dict.get("rule_register", {"buffs": [], "nerfs": []})),
+        json.dumps(state_dict.get("active_rule", {}))
     ))
     conn.commit()
     conn.close()
 
+    # NEW: After saving to DB, push to the Node server
+    push_update_to_webmap(state_dict)
+
+def push_update_to_webmap(state):
+    """
+    Sends the updated state to the Node server at http://localhost:3001/update.
+    The Node server will then broadcast it to all connected browsers.
+    """
+    # Convert Python state to JSON that matches Node's "gameState" structure
+    data = {
+        "grid": state["grid"],
+        "friendly_x": state["friendly_x"],
+        "friendly_y": state["friendly_y"],
+        "enemy_x": state["enemy_x"],
+        "enemy_y": state["enemy_y"],
+        "wins": state["wins"],
+        "losses": state["losses"],
+        "last_move_direction": state["last_move_direction"],
+        "special_event_active": state["special_event_active"],
+        "special_event_end_time": state["special_event_end_time"],
+        "event_name": state["event_name"],
+        "hq_event": state["hq_event"],
+        "rule_register": state["rule_register"],
+        "active_rule": state["active_rule"]
+    }
+
+    try:
+        response = requests.post('http://localhost:3001/update', json=data, timeout=2)
+        if response.status_code == 200:
+            print("[DEBUG] Successfully pushed update to web map.")
+        else:
+            print(f"[DEBUG] Failed to push update. HTTP {response.status_code}: {response.text}")
+    except Exception as e:
+        print(f"[DEBUG] Error pushing update to web map: {e}")
 def reset_db():
     """
     Wipes the existing data and reinitializes the database.
