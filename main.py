@@ -19,10 +19,10 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 # ------------------------------------------
 # --- NEW OR CHANGED ---
 # Channel IDs (update with actual channel IDs):
-CAMP_MAP_ID = 1349129397738930268
-CAMP_ANNOUNCE_ID = 1349129257623883856
-CAMP_LOGS_ID = 1349129328679714890
-CAMP_COMMANDS_ID = 1349129429661782160
+CAMP_MAP_ID = 1358095717469786325
+CAMP_ANNOUNCE_ID = 1358095473520672949
+CAMP_LOGS_ID = 1358095616630194277
+CAMP_COMMANDS_ID = 1358095801590743060
 CAMP_STATUS_ID = 1349129302972694618
 # ------------------------------------------
 campaign_status_message_id = None
@@ -122,13 +122,14 @@ negative_rules = {
 }
 def is_Technical_Commander():
     async def predicate(ctx):
-        bot_dev_role = discord.utils.get(ctx.guild.roles, name="Technical Commander")
+        bot_dev_role = discord.utils.get(ctx.guild.roles, name="Technical Commander, Commander")
         if bot_dev_role in ctx.author.roles:
             return True
         await ctx.send("You do not have permission to use this command.")
         return False
 
     return commands.check(predicate)
+
 
 def Right_role():
     async def predicate(ctx):
@@ -645,6 +646,7 @@ async def list_berfs(ctx):
     await ctx.send(msg)
 
 @bot.command(name="srule")
+@Right_role()
 async def select_rule(ctx):
     """
     Allows a user to activate a stockpiled rule set.
@@ -1103,61 +1105,13 @@ def render_friendly_map(state):
     rows = ["".join(r) for r in matrix]
     return "\n".join(rows)
 
-# --- Example: Update reset command to also place special cells ---
-@bot.command()
-async def map(ctx):
-    """
-    Displays the discovered map with a legend.
-    """
-    state = db.get_game_state()
-    friendly_map_str = render_friendly_map(state)
 
-    legend = """
-Legend:
-⬜ - Hidden
-⬛ - Visited / old HQ 
-🟩 - Friendly HQ
-🟥 - Enemy HQ
-🟦 - Friendly Marker
-🟪 - Enemy Marker 
-🟨 - Side quest
-"""
-
-    await ctx.send(f"```\n{friendly_map_str}\n```{legend}")
-
-
-@bot.command()
-async def stats(ctx):
-    state = db.get_game_state()
-    await ctx.send(f"Wins: {state['wins']} | Losses: {state['losses']}")
-
-
-@bot.command()
-async def currentvote(ctx):
-    if voting_session_active:
-        standings = "\n".join([f"{dir.title()}: {count}" for dir, count in current_vote.items()])
-        await ctx.send(f"**Current Vote Standings**:\n{standings}")
-    else:
-        await ctx.send("No active voting session.")
-
-
-@bot.command()
-async def objectives(ctx):
-    state = db.get_game_state()
-    grid = state["grid"]
-    friendly_count = sum(cell["state"] == "friendly_objective" for row in grid for cell in row)
-    enemy_count = sum(cell["state"] == "enemy_objective" for row in grid for cell in row)
-
-    await ctx.send(
-        f"Friendly Objectives Remaining: {friendly_count}\n"
-        f"Enemy Objectives Remaining: {enemy_count}"
-    )
 
 
 
 @bot.command()
 @commands.has_permissions(administrator=True)
-async def reset(ctx):
+async def reset_campaign(ctx):
     db.reset_db()
     db.place_objectives(10, 10)
     # Get the current state and place special cells on the grid.
@@ -1200,31 +1154,7 @@ async def forcemove(ctx, direction: str):
     await map_channel.send("**Map updated by forcemove!**\n```\n" + updated_map + "\n```")
 
 
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def position(ctx):
-    state = db.get_game_state()
-    await ctx.send(
-        f"Friendly Position: ({state['friendly_x']}, {state['friendly_y']})\n"
-        f"Enemy Position: ({state['enemy_x']}, {state['enemy_y']})"
-    )
 
-
-@bot.command()
-async def currentevent(ctx):
-    state = db.get_game_state()
-    if state["special_event_active"]:
-        end_time = datetime.datetime.fromisoformat(state["special_event_end_time"])
-        remaining = end_time - datetime.datetime.utcnow()
-        hours, remainder = divmod(remaining.total_seconds(), 3600)
-        minutes, _ = divmod(remainder, 60)
-
-        await ctx.send(
-            f"**Current Event**: {state['event_name']}\n"
-            f"**Time Remaining**: {int(hours)}h {int(minutes)}m"
-        )
-    else:
-        await ctx.send("No special event is active right now.")
 
 
 @bot.command()
@@ -1254,23 +1184,6 @@ async def endspecialevent(ctx):
         await ctx.send("The current special event has been ended.")
     else:
         await ctx.send("No active event to end.")
-
-
-@bot.command()
-async def events(ctx):
-    await ctx.send("**Possible Events**:\n1) Double Progress\n2) Enemy Reinforcements\n3) Friendly Backup")
-
-
-@bot.command()
-async def viewgrid(ctx):
-    state = db.get_game_state()
-    grid_str = str(state["grid"])
-
-    chunk_size = 1900
-    for i in range(0, len(grid_str), chunk_size):
-        chunk = grid_str[i: i + chunk_size]
-        await ctx.send(f"```{chunk}```")
-
 
 @bot.command()
 async def status(ctx):
@@ -1327,13 +1240,11 @@ async def timeleft(ctx):
 
 
 @bot.command()
-@is_Technical_Commander()
 async def helpme(ctx):
     help_text = """
 **Core Gameplay Commands**
 1 `!stats` - Displays the current win/loss count.
 2. `!raid_win` / `!raid_loss` - Logs a raid result (campain-logs only) only for CPL and above .
-3. `!objectives` - Shows how many friendly/enemy objectives remain.
 4. `!currentvote` - Shows current vote counts (if any).
 5. `!status` - Quick summary of the current campaign state.
 6. `!timeleft` - Time remaining for voting/special events.
@@ -1345,7 +1256,7 @@ async def helpme(ctx):
 
 **Special Event Commands**
 1. `!currentevent` - Shows the current special event info.
-2. `!events` - Lists possible events (placeholder).
+2. `!events` - Lists possible events.
 
 Use `!helpme` to see this message again.
 """
