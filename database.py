@@ -637,6 +637,7 @@ def initialize_non_stacking_roles():
         ("Major", 25000),
         ("Commander", 30000),
         ("Marshal Commander", 50000),
+        ("DEV TEST ROLE", 100000)
 
 
 
