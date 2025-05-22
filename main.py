@@ -172,80 +172,79 @@ async def on_ready():
 
 
 @bot.event
-async def on_member_update(before, after):
-    before_roles = set(role.name for role in before.roles)
-    after_roles = set(role.name for role in after.roles)
+async def on_member_update(before: discord.Member, after: discord.Member):
+    # 1) Rollen als Sets von Namen erfassen
+    before_roles = {role.name for role in before.roles}
+    after_roles  = {role.name for role in after.roles}
 
+    # 2) Hinzugekommene und entfernte Rollen in Namensform
     removed_roles = before_roles - after_roles
-    added_roles = after_roles - before_roles
+    added_roles   = after_roles - before_roles
 
+    # 3) IDs der Server, auf denen Rollen persistent sein k�nnen
     server_ids = [850840453800919100, 1138926753931346090, 911409562970628167]
 
     if removed_roles or added_roles:
+        # 4) Aktuellen Credit-Stand aus der DB holen
         db_credits = get_user_credits(after.id, after.roles, role_credits, non_stacking_roles)
         current_credits = db_credits[0] if db_credits else 0
 
         print(f"Current credits for user {after.id}: {current_credits}")
         print(f"Removed roles: {removed_roles}")
-        print(f"Added roles: {added_roles}")
+        print(f"Added roles:   {added_roles}")
 
-        # Calculate removed credits
+        # 5) Removed Credits berechnen (nur stackable Roles)
         removed_credits = 0
-        for role in removed_roles:
-            if role in role_credits:
-                # Check if the role is still present on another server
-                has_role_elsewhere = False
-                for server_id in server_ids:
-                    if server_id != before.guild.id:
-                        user_roles = get_user_roles_from_servers(after.id, [server_id])
-                        if role in user_roles:
-                            has_role_elsewhere = True
+        for role_name in removed_roles:
+            if role_name in role_credits:
+                # Pr�fen, ob der User die Rolle noch auf einem anderen Server hat
+                has_elsewhere = False
+                for sid in server_ids:
+                    if sid != before.guild.id:
+                        roles_elsewhere = get_user_roles_from_servers(after.id, [sid])
+                        if role_name in roles_elsewhere:
+                            has_elsewhere = True
                             break
-                if not has_role_elsewhere:
-                    removed_credits += role_credits[role]
-                    unmark_role_credited(after.id, role)
-                    print(f"Unmarking role {role} as credited for user {after.id}")
-
+                if not has_elsewhere:
+                    removed_credits += role_credits[role_name]
+                    unmark_role_credited(after.id, role_name)
+                    print(f"Unmarking role {role_name} as credited for user {after.id}")
         print(f"Removed credits: {removed_credits}")
 
-        # Calculate added credits, only if they have not been credited yet
+        # 6) Added Credits berechnen (nur stackable Roles, nur neue)
         added_credits = 0
-        for role in added_roles:
-            if role in role_credits:
-                credited = check_role_credited(after.id, role)
-                print(f"Role {role} credited for user {after.id}: {credited}")
-                if not credited:
-                    added_credits += role_credits[role]
-                    mark_role_credited(after.id, role)
-                    print(f"Marking role {role} as credited for user {after.id}")
-
+        for role_name in added_roles:
+            if role_name in role_credits:
+                if not check_role_credited(after.id, role_name):
+                    added_credits += role_credits[role_name]
+                    mark_role_credited(after.id, role_name)
+                    print(f"Marking role {role_name} as credited for user {after.id}")
+                else:
+                    print(f"Role {role_name} already credited for user {after.id}")
         print(f"Added credits: {added_credits}")
 
-        # Debugging information for non-stacking roles
-        max_after_non_stacking_credit = 0
-        max_before_non_stacking_credit = 0
+        # 7) Non-Stacking: Maximalwert vor und nach dem Update
+        max_before = max((non_stacking_roles.get(r, 0) for r in before_roles), default=0)
+        max_after  = max((non_stacking_roles.get(r, 0) for r in after_roles), default=0)
+        print(f"Max before non-stacking credit: {max_before}")
+        print(f"Max after non-stacking credit:  {max_after}")
 
-        if non_stacking_roles:
-            max_after_non_stacking_credit = max(
-                (non_stacking_roles.get(role, 0) for role in after.roles if role in non_stacking_roles), default=0)
-            max_before_non_stacking_credit = max(
-                (non_stacking_roles.get(role, 0) for role in before.roles if role in non_stacking_roles), default=0)
+        # Warnung, wenn eine niedrigere Non-Stacking-Role hinzugef�gt wurde
+        for role_name in added_roles:
+            if role_name in non_stacking_roles and non_stacking_roles[role_name] < max_before:
+                print(
+                    f"Non-stacking role {role_name} added but gives no credits "
+                    f"because user {after.id} already has a higher one"
+                )
 
-            for role in added_roles:
-                if role in non_stacking_roles and non_stacking_roles[role] < max_before_non_stacking_credit:
-                    print(
-                        f"Non-stacking role {role} added but gives no credits because user {after.id} has a higher role")
-
-        new_credits = current_credits - removed_credits + added_credits + max_after_non_stacking_credit - max_before_non_stacking_credit
+        # 8) Neue Gesamt-Credits berechnen & updaten
+        new_credits = current_credits - removed_credits + added_credits + (max_after - max_before)
         print(f"New credits calculation: {new_credits}")
 
-        # Update credits in the database
-        print(
-            f"Updating user credits: user_id={after.id}, current_credits={new_credits}, removed_credits={removed_credits}")
+        print(f"Updating user credits: user_id={after.id}, new_credits={new_credits}")
         update_user_credits(after.id, new_credits)
         credits_dict[after.id] = new_credits
-
-        print(f'Updated credits for member {after.id}: {new_credits}')
+        print(f"Updated credits for member {after.id}: {new_credits}")
 
 
 def add_or_update_user(member):
