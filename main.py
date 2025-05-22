@@ -3,28 +3,24 @@ import subprocess
 import discord
 from discord import user
 from discord.ext import commands
-import sys
 from datetime import datetime
 import pandas as pd
 import sqlite3
 import asyncio
-import gspread
 import re
 import time
 import random
 from datetime import timedelta
 from database import unmark_role_credited
-from database import get_user_credits, update_user_credits, add_role_credits, get_all_role_credits, remove_role_credits, \
-    get_all_non_stacking_role_credits, get_user_removed_credits, reset_user_stats  # Import the new function
-from database import has_been_updated, mark_as_updated
+from database import get_user_credits, update_user_credits, get_all_role_credits,  \
+    get_all_non_stacking_role_credits, reset_user_stats  
 from database import has_registered, mark_as_registered, update_user_credits, get_all_role_credits, \
     get_all_non_stacking_role_credits
 from database import update_user_credits, get_user_credits
 from database import update_user_credits
-from database import get_user_removed_credits
 from database import get_user_credits, update_user_credits, add_role_credits, get_all_role_credits, remove_role_credits, \
-    get_all_non_stacking_role_credits, get_user_removed_credits, reset_user_stats, get_user_medals, \
-    get_user_purchases  # Import the new functions
+    get_all_non_stacking_role_credits,  reset_user_stats, get_user_medals, \
+    get_user_purchases  
 from database import get_user_credits, update_user_credits, mark_role_credited, check_role_credited, \
     get_user_roles_from_servers
 # main.py
