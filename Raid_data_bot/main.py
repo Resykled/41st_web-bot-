@@ -69,15 +69,16 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+
     if message.channel.name == 'raid-logs':
         content = message.content
         lines = content.splitlines()
 
-        host_pattern = r"Host:\s*(.*)"
-        platform_pattern = r"Platform:\s*(.*)"
-        raid_type_pattern = r"Raid Type:\s*(.*)"
-        game_pattern = r"Game:\s*(.*)"
-        attendees_marker = "Attendees:"
+        host_pattern = r"host:\s*(.*)"
+        platform_pattern = r"platform:\s*(.*)"
+        raid_type_pattern = r"raid type:\s*(.*)"
+        game_pattern = r"game:\s*(.*)"
+        attendees_marker = "attendees:"
 
         host_info = None
         platform_info = None
@@ -88,27 +89,35 @@ async def on_message(message):
         is_attendee_section = False
 
         for line in lines:
-            line_stripped = line.strip()
+            line_stripped = line.strip().lower()
 
-            if line_stripped.startswith("Host:"):
+            if line_stripped.startswith("host:"):
                 match = re.match(host_pattern, line_stripped, re.IGNORECASE)
                 if match:
                     host_info = match.group(1).strip()
+                else:
+                    print(f"Error with {host_pattern}")
 
-            elif line_stripped.startswith("Platform:"):
+            elif line_stripped.startswith("platform:"):
                 match = re.match(platform_pattern, line_stripped, re.IGNORECASE)
                 if match:
                     platform_info = match.group(1).strip()
+                else:
+                    print(f"Error with {platform_pattern}")
 
-            elif line_stripped.startswith("Raid Type:"):
+            elif line_stripped.startswith("raid type:"):
                 match = re.match(raid_type_pattern, line_stripped, re.IGNORECASE)
                 if match:
                     raid_type_info = match.group(1).strip()
+                else:
+                    print(f"Error with {raid_type_pattern}")
 
-            elif line_stripped.startswith("Game:"):
+            elif line_stripped.startswith("game:"):
                 match = re.match(game_pattern, line_stripped, re.IGNORECASE)
                 if match:
                     game_info = match.group(1).strip().title()  # Normalize to title case
+                else:
+                    print(f"Error with {game_pattern}")
 
             elif line_stripped.startswith(attendees_marker):
                 is_attendee_section = True
@@ -121,6 +130,24 @@ async def on_message(message):
 
         # Verify required fields
         if not (host_info and platform_info and raid_type_info and game_info and attendees_lines):
+            if not(host_info):
+                print(f"Host info error")
+                print(f"{lines[0]}")
+                await message.author.send(f"Error in line ```{lines[0]}```")
+            if not(platform_info):
+                print(f"platform info error")
+                print(f"{lines[1]}")
+                await message.author.send(f"Error in line ```{lines[1]}```")
+            if not(raid_type_info):
+                print(f"Type info error")
+                print(f"{lines[2]}")
+                await message.author.send(f"Error in line ```{lines[2]}```")
+            if not(game_info):
+                print(f"Game info error")
+                print(f"{lines[3]}")
+                await message.author.send(f"Error in line ```{lines[3]}```")
+            if not(attendees_lines):
+                print(f"attendees info error")
             print("Raid log format invalid or incomplete.")
             await message.add_reaction("❌")
         else:
