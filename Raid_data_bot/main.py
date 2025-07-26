@@ -130,24 +130,7 @@ async def on_message(message):
 
         # Verify required fields
         if not (host_info and platform_info and raid_type_info and game_info and attendees_lines):
-            if not(host_info):
-                print(f"Host info error")
-                print(f"{lines[0]}")
-                await message.author.send(f"Error in line ```{lines[0]}```")
-            if not(platform_info):
-                print(f"platform info error")
-                print(f"{lines[1]}")
-                await message.author.send(f"Error in line ```{lines[1]}```")
-            if not(raid_type_info):
-                print(f"Type info error")
-                print(f"{lines[2]}")
-                await message.author.send(f"Error in line ```{lines[2]}```")
-            if not(game_info):
-                print(f"Game info error")
-                print(f"{lines[3]}")
-                await message.author.send(f"Error in line ```{lines[3]}```")
-            if not(attendees_lines):
-                print(f"attendees info error")
+            await message.author.send(f"There was an error in your raid log. Please double check that all spellings, colons, and fields are there.\nGiven fields:\n```{lines}```")
             print("Raid log format invalid or incomplete.")
             await message.add_reaction("❌")
         else:
