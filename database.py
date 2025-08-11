@@ -390,7 +390,6 @@ def initialize_roles():
         ("Supporting Act", 1000),
         ("May the Score be with you", 1000),
         ("Deadly and Discrete", 1000),
-        ("The Best of the Best", 1000),
         ("Clanker Crusher", 1000),
         ("Terror in the Sky", 1000),
         ("True Trooper", 1000),
@@ -408,6 +407,7 @@ def initialize_roles():
         ("First Try", 3000),
         ("Experience Outranks Everything", 18500), #500 attendance medal
         ("The Best of the 41st", 20000), # 1000 attendance medal
+        ("The Legend of the 41st", 25000), # 2000 attendance medal
         ("The Best of the Best ", 1000),
 
         # LEVEL MEDALS
@@ -622,6 +622,7 @@ def initialize_non_stacking_roles():
         ("Flight Captain", 5000),
         ("ARC Sergeant", 5000),
         ("RC Sergeant", 5000),
+        ("Staff Sergeant", 5000),
         ("Sergeant Major", 5000),
         ("2nd Lieutenant", 7000),
         ("Flight Commander", 7500),
@@ -629,7 +630,7 @@ def initialize_non_stacking_roles():
         ("RC Lieutenant", 10000),
         ("Lieutenant", 8000),
         ("Captain", 10000),
-        ("ARC Capitain", 15000),
+        ("ARC Captain", 15000),
         ("RC Captain", 15000),
         ("Colonel", 10000),
         ("Quartermaster", 15000),

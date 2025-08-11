@@ -1646,7 +1646,7 @@ async def whoami(ctx, subcommand: str = None):
 
     non_stacking_roles_list = [
         "Clone Pilot", "Clone Trooper", "Flight Officer", "Lance Corporal", "Corporal", "Flight Captain", "Sergeant",
-        "ARC Sergeant", "RC Sergeant", "Sergeant Major", "Flight Commander", "2nd Lieutenant",
+        "ARC Sergeant", "RC Sergeant", "Staff Sergeant", "Sergeant Major", "Flight Commander", "2nd Lieutenant",
         "Flight Lieutenant" "Lieutenant", "ARC Lieutenant", "RC Lieutenant", "Quartermaster", "Captain", "ARC Captain",
         "RC Captain", "Colonel", "Major", "Technical Commander", "Commander", "Marshal Commander"
     ]
@@ -1658,10 +1658,10 @@ async def whoami(ctx, subcommand: str = None):
             "Hero of The 41st", "Absolutely Demolished", "Legendary Ranger", "Battle Hardened", "Bane of Clankers",
             "Order of Dedication", "Vaunted Veteran Medal", "Seppie Scourge", "Plot Armor", "Superior Genetics",
             "Flawless Leadership", "Supporting Act", "May the Score be with you", "Deadly and Discrete",
-            "The Best of the Best", "Clanker Crusher", "Terror in the Sky", "True Trooper", "Siegebreaker", "Top Gun",
+         "Clanker Crusher", "Terror in the Sky", "True Trooper", "Siegebreaker", "Top Gun",
             "41st Representation Medal", "Lone Survivor", "Exemplar",
             "Professional Soldier", "One Man Army", "The Good Batch", "Bred for War", "Outstanding Dedication",
-            "Fireteam on Fire", "First Try", "Experience Outranks Everything", "The Best of the 41st ","The Best of the Best",
+            "Fireteam on Fire", "First Try", "Experience Outranks Everything", "The Best of the 41st ", "The Legend of the 41st", "The Best of the Best",
         ]
 
         level_medals = [
@@ -1860,9 +1860,8 @@ async def whoami(ctx, subcommand: str = None):
         ("Professional Soldier", 15000),
         ("Experience Outranks Everything", 18500),
         ("The Best of the 41st", 20000 ),
-       
+        ("The Legend of the 41st", 25000)
         ]
-
         level_medals = [
             ("Mythical ARF Medal", 7500),
         ("Legendary ARF Medal", 6000),
@@ -2548,7 +2547,7 @@ async def nuke(ctx):
 		await ctx.send("Not for you")
 
 @bot.command()
-@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Sergeant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
+@commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander', 'Staff Sergeant', 'Sergeant Major', '2nd Lieutenant', 'Lieutenant', 'Captain', 'Major', 'High Command')
 @commands.check(is_registered)
 async def ct_number(ctx):
 
