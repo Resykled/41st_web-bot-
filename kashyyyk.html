@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kashyyyk Karte</title>
+    <style>
+        body { 
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+            gap: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 5px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .sidebar {
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .main-content {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            border-radius: 5px;
+            min-height: calc(100vh - 120px);
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+        }
+        canvas {
+            background: #1a1a1a;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .legend {
+            font-size: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 3px 0;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        .legend h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #9cb3c9;
+        }
+        .legend-section {
+            margin-bottom: 12px;
+        }
+        .info-section {
+            margin-bottom: 15px;
+        }
+        .info-section h3 {
+            color: #9cb3c9;
+            margin: 0 0 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Kashyyyk Tactical Map</h1>
+        </header>
+        
+        <aside class="sidebar">
+            <div class="info-section">
+                <h3>Planet Information</h3>
+                <p>Kashyyyk is a tropical jungle planet, home to the Wookiees. The planet's surface is covered by wroshyr trees that can grow to several kilometers in height.</p>
+            </div>
+            <div class="info-section">
+                <h3>Strategic Points</h3>
+                <p>Wookiee settlements are primarily located in the higher elevation areas, connected by an intricate network of bridges and platforms.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <canvas id="mapCanvas"></canvas>
+            <div class="controls">
+                WASD: Move | Mouse Wheel: Zoom
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="legend">
+                <h3>Elevation Levels</h3>
+                <div class="legend-section">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #0B3B0B"></div>
+                        <span>Deep Forest (0-250m)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #145214"></div>
+                        <span>Dense Forest (250-400m)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #1B6B1B"></div>
+                        <span>High Canopy (400-600m)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2E8B57"></div>
+                        <span>Elevated Forest (600-750m)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #228B22"></div>
+                        <span>Giant Trees (750-850m)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #355E3B"></div>
+                        <span>Peak Canopy (>850m)</span>
+                    </div>
+                </div>
+                <div class="legend-section">
+                    <h3>Settlements</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #8B4513"></div>
+                        <span>Wookiee Villages</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #5C4033"></div>
+                        <span>Connection Paths</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.min.js"></script>
+    <script>
+        // Canvas Setup
+        const canvas = document.getElementById('mapCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Setze Canvas-Größe
+        function resizeCanvas() {
+            const container = document.querySelector('.main-content');
+            if (!container) return; // Warte bis Container verfügbar ist
+
+            // Setze initiale Canvas-Größe
+            canvas.width = config.width;
+            canvas.height = config.height;
+
+            // Berechne optimalen Zoom-Faktor
+            const containerAspect = container.clientWidth / container.clientHeight;
+            const mapAspect = config.width / config.height;
+            
+            // Berechne den optimalen Zoom für 16:9 Vollbild
+            const targetAspect = 16/9;
+            const targetHeight = container.clientWidth / targetAspect;
+            
+            // Berechne Zoom basierend auf der verfügbaren Höhe und zusätzlichem Faktor für bessere Sichtbarkeit
+            const baseZoom = (targetHeight / config.height) * 1.8;
+            
+            // Passe den Zoom an die tatsächlichen Container-Dimensionen an
+            if (containerAspect > mapAspect) {
+                camera.zoom = (container.clientHeight / config.height) * 1.8;
+            } else {
+                camera.zoom = (container.clientWidth / config.width) * 1.8;
+            }
+            
+            // Stelle sicher, dass der Zoom innerhalb der erlaubten Grenzen liegt
+            camera.zoom = Math.max(camera.minZoom, Math.min(camera.maxZoom, camera.zoom));
+            
+            // Zentriere die Kamera
+            camera.x = 0;
+            camera.y = 0;
+        }
+
+        // Warte bis das Dokument vollständig geladen ist
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', resizeCanvas);
+        } else {
+            resizeCanvas();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        const config = {
+            width: 1500,
+            height: 1500,
+            scale: 3,
+            contourInterval: 15,
+            elevationLevels: [
+                { height: 0, color: '#0B3B0B' },    // Tiefe Wälder
+                { height: 0.25, color: '#145214' }, // Dichte Wälder
+                { height: 0.4, color: '#1B6B1B' },  // Hohe Baumkronen
+                { height: 0.6, color: '#2E8B57' },  // Erhöhte Waldgebiete
+                { height: 0.75, color: '#228B22' }, // Baumriesen
+                { height: 0.85, color: '#355E3B' }  // Höchste Waldebenen
+            ],
+            settlements: {
+                minHeight: 0.6,
+                density: 0.1,
+                color: '#8B4513'
+            },
+            paths: {
+                color: '#5C4033',
+                width: 2,
+                probability: 0.3
+            }
+        };
+
+        // Kamera-Einstellungen
+        const camera = {
+            x: 0,
+            y: 0,
+            zoom: 0.5,
+            minZoom: 0.3,
+            maxZoom: 2.5,
+            moveSpeed: 15
+        };
+
+        // Tastatur-Status
+        const keys = {
+            w: false,
+            a: false,
+            s: false,
+            d: false
+        };
+
+        // Noise Generator
+        const noise = new SimplexNoise();
+
+        // Generiere die initiale Karte
+        function generateMap() {
+            const heightMap = Array(Math.floor(config.width / config.scale))
+                .fill(0)
+                .map(() => Array(Math.floor(config.height / config.scale)).fill(0));
+            const settlements = [];
+
+            for (let x = 0; x < config.width / config.scale; x++) {
+                for (let y = 0; y < config.height / config.scale; y++) {
+                    let value = 0;
+                    value += noise.noise2D(x / 50, y / 50);
+                    value += noise.noise2D(x / 25, y / 25) * 0.6;
+                    value += noise.noise2D(x / 10, y / 10) * 0.3;
+                    value += noise.noise2D(x / 5, y / 5) * 0.1;
+                    
+                    value = (value + 1) / 2;
+                    heightMap[x][y] = value;
+
+                    if (value >= config.settlements.minHeight && 
+                        Math.random() < config.settlements.density && 
+                        x % 20 === 0 && y % 20 === 0) {
+                        settlements.push({x, y});
+                    }
+                }
+            }
+            
+            return { heightMap, settlements };
+        }
+
+        const mapData = generateMap();
+
+        function drawContourLine(x, y, height) {
+            const screenX = x * config.scale - config.width / 2;
+            const screenY = y * config.scale - config.height / 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(screenX, screenY);
+            ctx.lineTo(screenX + config.scale, screenY);
+            ctx.strokeStyle = `rgba(0, 40, 0, ${height * 0.3})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+
+        function drawSettlement(x, y) {
+            const screenX = x * config.scale - config.width / 2;
+            const screenY = y * config.scale - config.height / 2;
+            
+            const size = 4;
+            ctx.fillStyle = config.settlements.color;
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            for (let i = 0; i < 4; i++) {
+                const angle = (Math.PI * 2 * i) / 4;
+                const length = 3 + Math.random() * 4;
+                ctx.beginPath();
+                ctx.moveTo(screenX, screenY);
+                ctx.lineTo(
+                    screenX + Math.cos(angle) * length * config.scale,
+                    screenY + Math.sin(angle) * length * config.scale
+                );
+                ctx.strokeStyle = config.settlements.color;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function drawPaths(settlements) {
+            for (let i = 0; i < settlements.length; i++) {
+                for (let j = i + 1; j < settlements.length; j++) {
+                    if (Math.random() < config.paths.probability) {
+                        const start = settlements[i];
+                        const end = settlements[j];
+                        const distance = Math.sqrt(
+                            Math.pow(end.x - start.x, 2) + 
+                            Math.pow(end.y - start.y, 2)
+                        );
+                        
+                        if (distance < 30) {
+                            const startX = start.x * config.scale - config.width / 2;
+                            const startY = start.y * config.scale - config.height / 2;
+                            const endX = end.x * config.scale - config.width / 2;
+                            const endY = end.y * config.scale - config.height / 2;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(startX, startY);
+                            
+                            const cpX = (startX + endX) / 2 + (Math.random() - 0.5) * 30;
+                            const cpY = (startY + endY) / 2 + (Math.random() - 0.5) * 30;
+                            
+                            ctx.quadraticCurveTo(cpX, cpY, endX, endY);
+                            ctx.strokeStyle = config.paths.color;
+                            ctx.lineWidth = config.paths.width;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+        }
+
+        function handleMovement() {
+            if (keys.w) camera.y += camera.moveSpeed / camera.zoom;
+            if (keys.s) camera.y -= camera.moveSpeed / camera.zoom;
+            if (keys.a) camera.x += camera.moveSpeed / camera.zoom;
+            if (keys.d) camera.x -= camera.moveSpeed / camera.zoom;
+        }
+
+        function drawMap() {
+            const { heightMap, settlements } = mapData;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save();
+            ctx.translate(canvas.width / 2 + camera.x * camera.zoom, 
+                         canvas.height / 2 + camera.y * camera.zoom);
+            ctx.scale(camera.zoom, camera.zoom);
+
+            // Zeichne Terrain
+            for (let x = 0; x < heightMap.length; x++) {
+                for (let y = 0; y < heightMap[0].length; y++) {
+                    const height = heightMap[x][y];
+                    
+                    let color = config.elevationLevels[0].color;
+                    for (let level of config.elevationLevels) {
+                        if (height >= level.height) {
+                            color = level.color;
+                        }
+                    }
+
+                    const screenX = x * config.scale - config.width / 2;
+                    const screenY = y * config.scale - config.height / 2;
+
+                    ctx.fillStyle = color;
+                    ctx.fillRect(screenX, screenY, config.scale, config.scale);
+
+                    if (Math.round(height * config.contourInterval) % 2 === 0) {
+                        drawContourLine(x, y, height);
+                    }
+                }
+            }
+
+            drawPaths(settlements);
+            settlements.forEach(settlement => drawSettlement(settlement.x, settlement.y));
+            
+            ctx.restore();
+        }
+
+        // Event Listeners
+        window.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() in keys) {
+                keys[e.key.toLowerCase()] = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key.toLowerCase() in keys) {
+                keys[e.key.toLowerCase()] = false;
+            }
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const oldZoom = camera.zoom;
+            camera.zoom *= e.deltaY > 0 ? 0.9 : 1.1;
+            camera.zoom = Math.max(camera.minZoom, Math.min(camera.maxZoom, camera.zoom));
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const worldX = (mouseX - canvas.width/2) / oldZoom - camera.x;
+            const worldY = (mouseY - canvas.height/2) / oldZoom - camera.y;
+            
+            camera.x = -(worldX * camera.zoom + canvas.width/2 - mouseX) / camera.zoom;
+            camera.y = -(worldY * camera.zoom + canvas.height/2 - mouseY) / camera.zoom;
+        });
+
+        function animate() {
+            handleMovement();
+            drawMap();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+    "name": "kashyyyk-tactical-map",
+    "version": "1.0.0",
+    "description": "Interactive topographic map of the Star Wars planet Kashyyyk",
+    "main": "kashyyyk.html",
+    "scripts": {
+        "start": "npx http-server -o kashyyyk.html"
+    },
+    "keywords": [
+        "star-wars",
+        "kashyyyk",
+        "map",
+        "canvas",
+        "javascript"
+    ],
+    "author": "[Ihr Name]",
+    "license": "MIT",
+    "devDependencies": {
+        "http-server": "^14.1.1"
+    }
+}
