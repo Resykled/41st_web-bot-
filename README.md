@@ -1,58 +1,58 @@
 # Kashyyyk Tactical Map
 
-Eine interaktive topografische Karte des Planeten Kashyyyk aus dem Star Wars Universum, implementiert mit HTML5 Canvas und JavaScript.
+An interactive topographic map of the Star Wars planet Kashyyyk, implemented using HTML5 Canvas and JavaScript.
 
 ![Kashyyyk Map Preview](preview.png)
 
 ## Features
 
-- Interaktive 2D-Darstellung der Kashyyyk-Topographie
-- Prozedural generiertes Terrain mit SimplexNoise
-- Höhenstufen-basierte Vegetationsdarstellung
-- Wookiee-Siedlungen und Verbindungswege
-- Zoom- und Pan-Funktionalität (WASD + Mausrad)
-- Responsive Design mit CSS Grid
-- Zweisprachige Benutzeroberfläche (Deutsch/Englisch)
+- Interactive 2D representation of Kashyyyk's topography
+- Procedurally generated terrain using SimplexNoise
+- Elevation-based vegetation rendering
+- Wookiee settlements and connection paths
+- Zoom and pan functionality (WASD + mouse wheel)
+- Responsive design using CSS Grid
+- Interactive navigation and controls
 
-## Technische Details
+## Technical Details
 
-- **Terrain-Generierung**: Verwendung von SimplexNoise für natürlich aussehende Landschaftsformen
-- **Rendering**: HTML5 Canvas mit effizienter Frame-Aktualisierung
-- **Layout**: Modernes CSS Grid für responsive Benutzeroberfläche
-- **Navigation**: Kamera-System mit Zoom und Pan-Kontrollen
+- **Terrain Generation**: Using SimplexNoise for natural-looking landscape formations
+- **Rendering**: HTML5 Canvas with efficient frame updates
+- **Layout**: Modern CSS Grid for responsive user interface
+- **Navigation**: Camera system with zoom and pan controls
 
-## Systemanforderungen
+## System Requirements
 
-- Moderner Webbrowser mit HTML5 und JavaScript-Unterstützung
-- Empfohlene Bildschirmauflösung: 1920x1080 oder höher
-- Unterstützt sowohl Desktop als auch mobile Endgeräte
+- Modern web browser with HTML5 and JavaScript support
+- Recommended screen resolution: 1920x1080 or higher
+- Supports both desktop and mobile devices
 
 ## Installation
 
-1. Repository klonen:
+1. Clone repository:
    ```bash
    git clone https://github.com/yourusername/kashyyyk-map.git
    ```
 
-2. Öffnen Sie `kashyyyk.html` in einem modernen Webbrowser
+2. Open `kashyyyk.html` in a modern web browser
 
-## Bedienung
+## Controls
 
-- **W**: Nach oben bewegen
-- **A**: Nach links bewegen
-- **S**: Nach unten bewegen
-- **D**: Nach rechts bewegen
-- **Mausrad**: Zoom in/out
+- **W**: Move up
+- **A**: Move left
+- **S**: Move down
+- **D**: Move right
+- **Mouse Wheel**: Zoom in/out
 
-## Lizenz
+## License
 
-MIT License - siehe [LICENSE](LICENSE) Datei für Details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## Mitwirkende
+## Contributors
 
-- [Ihr Name] - Initiale Entwicklung
+- [Your Name] - Initial development
 
-## Danksagungen
+## Acknowledgments
 
-- SimplexNoise.js für die Terrain-Generierung
-- Star Wars und Lucasfilm für die Inspiration
+- SimplexNoise.js for terrain generation
+- Star Wars and Lucasfilm for inspiration
