@@ -50,7 +50,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Contributors
 
-- [Your Name] - Initial development
+- Dominik Linke - Initial development
 
 ## Acknowledgments
 
