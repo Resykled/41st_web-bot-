@@ -857,6 +857,12 @@ async def lean(ctx):
 async def Sykles(ctx):
     await ctx.send("tf are you tring to do here")
 
+@bot.command()
+@is_allowed_channel()
+@commands.check(is_registered)
+async def webside(ctx):
+    await ctx.send("https://geetslys41st.com")   
+
 
 # Note: You can get the user's ID by enabling Developer Mode in Discord,
 # right-clicking on the user, and selecting "Copy ID".
