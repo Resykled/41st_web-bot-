@@ -860,7 +860,7 @@ async def Sykles(ctx):
 @bot.command()
 @is_allowed_channel()
 @commands.check(is_registered)
-async def webside(ctx):
+async def website(ctx):
     await ctx.send("https://geetslys41st.com")   
 
 
