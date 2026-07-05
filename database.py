@@ -531,6 +531,7 @@ def initialize_roles():
         ("Guardian Angel", 1000),
         ("No Mercy", 3500),
         ("Unsung Hero", 4000),
+        ("Triple The Effort", 3000),
         # Regiment Medals
         ("Fixer Upper", 1500),
         ("Behind Enemy Lines", 1500),
