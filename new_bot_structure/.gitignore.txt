@@ -1,0 +1,20 @@
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore configuration files
+*.log
+*.env
+
+# Ignore token and sensitive data files
+bot-token.txt
+Regiment medals python
+trooper_list
