@@ -4,6 +4,7 @@ import asyncio
 import random
 import time
 import sqlite3
+import subprocess
 from datetime import datetime, timedelta
 from utils import *
 from database import *
@@ -184,13 +185,8 @@ class Admin(commands.Cog):
     @commands.command()
     @is_allowed_channel()
     @is_Technical_Commander()
-    async def git_push(self, ctx, branch=None):
+    async def git_push(self, ctx, branch="main"):
         try:
-            # Get the current branch if none is specified
-            if branch is None:
-                result = subprocess.run(['git', 'branch', '--show-current'], capture_output=True, text=True)
-                branch = result.stdout.strip()
-    
             # Add all changes
             subprocess.run(['git', 'add', '.'], check=True)
     
@@ -198,17 +194,17 @@ class Admin(commands.Cog):
             result = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True)
             if result.stdout:
                 # Commit changes if there are any
-                subprocess.run(['git', 'commit', '-m', 'Automated commit from bot'], check=True)
+                subprocess.run(['git', 'commit', '-m', 'Automated backup commit from bot'], check=True)
     
-            # Force push changes to the specified branch
-            subprocess.run(['git', 'push', '--force', '--set-upstream', 'origin', branch], check=True)
+            # Push changes to the specified branch (default: main)
+            subprocess.run(['git', 'push', 'origin', branch], check=True)
     
             # Send success message with repository link
-            repo_url = "https://github.com/Resykled/41st_web-bot-"
+            repo_url = "https://github.com/DominikLinkl/41st_web-bot-"
             await ctx.send(
-                f"{ctx.author.mention}, changes have been force pushed to the Git repository successfully on branch {branch}. Repository link: {repo_url}")
+                f"{ctx.author.mention}, changes have been pushed to the Git repository successfully on branch `{branch}`. Repository link: {repo_url}")
         except subprocess.CalledProcessError as e:
-            await ctx.send(f"{ctx.author.mention}, there was an error force pushing changes to the Git repository: {e}")
+            await ctx.send(f"{ctx.author.mention}, there was an error pushing changes to the Git repository: {e}")
     
         except Exception as e:
             await ctx.send(f"{ctx.author.mention}, an unexpected error occurred: {e}")
