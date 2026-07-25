@@ -196,8 +196,8 @@ class Admin(commands.Cog):
                 # Commit changes if there are any
                 subprocess.run(['git', 'commit', '-m', 'Automated backup commit from bot'], check=True)
     
-            # Push changes to the specified branch (default: main)
-            subprocess.run(['git', 'push', 'origin', branch], check=True)
+            # Push changes to the specified branch (default: main) using HEAD so it works regardless of local branch name
+            subprocess.run(['git', 'push', 'origin', f'HEAD:{branch}'], check=True)
     
             # Send success message with repository link
             repo_url = "https://github.com/DominikLinkl/41st_web-bot-"
