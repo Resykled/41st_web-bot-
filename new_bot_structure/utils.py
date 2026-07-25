@@ -96,3 +96,29 @@ async def send_long_message(ctx, message):
         # Split the message into chunks of 2000 characters
         for i in range(0, len(message), 2000):
             await ctx.send(message[i:i + 2000])
+
+store_items = {
+    "Flashlight": 7500,
+    "Antenna": 7500,
+    "Communicator": 7500,
+    "Heavy Attachments": 7500,
+    "Rangefinder Down": 7500,
+    "Helmet Tubes": 7500,
+    "Binoculars": 10000,
+    "Binoculars Up": 10000,
+    "Flight Computer": 15000,
+    "Clone Gunner": 20000,
+    "Hood": 20000,
+    "ARF": 30000,
+    "Snowtrooper/Flametrooper": 30000,
+    "Custom Visor": 30000,
+    "Render": 30000,
+    "BARC": 35000,
+    "Phase 1": 35000,
+    "2003 Helmets": 40000,
+    "Desert": 45000,
+    "Halfbody": 50000,
+    "Airborne": 50000,
+    "Republic Commando": 60000,
+    "Full Body": 85000
+}

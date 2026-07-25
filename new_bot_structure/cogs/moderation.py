@@ -34,6 +34,7 @@ class Moderation(commands.Cog):
         user_id = ctx.author.id
     
         # �berpr�fen, ob der Nutzer bereits registriert ist
+        # berprfen, ob der Nutzer bereits registriert ist
         if has_registered(user_id):
             await ctx.send(f"{ctx.author.mention}, you have already used the `!register` command.")
             return
@@ -42,7 +43,7 @@ class Moderation(commands.Cog):
         server_ids = [850840453800919100, 911409562970628167, 1138926753931346090]
     
         # Alle Rollen aus den angegebenen Servern abrufen
-        roles_from_servers = get_user_roles_from_servers(user_id, server_ids + [ctx.guild.id])
+        roles_from_servers = get_user_roles_from_servers(user_id, server_ids + [ctx.guild.id], self.bot)
     
         # Berechnung der Credits basierend auf den Rollen
         credits = 0
@@ -98,7 +99,7 @@ class Moderation(commands.Cog):
                     continue
     
                 # Get roles from all specified servers
-                roles_from_servers = get_user_roles_from_servers(user_id, server_ids + [guild.id])
+                roles_from_servers = get_user_roles_from_servers(user_id, server_ids + [guild.id], self.bot)
     
                 # Calculate credits based on unique roles
                 credits = 0

@@ -232,7 +232,7 @@ class Utility(commands.Cog):
         global role
         user = ctx.author
         server_ids = [850840453800919100, 1138926753931346090, 911409562970628167]
-        user_roles = get_user_roles_from_servers(user.id, server_ids)
+        user_roles = get_user_roles_from_servers(user.id, server_ids, self.bot)
     
         user_roles = [discord.utils.get(ctx.guild.roles, name=role_name) for role_name in user_roles if
                       discord.utils.get(ctx.guild.roles, name=role_name)]
