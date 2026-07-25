@@ -66,15 +66,19 @@ async def setup_hook():
 bot.setup_hook = setup_hook
 
 
-# Dictionary to store credits (used for real-time tracking)
-credits_dict = {}
+# Store shared state on the bot instance so Cogs can access via self.bot
+bot.credits_dict = {}
+bot.role_credits = dict(get_all_role_credits())
+bot.non_stacking_roles = dict(get_all_non_stacking_role_credits())
+bot.non_stacking_role_credits = bot.non_stacking_roles  # alias
+bot.auto_update_enabled = False
+bot.debug_mode_enabled = False
 
-# Initialize role_credits from the database
-role_credits = {role: credits for role, credits in get_all_role_credits()}
-non_stacking_roles = {role: credits for role, credits in get_all_non_stacking_role_credits()}
-
-role_credits = dict(get_all_role_credits())
-non_stacking_role_credits = dict(get_all_non_stacking_role_credits())
+# Local aliases for use in this file
+credits_dict = bot.credits_dict
+role_credits = bot.role_credits
+non_stacking_roles = bot.non_stacking_roles
+non_stacking_role_credits = bot.non_stacking_role_credits
 
 # Function to read a file and return its contents
 # Function to read a file and return its contents

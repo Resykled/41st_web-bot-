@@ -2,12 +2,38 @@ import discord
 from discord.ext import commands
 import asyncio
 import random
+import time
+import re
+from datetime import datetime, timedelta
 from utils import *
 from database import *
+
+REPORT_CHANNEL_NAME = 'bug-reports'
+ALLOWED_CHANNEL_NAMES = ['bot-test', 'bot-commands']
 
 class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @property
+    def role_credits(self):
+        return self.bot.role_credits
+
+    @property
+    def non_stacking_roles(self):
+        return self.bot.non_stacking_roles
+
+    @property
+    def non_stacking_role_credits(self):
+        return self.bot.non_stacking_role_credits
+
+    @property
+    def credits_dict(self):
+        return self.bot.credits_dict
+
+    @property
+    def rewards(self):
+        return self.bot.rewards if hasattr(self.bot, 'rewards') else {}
 
     @commands.command()
     @is_allowed_channel()
@@ -162,7 +188,7 @@ class Utility(commands.Cog):
     async def id(self, ctx, member: discord.Member):
         try:
             user_id = member.id
-            credits_data = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+            credits_data = get_user_credits(user_id, member.roles, self.role_credits, self.non_stacking_roles)
             current_credits = credits_data[0] if credits_data else 0
             max_credits = credits_data[1] if len(credits_data) > 1 else 0
             removed_credits = credits_data[2] if len(credits_data) > 2 else 0
@@ -283,7 +309,7 @@ class Utility(commands.Cog):
             ]
     
             # Get medals and qualifications from specific servers
-            army_server = bot.get_guild(850840453800919100)
+            army_server = self.bot.get_guild(850840453800919100)
             army_roles, level_roles, army_qual_roles, navy_qual_roles = [], [], [], []
             if army_server:
                 army_member = army_server.get_member(user.id)
@@ -293,14 +319,14 @@ class Utility(commands.Cog):
                     army_qual_roles = [role.name for role in army_member.roles if role.name in army_qualifications]
                     navy_qual_roles = [role.name for role in army_member.roles if role.name in navy_qualifications]
     
-            sof_server = bot.get_guild(911409562970628167)
+            sof_server = self.bot.get_guild(911409562970628167)
             sof_roles = []
             if sof_server:
                 sof_member = sof_server.get_member(user.id)
                 if sof_member:
                     sof_roles = [role.name for role in sof_member.roles if role.name in sof_medals]
     
-            regiment_server = bot.get_guild(1138926753931346090)
+            regiment_server = self.bot.get_guild(1138926753931346090)
             regiment_roles = []
             if regiment_server:
                 regiment_member = regiment_server.get_member(user.id)
@@ -343,8 +369,8 @@ class Utility(commands.Cog):
             await ctx.send(embed=embed)
     
         elif subcommand == "stats":
-            current_credits, max_credits, removed_credits = get_user_credits(user.id, user_roles, role_credits,
-                                                                             non_stacking_roles)
+            current_credits, max_credits, removed_credits = get_user_credits(user.id, user_roles, self.role_credits,
+                                                                             self.non_stacking_roles)
             join_date = user.joined_at.strftime("%Y-%m-%d %H:%M:%S")
             highest_non_stacking_role = max(
                 (role for role in user.roles if role.name in non_stacking_roles_list),
@@ -367,8 +393,8 @@ class Utility(commands.Cog):
             await ctx.send(embed=embed)
     
         elif subcommand == "credits":
-            current_credits, max_credits, removed_credits = get_user_credits(user.id, user_roles, role_credits,
-                                                                             non_stacking_roles)
+            current_credits, max_credits, removed_credits = get_user_credits(user.id, user_roles, self.role_credits,
+                                                                             self.non_stacking_roles)
             highest_non_stacking_role = max(
                 (role for role in user.roles if role.name in non_stacking_roles_list),
                 key=lambda r: non_stacking_roles_list.index(r.name),
@@ -595,7 +621,7 @@ class Utility(commands.Cog):
             ]
     
             # Get medals and qualifications from specific servers
-            army_server = bot.get_guild( 850840453800919100)
+            army_server = self.bot.get_guild( 850840453800919100)
             army_roles, level_roles, army_qual_roles, navy_qual_roles = [], [], [], []
             if army_server:
                 army_member = army_server.get_member(user.id)
@@ -617,7 +643,7 @@ class Utility(commands.Cog):
                     navy_qual_roles_f = "\n".join(
                         f"{role} {credit}" for role, credit in zip(navy_qual_roles, navy_qual_credits))
     
-            sof_server = bot.get_guild(911409562970628167)
+            sof_server = self.bot.get_guild(911409562970628167)
             sof_roles = []
             if sof_server:
                 sof_member = sof_server.get_member(user.id)
@@ -626,7 +652,7 @@ class Utility(commands.Cog):
                     sof_credits = [y for role in sof_member.roles for (x, y) in sof_medals if role.name == x]
                     sof_roles_f = "\n".join(f"{role} {credit}" for role, credit in zip(sof_roles, sof_credits))
     
-            regiment_server = bot.get_guild(1138926753931346090)
+            regiment_server = self.bot.get_guild(1138926753931346090)
             regiment_roles = []
             if regiment_server:
                 regiment_member = regiment_server.get_member(user.id)
@@ -700,8 +726,8 @@ class Utility(commands.Cog):
         server_with_qualifications = 850840453800919100  # Server ID where qualifications are stored
     
         # Get the guilds (servers)
-        guild_with_users = bot.get_guild(server_with_users)
-        guild_with_qualifications = bot.get_guild(server_with_qualifications)
+        guild_with_users = self.bot.get_guild(server_with_users)
+        guild_with_qualifications = self.bot.get_guild(server_with_qualifications)
     
         if not guild_with_users or not guild_with_qualifications:
             await ctx.send("One or both of the servers are not accessible.")

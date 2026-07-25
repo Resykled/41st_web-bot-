@@ -9,6 +9,26 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @property
+    def role_credits(self):
+        return self.bot.role_credits
+
+    @property
+    def non_stacking_roles(self):
+        return self.bot.non_stacking_roles
+
+    @property
+    def non_stacking_role_credits(self):
+        return self.bot.non_stacking_role_credits
+
+    @property
+    def credits_dict(self):
+        return self.bot.credits_dict
+
+    @property
+    def rewards(self):
+        return self.bot.rewards if hasattr(self.bot, 'rewards') else {}
+
     @commands.command()
     async def register(self, ctx):
         user_id = ctx.author.id
@@ -30,10 +50,10 @@ class Moderation(commands.Cog):
         unique_roles = set(roles_from_servers)  # Set zur Sicherstellung von eindeutigen Rollen
     
         for role_name in unique_roles:
-            if role_name in role_credits:
-                credits += role_credits[role_name]
-            if role_name in non_stacking_role_credits and role_name not in added_non_stacking_roles:
-                credits += non_stacking_role_credits[role_name]
+            if role_name in self.role_credits:
+                credits += self.role_credits[role_name]
+            if role_name in self.non_stacking_role_credits and role_name not in added_non_stacking_roles:
+                credits += self.non_stacking_role_credits[role_name]
                 added_non_stacking_roles.add(role_name)
     
         # Benutzer-Credits in der Datenbank aktualisieren
@@ -65,7 +85,7 @@ class Moderation(commands.Cog):
         # Define the server IDs to fetch roles from
         server_ids = [850840453800919100, 911409562970628167, 1138926753931346090]
     
-        for guild in bot.guilds:
+        for guild in self.bot.guilds:
             for member in guild.members:
                 user_id = member.id
     
@@ -86,10 +106,10 @@ class Moderation(commands.Cog):
                 unique_roles = set(roles_from_servers)  # Use a set to ensure unique roles
     
                 for role_name in unique_roles:
-                    if role_name in role_credits:
-                        credits += role_credits[role_name]
-                    if role_name in non_stacking_role_credits and role_name not in added_non_stacking_roles:
-                        credits += non_stacking_role_credits[role_name]
+                    if role_name in self.role_credits:
+                        credits += self.role_credits[role_name]
+                    if role_name in self.non_stacking_role_credits and role_name not in added_non_stacking_roles:
+                        credits += self.non_stacking_role_credits[role_name]
                         added_non_stacking_roles.add(role_name)
     
                 # Update credits in the database
@@ -112,7 +132,7 @@ class Moderation(commands.Cog):
         clone_trooper_role_name = "ARC Trooper"
         removed_count = 0
         # clone_trooper_role_name = "Clone Trooper"
-        for guild in bot.guilds:
+        for guild in self.bot.guilds:
             for member in guild.members:
                 user_id = member.id
     
@@ -133,7 +153,7 @@ class Moderation(commands.Cog):
         arc_trooper_role_name = "ARC Trooper"
         removed_count = 0
     
-        for guild in bot.guilds:
+        for guild in self.bot.guilds:
             for member in guild.members:
                 user_id = member.id
     
@@ -152,7 +172,7 @@ class Moderation(commands.Cog):
     async def resetStats(self, ctx, user: discord.Member):
         try:
             reset_user_stats(user.id)
-            credits_dict[user.id] = 0
+            self.credits_dict[user.id] = 0
             await ctx.send(f"All statistics for {user.mention} have been reset.")
         except Exception as e:
             await ctx.send(f"An error occurred while resetting statistics for {user.mention}: {e}")

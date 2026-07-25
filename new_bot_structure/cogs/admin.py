@@ -2,12 +2,35 @@ import discord
 from discord.ext import commands
 import asyncio
 import random
+import time
+import sqlite3
+from datetime import datetime, timedelta
 from utils import *
 from database import *
 
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @property
+    def role_credits(self):
+        return self.bot.role_credits
+
+    @property
+    def non_stacking_roles(self):
+        return self.bot.non_stacking_roles
+
+    @property
+    def non_stacking_role_credits(self):
+        return self.bot.non_stacking_role_credits
+
+    @property
+    def credits_dict(self):
+        return self.bot.credits_dict
+
+    @property
+    def rewards(self):
+        return self.bot.rewards if hasattr(self.bot, 'rewards') else {}
 
     @commands.command()  # resets DB ONLY FOR WORST CASE
     @is_Technical_Commander()  # Ensure only authorized users can run this command
@@ -18,7 +41,7 @@ class Admin(commands.Cog):
             cursor = connection.cursor()
     
             # List of tables to be cleared
-            tables = ['user_credits', 'role_credits', 'non_stacking_role_credits', 'update_status', 'register_status']
+            tables = ['user_credits', 'self.role_credits', 'self.non_stacking_role_credits', 'update_status', 'register_status']
     
             # Clear all tables
             for table in tables:
@@ -77,7 +100,7 @@ class Admin(commands.Cog):
     async def shutdown(self, ctx):
         await ctx.invoke(save_db)
         await ctx.send("Bot is shutting down...")
-        await bot.close()
+        await self.bot.close()
 
     @commands.command()
     @is_Technical_Commander()
@@ -87,7 +110,7 @@ class Admin(commands.Cog):
     
         # Restart the bot using the shell script
         os.system("/home/dominik/Downloads/DiscordBOT/start_bot.sh")
-        await bot.close()
+        await self.bot.close()
 
     @commands.command(name='debug')
     @is_Technical_Commander()
@@ -136,7 +159,7 @@ class Admin(commands.Cog):
                     cmd_args = [arg.replace('@user', str(ctx.author.id)) for arg in cmd_args]
     
                 # Find the command object
-                cmd = bot.get_command(cmd_name)
+                cmd = self.bot.get_command(cmd_name)
                 if cmd:
                     # Invoke the command
                     await ctx.invoke(cmd, *cmd_args)

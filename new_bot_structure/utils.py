@@ -1,6 +1,28 @@
 import discord
 from discord.ext import commands
+from discord.ext.commands import CommandInvokeError
 from database import *
+
+# Channels where the bot commands are allowed
+ALLOWED_CHANNEL_NAMES = ['bot-test', 'bot-commands']
+REPORT_CHANNEL_NAME = 'bug-reports'
+
+# Define the rewards based on roles
+rewards = {
+    "Art Team": ["Bad Batch Echo helmet"],
+    "Art Team Veteran": ["Store Items for 10k and under are free"],
+    "Clone Trooper": ["white and green colour on the helmet"],
+    "Veteran Trooper": ["camouflage and grey on the helmet"],
+    "Sergeant": ["Rangefinder", "tiny amount of extra colour (no pink and gold)"],
+    "2nd Lieutenant": ["Custom Visor (no gold, white and pink)", "small amount of extra colour (no gold)"],
+    "Lieutenant": ["Custom Visor (no gold, white and pink)", "small amount of extra colour (no gold)"],
+    "Captain": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour"],
+    "Major": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour"],
+    "Technical Commander": ["Halfbody", "Custom Visor can be gold/pink", "gold on the armour"],
+    "High Command": ["Visor Glow", "white visor"],
+    "ARC Trooper": ["decent amount of extra colour", "green still has to be the main colour"],
+    "Republic Commando": ["decent amount of extra colour", "green still has to be the main colour"]
+}
 
 async def is_registered(ctx):
     user_id = ctx.author.id

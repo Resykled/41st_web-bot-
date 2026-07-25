@@ -2,12 +2,35 @@ import discord
 from discord.ext import commands
 import asyncio
 import random
+import time
+import sqlite3
+from datetime import datetime, timedelta
 from utils import *
 from database import *
 
 class Store(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @property
+    def role_credits(self):
+        return self.bot.role_credits
+
+    @property
+    def non_stacking_roles(self):
+        return self.bot.non_stacking_roles
+
+    @property
+    def non_stacking_role_credits(self):
+        return self.bot.non_stacking_role_credits
+
+    @property
+    def credits_dict(self):
+        return self.bot.credits_dict
+
+    @property
+    def rewards(self):
+        return self.bot.rewards if hasattr(self.bot, 'rewards') else {}
 
     @commands.command()
     @is_allowed_channel()
@@ -164,7 +187,7 @@ class Store(commands.Cog):
             return
     
         user_id = ctx.author.id
-        current_credits = get_user_credits(user_id, ctx.author.roles, role_credits, non_stacking_roles)[0]
+        current_credits = get_user_credits(user_id, ctx.author.roles, self.role_credits, self.non_stacking_roles)[0]
     
         if item_name not in store_items:
             await ctx.send(f"The item '{item_name}' is not available in the store.")
@@ -207,7 +230,7 @@ class Store(commands.Cog):
             return
     
         user_id = user.id
-        current_credits = get_user_credits(user_id, user.roles, role_credits, non_stacking_roles)[0]
+        current_credits = get_user_credits(user_id, user.roles, self.role_credits, self.non_stacking_roles)[0]
     
         if item_name not in store_items:
             await ctx.send(f"The item '{item_name}' is not available in the store.")
@@ -264,7 +287,7 @@ class Store(commands.Cog):
         remove_user_purchase(user_id, item_name)
     
         # Refund the item's price to the user
-        current_credits = get_user_credits(user_id, user.roles, role_credits, non_stacking_roles)[0]
+        current_credits = get_user_credits(user_id, user.roles, self.role_credits, self.non_stacking_roles)[0]
         new_credits = current_credits + item_price
         update_user_credits(user_id, new_credits)
     

@@ -9,6 +9,26 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @property
+    def role_credits(self):
+        return self.bot.role_credits
+
+    @property
+    def non_stacking_roles(self):
+        return self.bot.non_stacking_roles
+
+    @property
+    def non_stacking_role_credits(self):
+        return self.bot.non_stacking_role_credits
+
+    @property
+    def credits_dict(self):
+        return self.bot.credits_dict
+
+    @property
+    def rewards(self):
+        return self.bot.rewards if hasattr(self.bot, 'rewards') else {}
+
     @commands.command()
     @is_allowed_channel()
     @commands.check(is_registered)
@@ -201,7 +221,7 @@ class Fun(commands.Cog):
     @commands.check(is_registered)
     async def monte(self, ctx):
         user_id = "1047317588755095592"  # Replace with the actual user ID of "monte"
-        user = await bot.fetch_user(user_id)
+        user = await self.bot.fetch_user(user_id)
         if user:
             await ctx.send(f" touch grass, {user.mention}!")
             print(f"Sent touch crazy message and pinged {user.display_name} ({user_id}).")
@@ -236,7 +256,7 @@ class Fun(commands.Cog):
     @commands.check(is_registered)
     async def gravestone(self, ctx):
         user_id = "814590259219660831"  # Gravestone ID
-        user = await bot.fetch_user(user_id)
+        user = await self.bot.fetch_user(user_id)
         if user.id == int(user_id):
             await ctx.send("{user.mention}, you should fix this.")
         else:
@@ -248,7 +268,7 @@ class Fun(commands.Cog):
     async def nuke(self, ctx):
     	user_id = "690011602510282771"  # Nuke ID
     	gravestone_id = "814590259219660831"
-    	user = await bot.fetch_user(user_id)
+    	user = await self.bot.fetch_user(user_id)
     	if user.id == int(user_id):
     		await ctx.send(f"Hows it going, {user.mention}?")
     	elif user.id == int(gravestone_id):

@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 import asyncio
 import random
+import time
+import sqlite3
+from datetime import datetime, timedelta
 from utils import *
 from database import *
 
@@ -9,13 +12,25 @@ class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @property
+    def role_credits(self):
+        return self.bot.role_credits
+
+    @property
+    def non_stacking_roles(self):
+        return self.bot.non_stacking_roles
+
+    @property
+    def non_stacking_role_credits(self):
+        return self.bot.non_stacking_role_credits
+
     @commands.command()
     @commands.has_any_role('Economy Admin', 'Economy Lead', 'Commander', 'Technical Commander')
     @commands.check(is_registered)
     async def add(self, ctx, member: discord.Member, amount: int, *, comment: str = None):
         try:
             user_id = member.id
-            credits_data = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+            credits_data = get_user_credits(user_id, member.roles, self.role_credits, self.non_stacking_roles)
             current_credits = credits_data[0] if credits_data else 0
             new_credits = current_credits + amount
     
@@ -41,7 +56,7 @@ class Economy(commands.Cog):
     async def remove(self, ctx, member: discord.Member, amount: int, *, comment: str = None):
         try:
             user_id = member.id
-            credits_data = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+            credits_data = get_user_credits(user_id, member.roles, self.role_credits, self.non_stacking_roles)
             current_credits = credits_data[0] if credits_data else 0
             new_credits = current_credits - amount
             removed_credits = amount  # Die Anzahl der entfernten Credits
@@ -113,7 +128,7 @@ class Economy(commands.Cog):
         user_roles = list(set(member.roles))
     
         # Retrieve credits directly from the database
-        credits = get_user_credits(user_id, user_roles, role_credits, non_stacking_roles)
+        credits = get_user_credits(user_id, user_roles, self.role_credits, self.non_stacking_roles)
         if credits:
             description = f'You have {credits[0]} credits.'
         else:
@@ -137,7 +152,7 @@ class Economy(commands.Cog):
     async def check_credits(self, ctx, member: discord.Member):
         try:
             user_id = member.id
-            credits_data = get_user_credits(user_id, member.roles, role_credits, non_stacking_roles)
+            credits_data = get_user_credits(user_id, member.roles, self.role_credits, self.non_stacking_roles)
             current_credits = credits_data[0] if credits_data else 0
             max_credits = credits_data[1] if len(credits_data) > 1 else 0
             removed_credits = credits_data[2] if len(credits_data) > 2 else 0
@@ -216,7 +231,7 @@ class Economy(commands.Cog):
     
         if top_streaks:
             for i, (uid, streak) in enumerate(top_streaks, start=1):
-                user = await bot.fetch_user(uid)
+                user = await self.bot.fetch_user(uid)
                 embed.add_field(name=f"{i}. {user.display_name}", value=f"Streak: {streak} days", inline=False)
     
         if user_info:
