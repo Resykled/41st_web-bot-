@@ -2,6 +2,7 @@ import sqlite3
 import time
 import threading
 import logging
+import os
 
 # Einrichtung des Loggings
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
