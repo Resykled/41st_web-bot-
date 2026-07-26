@@ -185,7 +185,7 @@ class Admin(commands.Cog):
     @commands.command()
     @is_allowed_channel()
     @is_Technical_Commander()
-    async def git_push(self, ctx, branch="main"):
+    async def git_push(self, ctx, branch="main-information"):
         try:
             # Add all changes
             subprocess.run(['git', 'add', '.'], check=True)
