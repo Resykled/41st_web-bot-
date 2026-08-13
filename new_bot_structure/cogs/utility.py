@@ -113,10 +113,10 @@ class Utility(commands.Cog):
     @commands.check(is_registered)
     async def version(self, ctx):
         version_info = (
-            "Version: `V1.7~ Purchase`\n"
-            "Date: `05.06.2024`\n"
-            "Last update: `27.07.2024`\n"
-            "Programmer: `TCDR Sykles CC-5132`"
+            "Version: `V1.8~ Webside`\n"
+            "Date: `28.07.2026`\n"
+            "Last update: `28.07.2026`\n"
+            "Programmer: `CMDR Sykles CC-5132`"
         )
         embed = discord.Embed(
             description=version_info,

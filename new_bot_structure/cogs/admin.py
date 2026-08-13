@@ -117,28 +117,33 @@ class Admin(commands.Cog):
     @is_Technical_Commander()
     async def debug(self, ctx):
         """
-        Tests all commands except !kill, !resetStats, !cleardb, !registerEveryone, !removeNonCts, and !registerRemove.
+        Tests all current relevant commands, excluding troll/fun, admin, and moderation commands.
         """
         test_commands = [
+            # Utility commands
             "!hello",
-            "!credits",
+            "!report Test problem report",
+            "!version",
+            "!help",
+            "!website",
             "!whoami",
             "!whoami medals",
             "!whoami purchases",
             "!whoami stats",
-            "!report Test problem report",
-            "!version",
-            "!help",
+            "!uptime",
+            "!show_quals",
+            "!rules",
+            "!helmets",
+            "!ranks",
+            # Economy commands
+            "!credits",
+            "!daily",
+            "!leader",
+            "!rewards",
+            # Store commands
             "!ggn_store",
-            "!store category",
-            "!register",
-    
-            "!add @user 100",
-            "!remove @user 50",
-            "!setUserCredits @user",
-            "!save_db",
-            "!id @user",
-            "!check_credits @user"
+            "!store",
+            "!purchase"
         ]
     
         results = []
