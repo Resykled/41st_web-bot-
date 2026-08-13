@@ -210,10 +210,15 @@ class Economy(commands.Cog):
     
         # Update daily info in the database
         update_user_daily_info(user_id, current_time, streak)
-        save_database()  # Save the database state
     
         await ctx.send(
             f"{ctx.author.mention}, you have claimed {daily_credits} credits! Your current streak is {streak} days. You now have {new_credits} credits.")
+    
+        # Save database state (non-critical, don't let errors block the response)
+        try:
+            save_database()
+        except Exception as e:
+            print(f"Warning: save_database failed in daily command: {e}")
 
     @commands.command()
     @is_allowed_channel()
