@@ -117,8 +117,5 @@ store_items = {
     "Phase 1": 35000,
     "2003 Helmets": 40000,
     "Desert": 45000,
-    "Halfbody": 50000,
-    "Airborne": 50000,
-    "Republic Commando": 60000,
-    "Full Body": 85000
+    "Halfbody": 50000
 }

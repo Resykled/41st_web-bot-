@@ -292,9 +292,6 @@ Legend:
 | 2003 Helmets | 40,000 |
 | Desert | 45,000 |
 | Halfbody | 50,000 |
-| Airborne | 50,000 |
-| Republic Commando | 60,000 |
-| Full Body | 85,000 |
 
 ### GGN Store Credit-to-USD Conversions
 
